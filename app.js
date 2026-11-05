@@ -149,10 +149,66 @@ function editTranslation(w, after) {
   if (v === null) return;
   const t = v.trim();
   if (!t || t === w.pl) delete state.edits[w.id]; else state.edits[w.id] = t;
+  if (w.custom) {
+    // W imporcie poprawiamy bezpośrednio talię.
+    const d = custom.decks[w.cat];
+    const x = d && d.words.find(x => x.en.toLowerCase() === w.en.toLowerCase());
+    if (x && t) { x.pl = t; w.pl = t; delete state.edits[w.id]; saveCustom(); }
+  }
   save();
   toast('Zapisano tłumaczenie');
   if (after) after();
 }
+
+/* ================= Własne talie (import) ================= */
+const CUSTOM_KEY = 'inglisz-custom';
+let custom = { decks: {} };
+function loadCustom() {
+  try { const c = JSON.parse(localStorage.getItem(CUSTOM_KEY)); if (c && c.decks) custom = c; } catch (e) { /* brak */ }
+}
+function saveCustom() {
+  const j = JSON.stringify(custom);
+  try { localStorage.setItem(CUSTOM_KEY, j); } catch (e) { toast('Brak miejsca w pamięci przeglądarki'); }
+  idb.set(CUSTOM_KEY, j).catch(() => {});
+}
+async function restoreCustomFromIdb() {
+  if (Object.keys(custom.decks).length) return false;
+  try {
+    const j = await idb.get(CUSTOM_KEY);
+    const c = j && JSON.parse(j);
+    if (c && c.decks && Object.keys(c.decks).length) {
+      custom = c;
+      try { localStorage.setItem(CUSTOM_KEY, j); } catch (e) { /* ignore */ }
+      applyCustom();
+      return true;
+    }
+  } catch (e) { /* ignore */ }
+  return false;
+}
+function applyCustom() {
+  for (let i = WORDS.length - 1; i >= 0; i--) if (WORDS[i].custom) { BY_ID.delete(WORDS[i].id); WORDS.splice(i, 1); }
+  for (const k of Object.keys(CATS)) if (k.startsWith('u_')) delete CATS[k];
+  for (const [did, d] of Object.entries(custom.decks)) {
+    CATS[did] = d.name;
+    const seen = new Set();
+    for (const x of d.words) {
+      const key = x.en.toLowerCase();
+      const id = did + ':' + key;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const base = BY_ID.get(key);
+      const w = {
+        id, en: x.en, pl: x.pl, ex: x.ex || '', exPl: x.exPl || '',
+        ipa: base ? base.ipa : '',
+        level: LEVELS.includes(x.level) ? x.level : (base ? base.level : 'B2'),
+        cat: did, custom: true,
+      };
+      WORDS.push(w); BY_ID.set(id, w);
+    }
+  }
+}
+loadCustom();
+applyCustom();
 
 /* ================= Pomocnicze ================= */
 const view = document.getElementById('view');
@@ -161,6 +217,14 @@ const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = a => a[Math.floor(Math.random() * a.length)];
+// Polska odmiana: plural(5, 'fiszka', 'fiszki', 'fiszek') -> '5 fiszek'
+function plural(n, one, few, many) {
+  const m10 = n % 10, m100 = n % 100;
+  const w = n === 1 ? one : (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) ? few : many;
+  return `${n} ${w}`;
+}
+const nFiszek = n => plural(n, 'fiszka', 'fiszki', 'fiszek');
+const nSlow = n => plural(n, 'słowo', 'słowa', 'słów');
 
 function today() {
   const d = new Date();
@@ -236,31 +300,38 @@ function status(id) {
 }
 const STATUS_PL = { new: 'nowe', learning: 'w nauce', review: 'powtarzane', mastered: 'opanowane', known: 'znane' };
 
-const DECKS = {
-  all: { label: 'Wszystkie', cats: null },
-  technical: { label: 'Techniczne', cats: ['telecom', 'tech'] },
-  telecom: { label: 'Telekomunikacja', cats: ['telecom'] },
-  tech: { label: 'IT i technika', cats: ['tech'] },
-  work: { label: 'Praca i biznes', cats: ['work'] },
-  travel: { label: 'Podróże', cats: ['travel'] },
-  phrases: { label: 'Zwroty i phrasal verbs', cats: ['phrasal', 'colloc'] },
-  core: { label: 'Słownik ogólny', cats: ['core', 'general'] },
-};
-function inDeck(w, deck = 'all') {
-  const d = DECKS[deck] || DECKS.all;
-  if (d.cats) return d.cats.includes(w.cat);
-  return !!state.settings.cats[w.cat];
+/* Wybór fiszek do nauki: dowolne połączenie kategorii (także własnych talii) i poziomów. */
+function study() {
+  const s = state.settings;
+  if (!s.study || typeof s.study !== 'object') s.study = { cats: {}, levels: {} };
+  s.study.cats = s.study.cats || {}; s.study.levels = s.study.levels || {};
+  return s.study;
 }
-function enabledWords() { return WORDS.filter(w => state.settings.cats[w.cat]); }
-function dueIds(deck = 'all') {
+const catOn = c => study().cats[c] !== false;
+const lvlOn = l => study().levels[l] !== false;
+const studyKey = () => JSON.stringify(study()) + '|' + Object.keys(CATS).length;
+function inDeck(w, deck = 'study') {
+  if (deck === 'any') return true;
+  return catOn(w.cat) && lvlOn(w.level);
+}
+function enabledWords() { return WORDS.filter(w => catOn(w.cat)); }
+function studySummary() {
+  const cats = Object.keys(CATS).filter(catOn);
+  const lv = LEVELS.filter(lvlOn);
+  const catTxt = cats.length === Object.keys(CATS).length ? 'wszystkie kategorie'
+    : cats.length <= 2 ? cats.map(c => CATS[c]).join(', ') : `${cats.length} kategorie`;
+  const lvTxt = lv.length === LEVELS.length ? 'wszystkie poziomy' : lv.join(', ');
+  return `${catTxt} · ${lvTxt}`;
+}
+function dueIds(deck = 'study') {
   const t = today();
   return Object.keys(state.cards).filter(id => BY_ID.has(id) && state.cards[id].due <= t && inDeck(BY_ID.get(id), deck));
 }
-function newIntroducedToday(deck = 'all') {
+function newIntroducedToday(deck = 'study') {
   const t = today();
   return Object.entries(state.cards).filter(([id, c]) => c.first === t && c.s !== 'known' && BY_ID.has(id) && inDeck(BY_ID.get(id), deck)).length;
 }
-function newAvailable(deck = 'all') {
+function newAvailable(deck = 'study') {
   const extra = state.extraNew && state.extraNew.day === today() ? state.extraNew.n : 0;
   const left = Math.max(0, state.settings.newPerDay + extra - newIntroducedToday(deck));
   const pool = WORDS.filter(w => inDeck(w, deck) && !state.cards[w.id]);
@@ -326,7 +397,7 @@ function markKnown(id, days = 30) {
 
 /* ================= Router ================= */
 const ROUTES = {};
-const NAV_OF = { build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
+const NAV_OF = { pick: 'learn', import: 'words', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
 function render() {
   const [r, arg] = (location.hash.replace(/^#\/?/, '') || 'home').split('/');
   const name = ROUTES[r] ? r : 'home';
@@ -385,9 +456,9 @@ ROUTES.home = () => {
 
 /* ================= Fiszki ================= */
 let session = null;
-function buildSession(deck = state.settings.deck || 'all') {
-  const due = shuffle(dueIds(deck)).map(id => ({ id, isNew: false }));
-  const { left, pool } = newAvailable(deck);
+function buildSession(deck = studyKey()) {
+  const due = shuffle(dueIds()).map(id => ({ id, isNew: false }));
+  const { left, pool } = newAvailable();
   const fresh = orderNew(pool).slice(0, left).map(w => ({ id: w.id, isNew: true }));
   // Przeplatamy: co 3 powtórki jedno nowe słowo.
   const q = [];
@@ -399,24 +470,70 @@ function buildSession(deck = state.settings.deck || 'all') {
 }
 
 ROUTES.learn = () => {
-  const deck = state.settings.deck || 'all';
+  const deck = studyKey();
   if (!session || session.deck !== deck || (session.queue.length === 0 && !session.history.length)) session = buildSession(deck);
   showCard();
 };
 
 function deckBar() {
-  const cur = state.settings.deck || 'all';
-  return `<div class="chips" id="decks">${Object.entries(DECKS).map(([k, d]) => {
-    const n = dueIds(k).length + newAvailable(k).left;
-    return `<button class="filter ${cur === k ? 'on' : ''}" data-deck="${k}">${d.label} · ${n}</button>`;
-  }).join('')}</div>`;
+  return `<a class="study-bar" href="#/pick"><span><span class="muted small">Uczysz się:</span><br><b>${esc(studySummary())}</b></span><span class="btn" style="min-height:36px;padding:6px 12px">Wybierz fiszki</span></a>`;
 }
-function bindDeckBar() {
-  $$('#decks [data-deck]').forEach(b => b.onclick = () => {
-    state.settings.deck = b.dataset.deck; save(); session = null; ROUTES.learn();
+function bindDeckBar() {}
+
+/* ---------- Wybór fiszek ---------- */
+const PRESETS = [
+  { label: 'Wszystko', cats: null },
+  { label: 'Techniczne', cats: ['telecom', 'tech'] },
+  { label: 'Praca + technika', cats: ['work', 'telecom', 'tech'] },
+  { label: 'Podróże + zwroty', cats: ['travel', 'phrasal', 'colloc'] },
+  { label: 'Moje talie', cats: 'custom' },
+];
+ROUTES.pick = () => {
+  const s = study();
+  const t = today();
+  const catRows = Object.entries(CATS).map(([k, name]) => {
+    const ws = WORDS.filter(w => w.cat === k && lvlOn(w.level));
+    const fresh = ws.filter(w => !state.cards[w.id]).length;
+    const due = ws.filter(w => state.cards[w.id] && state.cards[w.id].due <= t).length;
+    return `<label class="check"><input type="checkbox" data-pc="${esc(k)}" ${catOn(k) ? 'checked' : ''}>
+      <div class="txt"><div class="en">${esc(name)}${k.startsWith('u_') ? ' <span class="tag" style="font-size:.65rem">import</span>' : ''}</div>
+      <div class="pl">${nSlow(ws.length)} · ${fresh} nowych · ${due} do powtórki</div></div></label>`;
+  }).join('');
+  const selWords = WORDS.filter(w => inDeck(w));
+  view.innerHTML = `
+    <header class="top">${backLink('#/learn', 'Fiszki')}<span class="muted small">Wybór fiszek</span></header>
+    <p class="muted small">Zaznacz dowolne kategorie i poziomy. Podczas sesji słówka będą losowane ze wszystkich zaznaczonych.</p>
+    <div class="chips">${PRESETS.map((p, i) => `<button class="filter" data-preset="${i}">${p.label}</button>`).join('')}</div>
+    <section class="card">
+      <h2>Poziomy</h2>
+      <div class="row wrap">${LEVELS.map(l => `<button class="filter ${lvlOn(l) ? 'on' : ''}" data-pl="${l}">${l}</button>`).join('')}</div>
+    </section>
+    <h2 style="font-size:1.05rem;margin:4px 0 8px">Kategorie i talie</h2>
+    <div class="list">${catRows}</div>
+    <div class="row" style="margin:10px 0"><button class="btn" id="pall">Zaznacz wszystkie</button><button class="btn" id="pnone">Odznacz</button>
+      <div class="spacer"></div><a class="btn" href="#/import">+ Import</a></div>
+    <div class="sticky-cta">
+      <div class="muted small">Wybrano ${nSlow(selWords.length)} · ${dueIds().length} do powtórki · ${newAvailable().left} nowych dziś</div>
+      <a class="btn primary big block" href="#/learn" ${selWords.length ? '' : 'disabled'}>Ucz się tych fiszek</a>
+    </div>`;
+  const changed = () => { save(); session = null; ROUTES.pick(); };
+  $$('[data-pc]').forEach(i => i.onchange = () => { s.cats[i.dataset.pc] = i.checked; changed(); });
+  $$('[data-pl]').forEach(b => b.onclick = () => {
+    const l = b.dataset.pl; s.levels[l] = !lvlOn(l);
+    if (!LEVELS.some(lvlOn)) { s.levels[l] = true; toast('Zostaw przynajmniej jeden poziom'); }
+    changed();
   });
-  const on = $('#decks .on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
-}
+  $$('[data-preset]').forEach(b => b.onclick = () => {
+    const p = PRESETS[+b.dataset.preset];
+    for (const k of Object.keys(CATS)) {
+      s.cats[k] = p.cats === null ? true : p.cats === 'custom' ? k.startsWith('u_') : p.cats.includes(k);
+    }
+    if (p.cats === 'custom' && !Object.keys(CATS).some(k => k.startsWith('u_'))) { toast('Nie masz jeszcze własnych talii. Użyj importu.'); }
+    changed();
+  });
+  $('#pall').onclick = () => { Object.keys(CATS).forEach(k => s.cats[k] = true); changed(); };
+  $('#pnone').onclick = () => { Object.keys(CATS).forEach(k => s.cats[k] = false); changed(); };
+};
 const undoBtn = () => session && session.history.length
   ? `<button class="btn" id="undo" style="min-height:38px;padding:6px 12px">↶ Cofnij</button>` : '';
 
@@ -569,7 +686,7 @@ function answerKnown() {
   // Pominięte znane słowo nie zabiera miejsca: dokładamy kolejne nowe z tej samej talii.
   if (item.isNew) {
     const inQueue = new Set(s.queue.map(q => q.id));
-    const next = orderNew(newAvailable(s.deck).pool).find(w => !inQueue.has(w.id));
+    const next = orderNew(newAvailable().pool).find(w => !inQueue.has(w.id));
     if (next) { s.queue.push({ id: next.id, isNew: true }); s.total++; }
   }
   logActivity(item.isNew ? 'new' : 'review', true);
@@ -587,6 +704,8 @@ ROUTES.practice = () => {
       <a class="tile" href="#/listen"><span class="ico">🎧</span><b>Ze słuchu</b><span>Posłuchaj zdania i ułóż je z klocków</span></a>
       <a class="tile" href="#/quiz"><span class="ico">✅</span><b>Quiz</b><span>Wybierz poprawne tłumaczenie</span></a>
       <a class="tile" href="#/placement"><span class="ico">📋</span><b>Test poziomu</b><span>Oznacz słowa, które znasz</span></a>
+      <a class="tile" href="#/import"><span class="ico">📥</span><b>Import fiszek</b><span>Talie Anki, CSV albo własna lista</span></a>
+      <a class="tile" href="#/pick"><span class="ico">🗂️</span><b>Wybór fiszek</b><span>Połącz kategorie i poziomy</span></a>
     </div>
     <section class="card" style="margin-top:14px">
       <h2>Wkrótce</h2>
@@ -793,7 +912,7 @@ const wordsFilter = { level: 'all', cat: 'all', q: '', st: 'all' };
 ROUTES.words = () => {
   const chip = (group, val, label) => `<button class="filter ${wordsFilter[group] === val ? 'on' : ''}" data-g="${group}" data-v="${val}">${label}</button>`;
   view.innerHTML = `
-    <header class="top"><h1>Słówka</h1><span class="muted small">${WORDS.length} w bazie</span></header>
+    <header class="top"><div><h1>Słówka</h1><span class="muted small">${WORDS.length} w bazie</span></div><a class="btn" href="#/import">+ Import</a></header>
     <input class="search" id="q" type="search" placeholder="Szukaj po angielsku lub polsku…" value="${esc(wordsFilter.q)}">
     <div class="chips">${chip('level', 'all', 'Wszystkie poziomy')}${LEVELS.map(l => chip('level', l, l)).join('')}</div>
     <div class="chips">${chip('cat', 'all', 'Wszystkie kategorie')}${Object.entries(CATS).map(([k, v]) => chip('cat', k, v)).join('')}</div>
@@ -836,6 +955,228 @@ function drawWordList() {
     if (it && !e.target.closest('button')) it.classList.toggle('open');
   };
 }
+
+/* ================= Import fiszek ================= */
+let importDraft = null; // { name, rows: [[...pola]], colEn, colPl, colEx, level, target }
+
+function cleanField(s) {
+  if (s == null) return '';
+  let t = String(s)
+    .replace(/\[sound:[^\]]*\]/g, ' ')
+    .replace(/<br\s*\/?>|<\/div>|<\/p>|<\/li>/gi, ' ')
+    .replace(/<[^>]+>/g, '');
+  const ta = document.createElement('textarea');
+  ta.innerHTML = t;
+  return ta.value.replace(/\s+/g, ' ').trim();
+}
+function splitLine(line, sep) {
+  if (sep === '\t' && !line.includes('"')) return line.split('\t');
+  const out = []; let cur = ''; let q = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (q) {
+      if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c;
+    } else if (c === '"' && cur === '') q = true;
+    else if (line.startsWith(sep, i)) { out.push(cur); cur = ''; i += sep.length - 1; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+function parseTextCards(txt) {
+  const lines = txt.replace(/\r/g, '').split('\n').filter(l => l.trim() && !l.startsWith('#'));
+  if (!lines.length) return [];
+  const share = ch => lines.filter(l => l.includes(ch)).length / lines.length;
+  const sep = share('\t') >= 0.5 ? '\t' : share(' | ') >= 0.5 ? ' | ' : share(';') >= 0.5 ? ';' : share(' - ') >= 0.5 ? ' - ' : share(' = ') >= 0.5 ? ' = ' : ',';
+  return lines.map(l => splitLine(l, sep).map(cleanField)).filter(f => f.length >= 2 && f[0] && f[1]);
+}
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error('Nie udało się pobrać ' + src));
+    document.head.appendChild(s);
+  });
+}
+async function parseApkg(file) {
+  if (!window.JSZip) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+  if (!window.initSqlJs) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js');
+  const zip = await JSZip.loadAsync(file);
+  let data;
+  if (zip.file('collection.anki21b')) {
+    if (!window.fzstd) await loadScript('https://cdn.jsdelivr.net/npm/fzstd@0.1.1/umd/index.js');
+    data = fzstd.decompress(await zip.file('collection.anki21b').async('uint8array'));
+  } else if (zip.file('collection.anki21')) data = await zip.file('collection.anki21').async('uint8array');
+  else if (zip.file('collection.anki2')) data = await zip.file('collection.anki2').async('uint8array');
+  else throw new Error('W pliku nie ma kolekcji Anki');
+  const SQL = await initSqlJs({ locateFile: f => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/' + f });
+  const db = new SQL.Database(data);
+  const r = db.exec('SELECT flds FROM notes');
+  db.close();
+  if (!r.length) return [];
+  return r[0].values.map(v => String(v[0]).split('\x1f').map(cleanField)).filter(f => f.length >= 2 && f[0] && f[1]);
+}
+const hasPolish = s => /[ąćęłńóśźż]/i.test(s);
+function startDraft(rows, name) {
+  if (!rows.length) { toast('Nie znalazłem fiszek w tym pliku'); return; }
+  // Zgadnij, która kolumna jest polska.
+  const sample = rows.slice(0, 200);
+  const pl0 = sample.filter(r => hasPolish(r[0])).length, pl1 = sample.filter(r => hasPolish(r[1])).length;
+  const swap = pl0 > pl1;
+  const cols = Math.max(...rows.map(r => r.length));
+  importDraft = { name: name || 'Moja talia', rows, colEn: swap ? 1 : 0, colPl: swap ? 0 : 1, colEx: cols > 2 ? 2 : -1, level: 'auto', target: 'new', cols };
+  ROUTES.import();
+}
+function deckId(name) {
+  let base = 'u_' + name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30);
+  if (base === 'u_') base = 'u_talia';
+  let id = base, n = 2;
+  while (custom.decks[id]) id = base + '-' + n++;
+  return id;
+}
+function commitImport() {
+  const d = importDraft;
+  const words = d.rows.map(r => ({
+    en: (r[d.colEn] || '').slice(0, 200), pl: (r[d.colPl] || '').slice(0, 300),
+    ex: d.colEx >= 0 ? (r[d.colEx] || '').slice(0, 300) : '', level: d.level,
+  })).filter(x => x.en && x.pl);
+  let id = d.target;
+  if (id === 'new' || !custom.decks[id]) {
+    id = deckId(d.name);
+    custom.decks[id] = { name: d.name.trim() || 'Moja talia', created: Date.now(), words: [] };
+  }
+  const deck = custom.decks[id];
+  const have = new Set(deck.words.map(x => x.en.toLowerCase()));
+  let added = 0;
+  for (const x of words) if (!have.has(x.en.toLowerCase())) { deck.words.push(x); have.add(x.en.toLowerCase()); added++; }
+  saveCustom(); applyCustom();
+  study().cats[id] = true; save(); session = null;
+  importDraft = null;
+  toast(`Dodano ${nFiszek(added)} do talii „${deck.name}”`);
+  ROUTES.import();
+}
+
+ROUTES.import = () => {
+  const decks = Object.entries(custom.decks);
+  const deckOpts = sel => decks.map(([k, d]) => `<option value="${esc(k)}" ${sel === k ? 'selected' : ''}>${esc(d.name)}</option>`).join('');
+  let draftHtml = '';
+  const d = importDraft;
+  if (d) {
+    const colOpts = (sel, allowNone) => (allowNone ? `<option value="-1" ${sel === -1 ? 'selected' : ''}>brak</option>` : '') +
+      Array.from({ length: d.cols }, (_, i) => `<option value="${i}" ${sel === i ? 'selected' : ''}>kolumna ${i + 1}</option>`).join('');
+    draftHtml = `
+    <section class="card" id="draft">
+      <h2>Podgląd: ${nFiszek(d.rows.length)}</h2>
+      <div class="form-grid">
+        <label>Dodaj do<select id="dtarget" class="input"><option value="new">Nowa talia</option>${deckOpts(d.target)}</select></label>
+        <label id="dnamewrap" ${d.target !== 'new' ? 'hidden' : ''}>Nazwa nowej talii<input id="dname" class="input" value="${esc(d.name)}"></label>
+        <div class="grid2">
+          <label>Angielski<select id="den" class="input">${colOpts(d.colEn)}</select></label>
+          <label>Polski<select id="dpl" class="input">${colOpts(d.colPl)}</select></label>
+        </div>
+        <div class="grid2">
+          <label>Przykład<select id="dex" class="input">${colOpts(d.colEx, true)}</select></label>
+          <label>Poziom<select id="dlvl" class="input"><option value="auto">automatycznie</option>${LEVELS.map(l => `<option ${d.level === l ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+        </div>
+      </div>
+      <table class="preview"><tr><th>Angielski</th><th>Polski</th>${d.colEx >= 0 ? '<th>Przykład</th>' : ''}</tr>
+        ${d.rows.slice(0, 6).map(r => `<tr><td>${esc(r[d.colEn] || '')}</td><td>${esc(r[d.colPl] || '')}</td>${d.colEx >= 0 ? `<td>${esc(r[d.colEx] || '')}</td>` : ''}</tr>`).join('')}
+      </table>
+      <div class="row"><button class="btn" id="dcancel">Anuluj</button><div class="spacer"></div><button class="btn primary" id="dok">Importuj ${nFiszek(d.rows.length)}</button></div>
+    </section>`;
+  }
+  view.innerHTML = `
+    <header class="top">${backLink('#/words', 'Słówka')}<span class="muted small">Import fiszek</span></header>
+    ${draftHtml}
+    <section class="card">
+      <h2>Z pliku</h2>
+      <p class="muted small">Obsługiwane: <b>talie Anki .apkg</b>, eksport Anki „Notatki jako zwykły tekst” (.txt),
+      pliki CSV/TSV z Excela lub Arkuszy Google. Kolumny: angielski, polski i opcjonalnie przykład.</p>
+      <input type="file" id="ifile" accept=".apkg,.colpkg,.txt,.csv,.tsv,text/plain,text/csv" hidden>
+      <button class="btn primary block" id="ipick">Wybierz plik</button>
+      <p class="muted small" style="margin-bottom:0">Pliki .apkg wymagają internetu przy imporcie (pobieram czytnik formatu Anki).</p>
+    </section>
+    <section class="card">
+      <h2>Wklej listę</h2>
+      <p class="muted small">Jedna fiszka na linię, np. <code>latency - opóźnienie</code>, <code>latency;opóźnienie</code> albo kolumny skopiowane z arkusza.</p>
+      <textarea id="itext" class="area" placeholder="handover - przełączenie&#10;throughput - przepustowość"></textarea>
+      <button class="btn block" id="iparse" style="margin-top:8px">Dalej</button>
+    </section>
+    <section class="card">
+      <h2>Dodaj jedną fiszkę</h2>
+      <div class="form-grid">
+        <label>Talia<select id="mdeck" class="input"><option value="new">Moje słówka (nowa)</option>${deckOpts(decks.length ? decks[0][0] : '')}</select></label>
+        <label>Angielski<input id="men" class="input" autocomplete="off"></label>
+        <label>Polski<input id="mpl" class="input" autocomplete="off"></label>
+        <label>Przykład (opcjonalnie)<input id="mex" class="input" autocomplete="off"></label>
+        <button class="btn primary" id="madd">Dodaj</button>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Moje talie</h2>
+      ${decks.length ? `<div class="list">${decks.map(([k, dd]) => `
+        <div class="item"><div class="txt"><div class="en">${esc(dd.name)}</div><div class="pl">${nFiszek(dd.words.length)}</div></div>
+          <button class="btn" data-dexp="${esc(k)}" style="min-height:36px;padding:4px 10px">Eksport</button>
+          <button class="btn" data-ddel="${esc(k)}" style="min-height:36px;padding:4px 10px;color:var(--bad)">Usuń</button></div>`).join('')}</div>`
+        : '<p class="muted small">Nie masz jeszcze własnych talii.</p>'}
+    </section>`;
+
+  $('#ipick').onclick = () => $('#ifile').click();
+  $('#ifile').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    const name = f.name.replace(/\.[^.]+$/, '');
+    try {
+      if (/\.(apkg|colpkg)$/i.test(f.name)) {
+        toast('Czytam talię Anki…');
+        startDraft(await parseApkg(f), name);
+      } else {
+        startDraft(parseTextCards(await f.text()), name);
+      }
+    } catch (err) {
+      toast('Nie udało się odczytać pliku: ' + (err && err.message ? err.message : err));
+    }
+  };
+  $('#iparse').onclick = () => startDraft(parseTextCards($('#itext').value), 'Moja talia');
+  $('#madd').onclick = () => {
+    const en = $('#men').value.trim(), pl = $('#mpl').value.trim();
+    if (!en || !pl) { toast('Wpisz słowo i tłumaczenie'); return; }
+    let id = $('#mdeck').value;
+    if (id === 'new' || !custom.decks[id]) {
+      id = Object.keys(custom.decks).find(k => custom.decks[k].name === 'Moje słówka') || deckId('Moje słówka');
+      custom.decks[id] = custom.decks[id] || { name: 'Moje słówka', created: Date.now(), words: [] };
+    }
+    const deck = custom.decks[id];
+    if (deck.words.some(x => x.en.toLowerCase() === en.toLowerCase())) { toast('To słowo już jest w tej talii'); return; }
+    deck.words.push({ en, pl, ex: $('#mex').value.trim(), level: 'auto' });
+    saveCustom(); applyCustom(); study().cats[id] = true; save(); session = null;
+    toast(`Dodano „${en}”`);
+    ROUTES.import();
+  };
+  $$('[data-ddel]').forEach(b => b.onclick = () => {
+    const k = b.dataset.ddel;
+    if (!confirm(`Usunąć talię „${custom.decks[k].name}”? Postęp jej fiszek też zniknie.`)) return;
+    for (const id of Object.keys(state.cards)) if (id.startsWith(k + ':')) delete state.cards[id];
+    delete custom.decks[k]; delete study().cats[k];
+    saveCustom(); applyCustom(); save(); session = null; ROUTES.import();
+  });
+  $$('[data-dexp]').forEach(b => b.onclick = () => {
+    const dd = custom.decks[b.dataset.dexp];
+    const tsv = '#separator:tab\n#html:false\n' + dd.words.map(x => [x.en, x.pl, x.ex || ''].map(v => v.replace(/[\t\n]/g, ' ')).join('\t')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([tsv], { type: 'text/tab-separated-values' }));
+    a.download = dd.name.replace(/[^\w\-ąćęłńóśźż ]+/gi, '') + '.txt';
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  if (d) {
+    const reread = () => {
+      d.target = $('#dtarget').value; d.name = $('#dname') ? $('#dname').value : d.name;
+      d.colEn = +$('#den').value; d.colPl = +$('#dpl').value; d.colEx = +$('#dex').value; d.level = $('#dlvl').value;
+    };
+    ['#dtarget', '#den', '#dpl', '#dex', '#dlvl'].forEach(s => $(s).onchange = () => { reread(); ROUTES.import(); });
+    $('#dname').oninput = () => { d.name = $('#dname').value; };
+    $('#dcancel').onclick = () => { importDraft = null; ROUTES.import(); };
+    $('#dok').onclick = () => { reread(); commitImport(); };
+  }
+};
 
 /* ================= Postępy ================= */
 ROUTES.stats = () => {
@@ -903,8 +1244,9 @@ ROUTES.settings = () => {
         </select></div>
     </section>
     <section class="card">
-      <h2>Kategorie</h2>
-      ${Object.entries(CATS).map(([k, v]) => `<label class="field"><span>${v}</span><input class="switch" type="checkbox" data-cat="${k}" ${st.cats[k] ? 'checked' : ''}></label>`).join('')}
+      <h2>Fiszki</h2>
+      <p class="muted small">Uczysz się: ${esc(studySummary())}</p>
+      <div class="grid2"><a class="btn" href="#/pick">Wybierz fiszki</a><a class="btn" href="#/import">Import fiszek</a></div>
     </section>
     <section class="card">
       <h2>Wymowa lektora</h2>
@@ -938,13 +1280,8 @@ ROUTES.settings = () => {
   $('#acc').onchange = e => { st.accent = e.target.value; upd(); };
   $('#rate').oninput = e => { st.rate = +e.target.value; $('#rv').textContent = st.rate.toFixed(2); upd(); };
   $('#auto').onchange = e => { st.autoSpeak = e.target.checked; upd(); };
-  $$('[data-cat]').forEach(i => i.onchange = () => {
-    st.cats[i.dataset.cat] = i.checked;
-    if (!Object.values(st.cats).some(Boolean)) { i.checked = true; st.cats[i.dataset.cat] = true; toast('Zostaw przynajmniej jedną kategorię'); }
-    upd();
-  });
   $('#exp').onclick = () => {
-    const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(Object.assign({}, state, { custom }))], { type: 'application/json' });
     const a = document.createElement('a');
     const d = new Date();
     a.href = URL.createObjectURL(blob);
@@ -961,6 +1298,8 @@ ROUTES.settings = () => {
         const data = JSON.parse(r.result);
         if (!data || typeof data.cards !== 'object') throw new Error('bad');
         if (!confirm('Zastąpić obecny postęp danymi z pliku?')) return;
+        if (data.custom && data.custom.decks) { custom = data.custom; saveCustom(); applyCustom(); }
+        delete data.custom;
         state = normalizeState(data); session = null; save();
         toast('Kopia wczytana'); ROUTES.settings();
       } catch (err) { toast('To nie jest poprawny plik kopii'); }
@@ -977,6 +1316,7 @@ ROUTES.settings = () => {
 /* ================= Start aplikacji ================= */
 render();
 requestPersistence();
+restoreCustomFromIdb().then(r => { if (r) render(); });
 restoreFromIdb().then(restored => {
   if (restored) { session = null; render(); toast('Przywrócono postęp z kopii'); }
   else if (Object.keys(state.cards).length) save(); // uzupełnij kopię w IndexedDB
