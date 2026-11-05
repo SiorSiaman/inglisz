@@ -129,6 +129,9 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 .word { font-size: 2rem; font-weight: 800; overflow-wrap: anywhere; }
 .trans { font-size: 1.3rem; font-weight: 600; }
 .example { color: var(--muted); font-style: italic; }
+.ipa { color: var(--muted); font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", sans-serif; }
+.example-pl { color: var(--muted); font-size: .9rem; margin-top: -4px; }
+.link-btn { background: none; border: 0; color: var(--accent); font-size: .85rem; padding: 8px; cursor: pointer; text-decoration: underline; }
 .divider { width: 60%; height: 1px; background: var(--border); margin: 6px 0; }
 .speak {
   border: 1px solid var(--border); background: var(--surface-2); border-radius: 99px;

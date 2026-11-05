@@ -1,0 +1,366 @@
+# Ręczne poprawki tłumaczeń (mają pierwszeństwo przed słownikiem). Format: słowo | tłumaczenie
+# Linia "słowo | -" usuwa słowo z bazy.
+huh | -
+ha | -
+er | -
+eh | -
+ow | -
+wow | -
+haven | -
+mike | -
+ma | -
+pa | -
+miss | tęsknić, spóźnić się, przegapić, chybić
+nice | miły, ładny, przyjemny
+mom | mama
+mum | mama
+kid | dzieciak, dziecko
+awesome | niesamowity, super
+glad | zadowolony, rad
+lunch | lunch, obiad
+seem | wydawać się
+want | chcieć, potrzebować
+think | myśleć, sądzić, uważać
+see | widzieć, zobaczyć, rozumieć
+good | dobry, niezły, grzeczny
+tell | powiedzieć, mówić, opowiadać
+down | w dół, na dół, na dole
+over | nad, ponad, przez, skończony
+mean | znaczyć, mieć na myśli, złośliwy
+any | jakikolwiek, żaden (w przeczeniach), trochę
+even | nawet, równy, parzysty
+anything | cokolwiek, coś (w pytaniach), nic (w przeczeniach)
+before | przed, zanim, wcześniej
+father | ojciec
+guy | facet, gość
+old | stary, dawny
+big | duży, wielki
+believe | wierzyć, sądzić
+coming | nadchodzący, przyszły
+bad | zły, niedobry, poważny
+listen | słuchać
+remember | pamiętać, przypominać sobie
+kill | zabijać
+friend | przyjaciel, znajomy
+baby | niemowlę, dziecko, kochanie
+actually | właściwie, tak naprawdę, faktycznie
+both | obaj, obie, oboje
+happy | szczęśliwy, zadowolony
+pretty | ładny, całkiem (dość)
+yet | jeszcze, już (w pytaniach), jednak
+start | zaczynać, rozpoczynać, początek
+end | koniec, kończyć
+anyone | ktoś, ktokolwiek, nikt (w przeczeniach)
+police | policja
+case | przypadek, sprawa, etui
+sit | siedzieć, siadać
+eat | jeść
+working | pracujący, działający, roboczy
+death | śmierć
+minute | minuta, drobny
+deal | umowa, interes, deal with = radzić sobie z
+making | robienie, tworzenie
+afraid | przestraszony; I'm afraid = obawiam się
+set | ustawiać, nastawiać, zestaw
+sister | siostra
+blood | krew
+city | miasto
+cool | chłodny, fajny, spoko
+dog | pies
+sick | chory, mający mdłości
+ten | dziesięć
+sound | dźwięk, brzmieć
+evening | wieczór
+master | mistrz, pan, opanować
+coffee | kawa
+date | data, randka
+figure | liczba, postać, domyślić się (figure out)
+officer | oficer, funkcjonariusz, urzędnik
+wake | budzić (się)
+station | stacja, dworzec
+smart | mądry, bystry, elegancki
+bank | bank, brzeg (rzeki)
+foot | stopa
+mate | kumpel, kolega
+holding | trzymanie, pakiet udziałów
+college | szkoła wyższa, college
+cop | glina, policjant
+evil | zły, zło
+gas | gaz, benzyna (AmE)
+upstairs | na górę, na górze
+chicken | kurczak, tchórz
+running | bieganie, prowadzenie (firmy)
+key | klucz, klawisz, kluczowy
+floor | podłoga, piętro
+store | sklep, magazyn, przechowywać
+truck | ciężarówka
+computer | komputer
+bus | autobus
+rid | get rid of = pozbyć się
+fat | tłuszcz, gruby, tłusty
+grand | wielki, wspaniały
+match | mecz, zapałka, pasować
+press | naciskać, prasa
+smoke | dym, palić (papierosy)
+department | dział, wydział, departament
+type | typ, rodzaj, pisać na klawiaturze
+lock | zamek, zamykać na klucz
+leg | noga
+form | forma, formularz, kształt
+handle | radzić sobie z, uchwyt, klamka
+stage | etap, scena
+witness | świadek
+twice | dwa razy
+nine | dziewięć
+helping | porcja (jedzenia)
+sitting | posiedzenie, sesja
+lord | pan, lord
+ever | kiedykolwiek, kiedyś (w pytaniach)
+place | miejsce, umieszczać
+hello | cześć, dzień dobry, halo
+house | dom, budynek
+stay | zostawać, przebywać, pobyt
+mother | matka
+world | świat
+today | dzisiaj, obecnie
+hear | słyszeć, usłyszeć
+ask | pytać, prosić
+own | własny, posiadać
+show | pokazywać, przedstawienie, program
+else | inny, jeszcze (np. something else)
+try | próbować, starać się
+hi | cześć
+best | najlepszy, najlepiej
+morning | rano, poranek
+yourself | się, siebie, (ty) sam
+real | prawdziwy, rzeczywisty
+move | ruszać (się), przeprowadzać się, ruch
+live | żyć, mieszkać, na żywo
+once | raz, kiedyś, gdy tylko
+ready | gotowy
+head | głowa, szef, kierować się
+since | od (czasu), odkąd, ponieważ
+guess | zgadywać, przypuszczać
+matter | sprawa, mieć znaczenie
+myself | się, siebie, (ja) sam
+school | szkoła
+phone | telefon, dzwonić
+play | grać, bawić się, sztuka (teatralna)
+problem | problem
+open | otwierać, otwarty
+hope | mieć nadzieję, nadzieja
+face | twarz, stawić czoła
+excuse | wymówka, wybaczać; excuse me = przepraszam
+true | prawdziwy, zgodny z prawdą
+heart | serce
+each | każdy (z osobna)
+doctor | lekarz, doktor
+young | młody
+second | drugi, sekunda
+person | osoba
+pay | płacić, wynagrodzenie
+drink | pić, napój
+easy | łatwy, łatwo
+body | ciało
+dear | drogi, kochany
+party | impreza, przyjęcie, partia
+fun | zabawa, frajda, zabawny
+against | przeciw, wbrew, o (opierać się o)
+word | słowo
+number | numer, liczba
+wish | życzenie, życzyć, chcieć (żeby)
+fight | walczyć, bić się, walka, kłótnia
+game | gra, mecz
+side | strona, bok
+stand | stać, znosić (nie mogę znieść)
+speak | mówić, rozmawiać
+lady | pani, dama
+reason | powód, przyczyna
+break | łamać, psuć, przerwa
+walk | chodzić, iść pieszo, spacer
+trust | ufać, zaufanie
+welcome | witać, mile widziany; you're welcome = proszę bardzo
+high | wysoki, wysoko
+half | pół, połowa
+free | wolny, darmowy, uwalniać
+either | jeden z dwóch, też nie (w przeczeniach)
+power | władza, moc, energia, zasilanie
+buy | kupować
+answer | odpowiadać, odpowiedź, odebrać (telefon)
+news | wiadomości
+bed | łóżko
+hurry | spieszyć się, pośpiech
+full | pełny
+save | ratować, oszczędzać, zapisywać (plik)
+light | światło, lekki, jasny, zapalać
+fact | fakt
+captain | kapitan
+hot | gorący, ostry (smak)
+black | czarny
+pick | wybierać, zbierać, pick up = odebrać
+cause | powodować, przyczyna
+plan | plan, planować
+dinner | obiad, kolacja
+sort | rodzaj, sortować, sort out = załatwić
+safe | bezpieczny, sejf
+book | książka, rezerwować
+hour | godzina
+small | mały
+perfect | doskonały, idealny
+special | specjalny, wyjątkowy
+company | firma, towarzystwo
+past | przeszłość, miniony, obok (walk past)
+shoot | strzelać, kręcić (film)
+touch | dotykać, dotyk, kontakt (keep in touch)
+drive | prowadzić (samochód), jechać, jazda
+hair | włosy
+air | powietrze
+fast | szybki, szybko
+street | ulica
+till | do, aż do, kasa
+catch | łapać, złapać, zdążyć na (pociąg)
+follow | iść za, śledzić, stosować się do
+dream | sen, marzenie, śnić, marzyć
+write | pisać
+voice | głos
+sweet | słodki, kochany
+sign | znak, podpisywać
+quiet | cichy, spokojny
+pull | ciągnąć
+beat | bić, pokonać, rytm
+return | wracać, zwracać, powrót
+clean | czysty, sprzątać, czyścić
+picture | obraz, zdjęcie
+wonder | zastanawiać się, cud
+eye | oko
+quick | szybki
+state | stan, państwo, stwierdzać
+act | działać, zachowywać się, grać (rolę), ustawa
+report | raport, zgłaszać, relacjonować
+class | klasa, zajęcia, lekcja
+pass | mijać, zdać (egzamin), podać
+mistake | błąd, pomyłka
+finish | kończyć
+age | wiek
+dark | ciemny, ciemność
+system | system
+ride | jechać, jeździć, przejażdżka
+mouth | usta
+film | film
+train | pociąg, trenować, szkolić
+wear | nosić (ubranie)
+attack | atak, atakować
+sing | śpiewać
+bag | torba, torebka
+near | blisko, w pobliżu
+table | stół, tabela
+handle | radzić sobie z, uchwyt, klamka
+middle | środek, środkowy
+spend | wydawać (pieniądze), spędzać (czas)
+bill | rachunek, banknot, projekt ustawy
+lead | prowadzić, kierować, prowadzenie
+fair | uczciwy, sprawiedliwy, targi
+sun | słońce
+attention | uwaga
+club | klub
+space | przestrzeń, miejsce, kosmos
+test | test, sprawdzian, testować
+box | pudełko, skrzynka
+single | pojedynczy, samotny (bez partnera)
+join | dołączyć, łączyć
+force | siła, zmuszać
+enjoy | lubić, cieszyć się czymś
+charge | opłata, ładować (baterię), obciążać
+ball | piłka
+paper | papier, gazeta, dokument
+boat | łódź
+gold | złoto, złoty
+bar | bar, pasek, sztabka
+mark | znak, ślad, ocena, oznaczać
+deep | głęboki, głęboko
+star | gwiazda
+major | główny, poważny, major
+stick | kij, patyk, przyklejać
+hide | ukrywać (się)
+trip | wycieczka, wyjazd, potknąć się
+public | publiczny, publiczność
+list | lista, spis
+tea | herbata
+service | usługa, obsługa, serwis
+forward | naprzód, do przodu, przesyłać dalej
+rich | bogaty
+agent | agent, przedstawiciel
+dress | sukienka, ubierać się
+cell | komórka, cela
+camera | aparat, kamera
+card | karta, kartka
+fly | latać, lecieć, mucha
+smell | zapach, pachnieć, wąchać
+third | trzeci
+judge | sędzia, oceniać
+private | prywatny
+seat | miejsce (siedzące), siedzenie
+position | pozycja, stanowisko
+machine | maszyna, urządzenie
+art | sztuka
+carry | nieść, nosić, przewozić
+contact | kontakt, kontaktować się
+store | sklep, magazyn, przechowywać
+doubt | wątpliwość, wątpić
+continue | kontynuować
+appreciate | doceniać, być wdzięcznym
+shop | sklep, robić zakupy
+field | pole, dziedzina
+decision | decyzja
+slow | wolny, powolny
+glass | szkło, szklanka, kieliszek
+cash | gotówka
+plane | samolot, płaszczyzna
+board | deska, tablica, zarząd, wsiadać (do samolotu)
+support | wsparcie, wspierać, pomoc techniczna
+partner | partner, wspólnik
+wind | wiatr
+experience | doświadczenie, przeżycie, doświadczać
+dirty | brudny
+search | szukać, przeszukiwać, wyszukiwanie
+jump | skakać, skok
+grow | rosnąć, uprawiać, hodować
+final | ostateczny, końcowy, finał
+escape | uciekać, ucieczka
+address | adres, zwracać się do
+choose | wybierać
+bother | przeszkadzać, kłopotać się
+risk | ryzyko, ryzykować
+action | działanie, akcja
+fit | pasować, w formie, dopasować
+notice | zauważać, ogłoszenie, wypowiedzenie
+guard | strażnik, strzec, pilnować
+apart | osobno, z dala; apart from = oprócz
+duty | obowiązek, cło
+build | budować
+track | tor, ślad, śledzić
+gift | prezent, dar, talent
+necessarily | koniecznie, nieuchronnie; not necessarily = niekoniecznie
+august | dostojny (August = sierpień)
+sh | -
+ta | -
+aha | -
+ouch | -
+woo | -
+horny | -
+pervert | -
+hooray | hurra
+gear | sprzęt, bieg (w samochodzie), przekładnia
+launch | uruchomić, wprowadzić na rynek, start (rakiety)
+tire | opona (AmE), męczyć
+grid | sieć (np. energetyczna), siatka
+drone | dron, buczeć
+extension | przedłużenie, numer wewnętrzny, rozszerzenie
+transmission | transmisja, przesyłanie, skrzynia biegów
+update | aktualizować, aktualizacja
+capacity | pojemność, przepustowość, zdolność
+lobby | hol, lobby
+communication | komunikacja, łączność
+polite | uprzejmy, grzeczny
+accent | akcent
+item | pozycja, rzecz, artykuł

@@ -3,7 +3,8 @@
 /* ================= Dane ================= */
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
 const CATS = {
-  general: 'Ogólne',
+  core: 'Słownik ogólny',
+  general: 'Ogólne (wybrane)',
   phrasal: 'Phrasal verbs',
   colloc: 'Kolokacje i idiomy',
   work: 'Praca i biznes',
@@ -14,25 +15,32 @@ const CATS = {
 const WORDS = [];
 (function parseWords() {
   const seen = new Set();
-  for (const pack of WORD_PACKS) {
+  const packs = [...WORD_PACKS, ...(typeof DICT_PACKS !== 'undefined' ? DICT_PACKS : [])];
+  for (const pack of packs) {
     for (const line of pack.items.split('\n')) {
       const t = line.trim();
       if (!t || t.startsWith('//')) continue;
-      const [en, pl, ex = ''] = t.split('|').map(s => s.trim());
+      const [en, pl, ex = '', exPl = '', ipa = ''] = t.split('|').map(s => s.trim());
       if (!en || !pl) continue;
       const id = en.toLowerCase();
       if (seen.has(id)) continue;
       seen.add(id);
-      WORDS.push({ id, en, pl, ex, level: pack.level, cat: pack.cat });
+      WORDS.push({ id, en, pl, ex, exPl, ipa, level: pack.level, cat: pack.cat });
     }
   }
 })();
 const BY_ID = new Map(WORDS.map(w => [w.id, w]));
 
-const SENTENCES = SENTENCE_DATA.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
-  const [pl, en, cat] = l.split('|').map(s => s.trim());
-  return { pl, en, cat };
-});
+const SENTENCES = [
+  ...SENTENCE_DATA.split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const [pl, en, cat] = l.split('|').map(s => s.trim());
+    return { pl, en, cat, level: 'B1' };
+  }),
+  ...(typeof TATOEBA_DATA !== 'undefined' ? TATOEBA_DATA : '').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+    const [pl, en, level] = l.split('|').map(s => s.trim());
+    return { pl, en, cat: 'core', level };
+  }),
+].filter(s => s.pl && s.en);
 
 /* ================= Stan i zapis ================= */
 const STORE_KEY = 'inglisz-v1';
@@ -42,26 +50,105 @@ const DEFAULT_SETTINGS = {
   accent: 'en-GB',
   rate: 0.95,
   direction: 'mix',
+  buildLevel: 'all',
   cats: Object.fromEntries(Object.keys(CATS).map(k => [k, true])),
 };
 
-function loadState() {
-  let s = null;
-  try { s = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { s = null; }
+function normalizeState(s) {
   if (!s || typeof s !== 'object') s = {};
   return {
     cards: s.cards || {},
     placed: s.placed || {},
     log: s.log || {},
+    edits: s.edits || {},
+    savedAt: s.savedAt || 0,
     settings: Object.assign({}, DEFAULT_SETTINGS, s.settings || {}, {
       cats: Object.assign({}, DEFAULT_SETTINGS.cats, (s.settings && s.settings.cats) || {}),
     }),
   };
 }
+function loadState() {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { s = null; }
+  return normalizeState(s);
+}
 let state = loadState();
+
+/* Drugi, niezależny zapis w IndexedDB. Jeśli localStorage zostanie wyczyszczony,
+   postęp wraca z IndexedDB (i odwrotnie). */
+const idb = {
+  db: null,
+  open() {
+    if (this.db) return Promise.resolve(this.db);
+    return new Promise((res, rej) => {
+      try {
+        const r = indexedDB.open('inglisz', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('kv');
+        r.onsuccess = () => { this.db = r.result; res(this.db); };
+        r.onerror = () => rej(r.error);
+      } catch (e) { rej(e); }
+    });
+  },
+  async get(key) {
+    const db = await this.open();
+    return new Promise((res, rej) => {
+      const q = db.transaction('kv').objectStore('kv').get(key);
+      q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+    });
+  },
+  async set(key, val) {
+    const db = await this.open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put(val, key);
+      tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error);
+    });
+  },
+};
+
 function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+  state.savedAt = Date.now();
+  const json = JSON.stringify(state);
+  try { localStorage.setItem(STORE_KEY, json); }
   catch (e) { toast('Nie udało się zapisać postępu'); }
+  idb.set(STORE_KEY, json).catch(() => {});
+  // Dzienna kopia: ostatnie 7 dni w IndexedDB.
+  const t = today();
+  idb.set('backup-' + (t % 7), json).catch(() => {});
+}
+
+async function restoreFromIdb() {
+  try {
+    const json = await idb.get(STORE_KEY);
+    if (!json) return false;
+    const fromIdb = normalizeState(JSON.parse(json));
+    if (fromIdb.savedAt > state.savedAt && Object.keys(fromIdb.cards).length > 0) {
+      state = fromIdb;
+      try { localStorage.setItem(STORE_KEY, json); } catch (e) { /* ignore */ }
+      return true;
+    }
+  } catch (e) { /* brak IndexedDB */ }
+  return false;
+}
+
+let storagePersisted = null;
+async function requestPersistence() {
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      storagePersisted = await navigator.storage.persisted() || await navigator.storage.persist();
+    }
+  } catch (e) { storagePersisted = null; }
+}
+
+const plOf = w => state.edits[w.id] || w.pl;
+function editTranslation(w, after) {
+  const v = prompt(`Popraw tłumaczenie słowa "${w.en}":`, plOf(w));
+  if (v === null) return;
+  const t = v.trim();
+  if (!t || t === w.pl) delete state.edits[w.id]; else state.edits[w.id] = t;
+  save();
+  toast('Zapisano tłumaczenie');
+  if (after) after();
 }
 
 /* ================= Pomocnicze ================= */
@@ -161,11 +248,27 @@ function newAvailable() {
   return { left: Math.min(left, pool.length), pool };
 }
 function orderNew(pool) {
-  // Najpierw niższe poziomy, w obrębie poziomu mieszamy kategorie.
-  const byLevel = {};
-  for (const w of pool) (byLevel[w.level] = byLevel[w.level] || []).push(w);
+  // Każda kategoria uporządkowana od niższych poziomów; kategorie na zmianę,
+  // żeby słownictwo branżowe i podróżnicze pojawiało się od początku, a nie po 3000 słów.
+  const byCat = {};
+  for (const w of pool) (byCat[w.cat] = byCat[w.cat] || []).push(w);
+  const lists = Object.values(byCat).map(arr => {
+    const out = [];
+    for (const l of LEVELS) out.push(...shuffle(arr.filter(w => w.level === l)));
+    return out;
+  });
+  // Słownik ogólny jest największy, więc dostaje 2 miejsca na każdą rundę.
+  const core = byCat.core ? lists.find(l => l[0] && l[0].cat === 'core') : null;
+  const rest = shuffle(lists.filter(l => l !== core));
   const out = [];
-  for (const l of LEVELS) if (byLevel[l]) out.push(...shuffle(byLevel[l]));
+  let ri = 0;
+  while (out.length < pool.length) {
+    if (core && core.length) out.push(core.shift());
+    if (core && core.length) out.push(core.shift());
+    const live = rest.filter(l => l.length);
+    if (live.length) { out.push(live[ri % live.length].shift()); ri++; }
+    if (!live.length && !(core && core.length)) break;
+  }
   return out;
 }
 
@@ -307,8 +410,8 @@ function showCard() {
   s.revealed = false;
   const pct = s.total ? Math.round((s.done / (s.total + s.again)) * 100) : 0;
   const front = s.dir === 'en-pl'
-    ? `<div class="word">${esc(w.en)}</div>${speakBtn(w.en)}`
-    : `<div class="word">${esc(w.pl)}</div><div class="muted small">Jak to powiesz po angielsku?</div>`;
+    ? `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}${speakBtn(w.en)}`
+    : `<div class="word">${esc(plOf(w))}</div><div class="muted small">Jak to powiesz po angielsku?</div>`;
   view.innerHTML = `
     <header class="top"><h1>Fiszki</h1><span class="muted small">Zostało: ${s.queue.length}</span></header>
     <div class="bar"><div style="width:${pct}%"></div></div>
@@ -333,9 +436,13 @@ function reveal() {
   back.innerHTML = `
     <div class="divider"></div>
     ${s.dir === 'en-pl'
-      ? `<div class="trans">${esc(w.pl)}</div>`
-      : `<div class="word">${esc(w.en)}</div><div class="row" style="justify-content:center">${speakBtn(w.en)}${slowBtn(w.en)}</div>`}
-    ${w.ex ? `<div class="example">${esc(w.ex)}</div>${speakBtn(w.ex, 'Zdanie')}` : ''}`;
+      ? `<div class="trans">${esc(plOf(w))}</div>`
+      : `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}<div class="row" style="justify-content:center">${speakBtn(w.en)}${slowBtn(w.en)}</div>`}
+    ${w.ex ? `<div class="example">${esc(w.ex)}</div>${w.exPl ? `<div class="example-pl">${esc(w.exPl)}</div>` : ''}${speakBtn(w.ex, 'Zdanie')}` : ''}
+    <button class="link-btn" id="edit">Popraw tłumaczenie</button>`;
+  $('#edit').onclick = () => editTranslation(w, () => {
+    const tr = $('#back .trans'); if (tr) tr.textContent = plOf(w);
+  });
   if (s.dir === 'pl-en' && state.settings.autoSpeak) speak(w.en);
   const ivs = nextIntervals(state.cards[w.id]);
   const labels = ['Nie wiem', 'Trudne', 'Dobrze', 'Łatwe'];
@@ -376,7 +483,7 @@ ROUTES.practice = () => {
 const tokenize = s => s.split(/\s+/).map(t => t.replace(/[.,!?;:]+$/, '')).filter(Boolean);
 const normTok = t => t.toLowerCase().replace(/[’']/g, "'");
 
-function builderScreen({ title, mode, promptHtml, target, extra }) {
+function builderScreen({ title, mode, promptHtml, target, extra, toolbar = '' }) {
   const tokens = tokenize(target);
   const targetSet = new Set(tokens.map(normTok));
   const distractPool = shuffle(SENTENCES.flatMap(x => tokenize(x.en))).filter(t => !targetSet.has(normTok(t)));
@@ -385,6 +492,7 @@ function builderScreen({ title, mode, promptHtml, target, extra }) {
   const placed = [];
   view.innerHTML = `
     <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">${title}</span></header>
+    ${toolbar}
     <section class="card">
       ${promptHtml}
       <div class="answer-area" id="ans" aria-label="Twoja odpowiedź"></div>
@@ -425,14 +533,18 @@ function builderScreen({ title, mode, promptHtml, target, extra }) {
 }
 
 ROUTES.build = () => {
-  const pool = SENTENCES.filter(s => state.settings.cats[s.cat] !== false);
+  const lvl = state.settings.buildLevel || 'all';
+  const pool = SENTENCES.filter(s => lvl === 'all' || s.level === lvl);
   const s = pick(pool.length ? pool : SENTENCES);
+  const chip = (v, label) => `<button class="filter ${lvl === v ? 'on' : ''}" data-bl="${v}">${label}</button>`;
   builderScreen({
     title: 'Ułóż zdanie',
     mode: 'build',
     target: s.en,
-    promptHtml: `<div class="muted small">Przetłumacz na angielski:</div><div class="prompt">${esc(s.pl)}</div>`,
+    toolbar: `<div class="chips">${chip('all', 'Wszystkie')}${LEVELS.map(l => chip(l, l)).join('')}</div>`,
+    promptHtml: `<div class="muted small">Przetłumacz na angielski · ${s.level}</div><div class="prompt">${esc(s.pl)}</div>`,
   });
+  $$('[data-bl]').forEach(b => b.onclick = () => { state.settings.buildLevel = b.dataset.bl; save(); ROUTES.build(); });
 };
 
 ROUTES.listen = () => {
@@ -446,7 +558,8 @@ ROUTES.listen = () => {
     target: w.ex,
     promptHtml: `<div class="muted small">Posłuchaj i ułóż zdanie:</div>
       <div class="row" style="margin:10px 0">${speakBtn(w.ex, 'Odtwórz')}${slowBtn(w.ex)}</div>`,
-    extra: `<div class="small muted" style="margin-top:6px">Słowo: <b>${esc(w.en)}</b> – ${esc(w.pl)}</div>`,
+    extra: `${w.exPl ? `<div class="small" style="margin-top:6px">${esc(w.exPl)}</div>` : ''}
+      <div class="small muted" style="margin-top:6px">Słowo: <b>${esc(w.en)}</b> – ${esc(plOf(w))}</div>`,
   });
   setTimeout(() => speak(w.ex), 300);
 };
@@ -485,10 +598,10 @@ function quizQuestion() {
     <div class="bar"><div style="width:${(q.i / q.qs.length) * 100}%"></div></div>
     <section class="card center" style="margin-top:14px">
       <div class="muted small">${enToPl ? 'Co to znaczy?' : 'Jak to jest po angielsku?'}</div>
-      <div class="word" style="margin:8px 0">${esc(enToPl ? w.en : w.pl)}</div>
+      <div class="word" style="margin:8px 0">${esc(enToPl ? w.en : plOf(w))}</div>
       ${enToPl ? speakBtn(w.en) : ''}
     </section>
-    <div class="options">${opts.map(o => `<button class="btn option" data-id="${esc(o.id)}">${esc(enToPl ? o.pl : o.en)}</button>`).join('')}</div>
+    <div class="options">${opts.map(o => `<button class="btn option" data-id="${esc(o.id)}">${esc(enToPl ? plOf(o) : o.en)}</button>`).join('')}</div>
     <div id="fb" style="margin-top:12px"></div>`;
   if (enToPl && state.settings.autoSpeak) speak(w.en);
   let answered = false;
@@ -515,7 +628,7 @@ ROUTES.placement = level => {
       <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Test poziomu</span></header>
       <section class="card">
         <h2>Oznacz słowa, które znasz</h2>
-        <p class="muted small">Wybierz poziom. Pokażę po 20 słów: zaznacz te, które znasz na pewno. Niezaznaczone trafią do nauki.
+        <p class="muted small">Wybierz poziom. Pokażę po 30 słów: zaznacz te, które znasz na pewno. Niezaznaczone trafią do nauki.
         Warto przejść też niższe poziomy, bo zawsze trafią się luki.</p>
       </section>
       <div class="list">${LEVELS.map(l => {
@@ -527,7 +640,7 @@ ROUTES.placement = level => {
       }).join('')}</div>`;
     return;
   }
-  const batch = shuffle(enabledWords().filter(w => w.level === level && !state.cards[w.id] && !state.placed[w.id])).slice(0, 20);
+  const batch = shuffle(enabledWords().filter(w => w.level === level && !state.cards[w.id] && !state.placed[w.id])).slice(0, 30);
   if (batch.length === 0) {
     view.innerHTML = `
       <header class="top">${backLink('#/placement', 'Poziomy')}</header>
@@ -541,7 +654,7 @@ ROUTES.placement = level => {
     <p class="muted small">Zaznacz słowa, które znasz na pewno, czyli wiesz, co znaczą, i umiesz ich użyć.</p>
     <div class="list" id="plist">${batch.map(w => `
       <label class="check"><input type="checkbox" value="${esc(w.id)}">
-        <div class="txt"><div class="en">${esc(w.en)}</div><div class="pl">${esc(w.pl)}</div></div>
+        <div class="txt"><div class="en">${esc(w.en)}</div><div class="pl">${esc(plOf(w))}</div></div>
         ${speakBtn(w.en)}</label>`).join('')}</div>
     <div class="row" style="margin-top:14px">
       <button class="btn" id="all">Zaznacz wszystkie</button><div class="spacer"></div>
@@ -573,9 +686,11 @@ ROUTES.words = () => {
     <div class="muted small" id="count" style="margin:4px 0 8px"></div>
     <div class="list" id="wlist"></div>`;
   $$('.filter').forEach(b => b.onclick = () => { wordsFilter[b.dataset.g] = b.dataset.v; ROUTES.words(); });
-  $('#q').oninput = e => { wordsFilter.q = e.target.value; drawWordList(); };
+  $('#q').oninput = e => { wordsFilter.q = e.target.value; wordsLimit = 150; drawWordList(); };
+  wordsLimit = 150;
   drawWordList();
 };
+let wordsLimit = 150;
 function drawWordList() {
   const q = wordsFilter.q.trim().toLowerCase();
   const list = WORDS.filter(w => {
@@ -585,16 +700,23 @@ function drawWordList() {
     if (wordsFilter.st === 'new' && st !== 'new') return false;
     if (wordsFilter.st === 'learn' && !['learning', 'review'].includes(st)) return false;
     if (wordsFilter.st === 'done' && !['mastered', 'known'].includes(st)) return false;
-    return !q || w.en.toLowerCase().includes(q) || w.pl.toLowerCase().includes(q);
+    return !q || w.en.toLowerCase().includes(q) || plOf(w).toLowerCase().includes(q);
   });
+  if (q) list.sort((a, b) => (b.en.toLowerCase() === q) - (a.en.toLowerCase() === q) || (b.en.toLowerCase().startsWith(q)) - (a.en.toLowerCase().startsWith(q)));
   $('#count').textContent = `Znaleziono: ${list.length}`;
-  $('#wlist').innerHTML = list.length ? list.map(w => {
+  const shown = list.slice(0, wordsLimit);
+  $('#wlist').innerHTML = shown.length ? shown.map(w => {
     const st = status(w.id);
     return `<div class="item" data-id="${esc(w.id)}"><span class="dot ${st}" title="${STATUS_PL[st]}"></span>
-      <div class="txt"><div class="en">${esc(w.en)} <span class="muted small">· ${w.level}</span></div><div class="pl">${esc(w.pl)}</div>
-      ${w.ex ? `<div class="ex">${esc(w.ex)}</div>` : ''}</div>${speakBtn(w.en)}</div>`;
-  }).join('') : '<div class="item muted">Brak wyników</div>';
+      <div class="txt"><div class="en">${esc(w.en)} <span class="muted small">· ${w.level}${w.ipa ? ' · /' + esc(w.ipa) + '/' : ''}</span></div><div class="pl">${esc(plOf(w))}</div>
+      <div class="ex">${w.ex ? `${esc(w.ex)}${w.exPl ? `<br>${esc(w.exPl)}` : ''}<br>` : ''}<button class="link-btn" data-edit="${esc(w.id)}">Popraw tłumaczenie</button></div></div>${speakBtn(w.en)}</div>`;
+  }).join('') + (list.length > wordsLimit ? `<button class="btn block" id="more" style="border:0;border-top:1px solid var(--border);border-radius:0">Pokaż więcej (${list.length - wordsLimit})</button>` : '')
+    : '<div class="item muted">Brak wyników</div>';
+  const more = $('#more');
+  if (more) more.onclick = () => { wordsLimit += 300; drawWordList(); };
   $('#wlist').onclick = e => {
+    const ed = e.target.closest('[data-edit]');
+    if (ed) { editTranslation(BY_ID.get(ed.dataset.edit), drawWordList); return; }
     const it = e.target.closest('.item');
     if (it && !e.target.closest('button')) it.classList.toggle('open');
   };
@@ -679,7 +801,9 @@ ROUTES.settings = () => {
     </section>
     <section class="card">
       <h2>Kopia zapasowa</h2>
-      <p class="muted small">Postęp jest zapisany tylko w tym telefonie. Rób kopię co jakiś czas, zwłaszcza przed czyszczeniem przeglądarki.</p>
+      <p class="muted small">Postęp zapisuje się podwójnie (w dwóch niezależnych magazynach przeglądarki), a do tego aplikacja trzyma kopie z ostatnich 7 dni.
+      Trwałe przechowywanie: <b>${storagePersisted === true ? 'włączone' : storagePersisted === false ? 'nie przyznane przez przeglądarkę' : 'nieznane'}</b>.
+      Przed zmianą telefonu zrób eksport do pliku.</p>
       <div class="grid2"><button class="btn" id="exp">Eksportuj</button><button class="btn" id="imp">Importuj</button></div>
       <input type="file" id="file" accept="application/json,.json" hidden>
       <button class="btn block" id="reset" style="margin-top:12px;color:var(--bad)">Wyzeruj postęp</button>
@@ -714,8 +838,7 @@ ROUTES.settings = () => {
         const data = JSON.parse(r.result);
         if (!data || typeof data.cards !== 'object') throw new Error('bad');
         if (!confirm('Zastąpić obecny postęp danymi z pliku?')) return;
-        localStorage.setItem(STORE_KEY, JSON.stringify(data));
-        state = loadState(); session = null;
+        state = normalizeState(data); session = null; save();
         toast('Kopia wczytana'); ROUTES.settings();
       } catch (err) { toast('To nie jest poprawny plik kopii'); }
     };
@@ -723,13 +846,18 @@ ROUTES.settings = () => {
   };
   $('#reset').onclick = () => {
     if (!confirm('Na pewno usunąć cały postęp? Tego nie da się cofnąć.')) return;
-    state = { cards: {}, placed: {}, log: {}, settings: state.settings };
+    state = normalizeState({ settings: state.settings });
     session = null; save(); toast('Postęp wyzerowany'); ROUTES.settings();
   };
 };
 
 /* ================= Start aplikacji ================= */
 render();
+requestPersistence();
+restoreFromIdb().then(restored => {
+  if (restored) { session = null; render(); toast('Przywrócono postęp z kopii'); }
+  else if (Object.keys(state.cards).length) save(); // uzupełnij kopię w IndexedDB
+});
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
