@@ -68,6 +68,7 @@ function normalizeState(s) {
     edits: s.edits || {},
     extraNew: s.extraNew || null,
     suspended: s.suspended || {},
+    grammar: s.grammar || {},
     buried: s.buried || {},
     savedAt: s.savedAt || 0,
     settings: Object.assign({}, DEFAULT_SETTINGS, s.settings || {}, {
@@ -483,7 +484,7 @@ function markKnown(id, days = 30) {
 
 /* ================= Router ================= */
 const ROUTES = {};
-const NAV_OF = { pick: 'learn', import: 'words', decks: 'words', deck: 'words', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
+const NAV_OF = { pick: 'learn', import: 'words', decks: 'words', deck: 'words', grammar: 'practice', glesson: 'practice', gpractice: 'practice', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
 function render() {
   const [r, arg] = (location.hash.replace(/^#\/?/, '') || 'home').split('/');
   const name = ROUTES[r] ? r : 'home';
@@ -533,6 +534,7 @@ ROUTES.home = () => {
       <a class="btn block" href="#/placement">Przejdź do testu</a>
     </section>` : ''}
     <div class="grid2">
+      <a class="tile" href="#/grammar"><span class="ico">📘</span><b>Gramatyka</b><span>Lekcje i ćwiczenia</span></a>
       <a class="tile" href="#/build"><span class="ico">🧩</span><b>Ułóż zdanie</b><span>Tłumacz z polskiego z klocków</span></a>
       <a class="tile" href="#/listen"><span class="ico">🎧</span><b>Ze słuchu</b><span>Usłysz i ułóż zdanie</span></a>
       <a class="tile" href="#/quiz"><span class="ico">✅</span><b>Quiz</b><span>10 pytań, 4 odpowiedzi</span></a>
@@ -859,6 +861,7 @@ ROUTES.practice = () => {
   view.innerHTML = `
     <header class="top"><h1>Ćwiczenia</h1></header>
     <div class="grid2">
+      <a class="tile" href="#/grammar"><span class="ico">📘</span><b>Gramatyka</b><span>${LESSONS.length} lekcji z ćwiczeniami, A2–C1</span></a>
       <a class="tile" href="#/build"><span class="ico">🧩</span><b>Ułóż zdanie</b><span>Przetłumacz zdanie z polskiego, układając klocki</span></a>
       <a class="tile" href="#/listen"><span class="ico">🎧</span><b>Ze słuchu</b><span>Posłuchaj zdania i ułóż je z klocków</span></a>
       <a class="tile" href="#/quiz"><span class="ico">✅</span><b>Quiz</b><span>Wybierz poprawne tłumaczenie</span></a>
@@ -868,7 +871,7 @@ ROUTES.practice = () => {
     </div>
     <section class="card" style="margin-top:14px">
       <h2>Wkrótce</h2>
-      <p class="muted small">Wymowa z mikrofonem, lekcje gramatyki A1–C1, uzupełnianie luk i dyktando to kolejne etapy.</p>
+      <p class="muted small">Wymowa z mikrofonem, uzupełnianie luk w zdaniach i dyktando to kolejne etapy.</p>
     </section>`;
 };
 
@@ -1259,6 +1262,206 @@ function exportDeckTsv(id) {
   a.href = URL.createObjectURL(new Blob([tsv], { type: 'text/tab-separated-values' }));
   a.download = dd.name.replace(/[^\w\-ąćęłńóśźż ]+/gi, '') + '.txt';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/* ================= Gramatyka ================= */
+const LESSONS = typeof GRAMMAR !== 'undefined' ? GRAMMAR : [];
+const LESSON_BY_ID = new Map(LESSONS.map(l => [l.id, l]));
+const gstate = id => state.grammar[id] || (state.grammar[id] = { best: 0, last: 0, done: 0, wrong: [] });
+
+function normAns(s) {
+  let t = String(s).toLowerCase().replace(/[’‘`]/g, "'").replace(/[.!?]+$/g, '').replace(/,/g, ' ');
+  // Klawiatury w telefonach często gubią apostrof: dont -> don't, ive -> i've.
+  t = t.replace(/\b(do|does|did|is|are|was|were|have|has|had|could|would|should|must|need)nt\b/g, "$1n't")
+    .replace(/\bwont\b/g, "won't").replace(/\bcant\b/g, "can't")
+    .replace(/\bim\b/g, "i'm").replace(/\bive\b/g, "i've").replace(/\b(you|they)re\b/g, "$1're").replace(/\b(you|they|we)ve\b/g, "$1've");
+  t = t.replace(/\bwon't\b/g, 'will not').replace(/\bcan't\b/g, 'cannot').replace(/\bcan not\b/g, 'cannot')
+    .replace(/\bshan't\b/g, 'shall not').replace(/n't\b/g, ' not')
+    .replace(/'m\b/g, ' am').replace(/'re\b/g, ' are').replace(/'ve\b/g, ' have').replace(/'ll\b/g, ' will');
+  return t.replace(/\s+/g, ' ').trim();
+}
+const answerOk = (given, answers) => answers.some(a => normAns(a) === normAns(given));
+const blankCount = q => (q.match(/___/g) || []).length;
+function fillBlanks(q, parts) {
+  let i = 0;
+  return q.replace(/___(\s*\([^)]*\))?/g, () => parts[i++] ?? '___');
+}
+// Pełne poprawne zdanie (do wyświetlenia i odsłuchu), jeśli da się je zbudować.
+function correctSentence(ex) {
+  const [type, q] = ex;
+  if (type === 'c') return fillBlanks(q, ex[2][ex[3]].split(' / '));
+  if (type === 'g') return blankCount(q) === 1 ? fillBlanks(q, [ex[2][0]]) : null;
+  if (type === 'f') return ex[2][0];
+  if (type === 'o') return ex[2];
+  return null;
+}
+
+ROUTES.grammar = () => {
+  const wrongTotal = LESSONS.reduce((a, l) => a + ((state.grammar[l.id] && state.grammar[l.id].wrong.length) || 0), 0);
+  const doneN = LESSONS.filter(l => (state.grammar[l.id] || {}).best >= 80).length;
+  const next = LESSONS.find(l => ['B1', 'B2'].includes(l.level) && !((state.grammar[l.id] || {}).best >= 80))
+    || LESSONS.find(l => !((state.grammar[l.id] || {}).best >= 80));
+  const byLevel = LEVELS.map(lv => [lv, LESSONS.filter(l => l.level === lv)]).filter(([, ls]) => ls.length);
+  view.innerHTML = `
+    <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">${doneN} / ${LESSONS.length} opanowanych</span></header>
+    <h1 style="margin-bottom:12px">Gramatyka</h1>
+    ${next ? `<a class="card" href="#/glesson/${next.id}" style="display:block;text-decoration:none;color:inherit">
+      <div class="muted small">Polecana lekcja · ${next.level}</div><h2 style="margin:4px 0 0">${esc(next.title)}</h2></a>` : ''}
+    ${wrongTotal ? `<button class="btn block" id="gmist" style="margin-bottom:14px">Powtórz błędy (${wrongTotal})</button>` : ''}
+    ${byLevel.map(([lv, ls]) => `
+      <h2 style="font-size:1rem;margin:14px 0 8px">Poziom ${lv}</h2>
+      <div class="list">${ls.map(l => {
+        const g = state.grammar[l.id];
+        const badge = !g || !g.done ? '<span class="muted small">nowa</span>'
+          : `<span class="small" style="color:${g.best >= 80 ? 'var(--good)' : 'var(--warn)'};font-weight:700">${g.best}%</span>`;
+        return `<a class="item" href="#/glesson/${l.id}" style="text-decoration:none;color:inherit">
+          <div class="txt"><div class="en">${esc(l.title)}</div><div class="pl">${l.ex.length} ćwiczeń${g && g.wrong.length ? ` · błędy do powtórki: ${g.wrong.length}` : ''}</div></div>${badge}</a>`;
+      }).join('')}</div>`).join('')}`;
+  if ($('#gmist')) $('#gmist').onclick = () => startGrammarRun(null);
+};
+
+ROUTES.glesson = id => {
+  const l = LESSON_BY_ID.get(id);
+  if (!l) { location.hash = '#/grammar'; return; }
+  const g = state.grammar[id];
+  view.innerHTML = `
+    <header class="top">${backLink('#/grammar', 'Gramatyka')}<span class="muted small">${l.level}</span></header>
+    <h1 style="margin-bottom:12px">${esc(l.title)}</h1>
+    <section class="card lesson">${l.intro}</section>
+    ${g && g.done ? `<p class="muted small">Najlepszy wynik: ${g.best}% · podejść: ${g.done}</p>` : ''}
+    <div class="sticky-cta"><button class="btn primary big block" id="gstart">Ćwicz (${l.ex.length} zadań)</button></div>`;
+  $('#gstart').onclick = () => startGrammarRun(id);
+};
+
+let grun = null;
+function startGrammarRun(lessonId) {
+  let items;
+  if (lessonId) items = shuffle(LESSON_BY_ID.get(lessonId).ex.map((_, i) => ({ lid: lessonId, i })));
+  else items = shuffle(LESSONS.flatMap(l => ((state.grammar[l.id] || {}).wrong || []).map(i => ({ lid: l.id, i })))).slice(0, 20);
+  if (!items.length) { toast('Brak zadań'); return; }
+  grun = { lessonId, items, pos: 0, score: 0, wrong: [] };
+  if (location.hash === '#/gpractice') showGrammarItem(); else location.hash = '#/gpractice';
+}
+ROUTES.gpractice = () => { if (!grun) { location.hash = '#/grammar'; return; } showGrammarItem(); };
+
+function showGrammarItem() {
+  const r = grun;
+  if (r.pos >= r.items.length) return showGrammarResult();
+  const { lid, i } = r.items[r.pos];
+  const ex = LESSON_BY_ID.get(lid).ex[i];
+  const [type, q] = ex;
+  const head = `
+    <header class="top">${backLink(r.lessonId ? '#/glesson/' + r.lessonId : '#/grammar', r.lessonId ? 'Lekcja' : 'Gramatyka')}<span class="muted small">${r.pos + 1} / ${r.items.length}</span></header>
+    <div class="bar"><div style="width:${(r.pos / r.items.length) * 100}%"></div></div>`;
+  const label = { c: 'Wybierz poprawną odpowiedź', g: 'Uzupełnij lukę', f: 'Popraw błąd w zdaniu', o: 'Ułóż zdanie po angielsku' }[type];
+  let body = '';
+  let order = null;
+  if (type === 'c') {
+    order = shuffle(ex[2].map((_, k) => k));
+    body = `<div class="prompt">${esc(q)}</div><div class="options">${order.map(k => `<button class="btn option" data-k="${k}">${esc(ex[2][k])}</button>`).join('')}</div>`;
+  } else if (type === 'g') {
+    body = `<div class="prompt">${esc(q)}</div>
+      <input class="input" id="gin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${blankCount(q) > 1 ? 'Wpisz brakujące słowa po kolei' : 'Wpisz brakujące słowa'}">`;
+  } else if (type === 'f') {
+    body = `<div class="prompt" style="text-decoration:line-through;text-decoration-color:var(--bad)">${esc(q)}</div>
+      <textarea class="area" id="gin" style="min-height:80px" autocapitalize="sentences" spellcheck="false">${esc(q)}</textarea>`;
+  } else if (type === 'o') {
+    body = `<div class="prompt">${esc(q)}</div><div class="answer-area" id="gans"></div><div class="bank" id="gbank"></div>`;
+  }
+  view.innerHTML = `${head}
+    <section class="card" style="margin-top:14px">
+      <div class="muted small">${label}</div>
+      ${body}
+      <div id="gfb"></div>
+      <div class="row" style="margin-top:12px"><div class="spacer"></div><button class="btn primary" id="gcheck">Sprawdź</button></div>
+    </section>`;
+  let checked = false;
+  const finish = (ok, givenText) => {
+    checked = true;
+    if (ok) r.score++; else r.wrong.push({ lid, i });
+    const gs = gstate(lid);
+    if (ok) gs.wrong = gs.wrong.filter(x => x !== i);
+    else if (!gs.wrong.includes(i)) gs.wrong.push(i);
+    logActivity('ex', ok);
+    save();
+    const correct = correctSentence(ex);
+    const answers = type === 'c' ? [ex[2][ex[3]]] : type === 'o' ? [ex[2]] : ex[2];
+    const why = type === 'c' ? ex[4] : ex[3];
+    $('#gfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
+      <b>${ok ? 'Dobrze!' : 'Niestety nie.'}</b>
+      ${!ok && givenText ? `<div class="small">Twoja odpowiedź: ${esc(givenText)}</div>` : ''}
+      ${correct ? `<div class="row wrap" style="margin-top:4px">${esc(correct)} ${speakBtn(correct)}</div>` : `<div>Poprawnie: ${answers.map(esc).join(' / ')}</div>`}
+      ${why ? `<div class="small" style="margin-top:6px">${esc(why)}</div>` : ''}</div>`;
+    $('#gcheck').textContent = r.pos + 1 < r.items.length ? 'Dalej' : 'Wynik';
+    $('#gcheck').disabled = false;
+    if (correct && state.settings.autoSpeak) speak(correct);
+  };
+  const next = () => { r.pos++; showGrammarItem(); };
+  if (type === 'c') {
+    $('#gcheck').hidden = true;
+    $$('.option').forEach(b => b.onclick = () => {
+      if (checked) return;
+      const k = +b.dataset.k;
+      const ok = k === ex[3];
+      b.classList.add(ok ? 'right' : 'wrong');
+      $(`.option[data-k="${ex[3]}"]`).classList.add('right');
+      $('#gcheck').hidden = false;
+      finish(ok, ok ? '' : ex[2][k]);
+    });
+  } else if (type === 'g' || type === 'f') {
+    const inp = $('#gin');
+    inp.focus();
+    inp.onkeydown = e => { if (e.key === 'Enter' && type === 'g') { e.preventDefault(); $('#gcheck').click(); } };
+  } else if (type === 'o') {
+    const toks = tokenize(ex[2]);
+    const bank = shuffle(toks.map((t, k) => ({ t, k })));
+    const placed = [];
+    const draw = () => {
+      $('#gbank').innerHTML = bank.map(b => `<button class="chip ${placed.includes(b.k) ? 'used' : ''}" data-k="${b.k}">${esc(b.t)}</button>`).join('');
+      $('#gans').innerHTML = placed.map(k => `<button class="chip" data-p="${k}">${esc(toks[k])}</button>`).join('');
+    };
+    draw();
+    $('#gbank').onclick = e => { const c = e.target.closest('[data-k]'); if (!c || checked || placed.includes(+c.dataset.k)) return; placed.push(+c.dataset.k); draw(); };
+    $('#gans').onclick = e => { const c = e.target.closest('[data-p]'); if (!c || checked) return; placed.splice(placed.indexOf(+c.dataset.p), 1); draw(); };
+    r.orderPlaced = () => placed.map(k => toks[k]).join(' ');
+  }
+  $('#gcheck').onclick = () => {
+    if (checked) { next(); return; }
+    if (type === 'g' || type === 'f') {
+      const v = $('#gin').value.trim();
+      if (!v) { toast('Wpisz odpowiedź'); return; }
+      let ok = answerOk(v, ex[2]);
+      // Przy dwóch lukach akceptujemy też same brakujące słowa w kolejności.
+      if (!ok && type === 'g' && blankCount(q) > 1) ok = ex[2].some(a => normAns(a).split(' ').join(' ') === normAns(v));
+      finish(ok, ok ? '' : v);
+    } else if (type === 'o') {
+      const v = r.orderPlaced();
+      if (!v) { toast('Ułóż zdanie z klocków'); return; }
+      finish(normAns(v) === normAns(tokenize(ex[2]).join(' ')), v);
+    }
+  };
+}
+
+function showGrammarResult() {
+  const r = grun;
+  const pct = Math.round((r.score / r.items.length) * 100);
+  if (r.lessonId) {
+    const gs = gstate(r.lessonId);
+    gs.best = Math.max(gs.best || 0, pct); gs.last = pct; gs.done = (gs.done || 0) + 1; gs.at = today();
+    save();
+  }
+  view.innerHTML = `
+    <header class="top">${backLink('#/grammar', 'Gramatyka')}</header>
+    <section class="card center">
+      <div class="done-emoji">${pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪'}</div>
+      <h2>Wynik: ${r.score} / ${r.items.length} (${pct}%)</h2>
+      <p class="muted">${pct >= 80 ? 'Temat opanowany. Wróć do niego za jakiś czas, żeby utrwalić.' : 'Przeczytaj jeszcze raz wyjaśnienie i spróbuj ponownie. Błędne zadania trafiły do „Powtórz błędy”.'}</p>
+      <div class="grid2">
+        ${r.lessonId ? `<a class="btn" href="#/glesson/${r.lessonId}">Wyjaśnienie</a>` : `<a class="btn" href="#/grammar">Lekcje</a>`}
+        <button class="btn primary" id="gagain">${r.lessonId ? 'Jeszcze raz' : 'Powtórz błędy'}</button>
+      </div>
+    </section>`;
+  $('#gagain').onclick = () => startGrammarRun(r.lessonId);
 }
 
 /* ================= Import fiszek ================= */

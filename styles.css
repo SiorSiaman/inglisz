@@ -168,6 +168,11 @@ textarea.area {
 .heatmap i.l4 { background: var(--accent); }
 .heatmap i.today { outline: 2px solid var(--text); outline-offset: -1px; }
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lesson p { margin: 0 0 10px; }
+.lesson p:last-child { margin-bottom: 0; }
+.lesson i { color: var(--text); }
+.lesson s { color: var(--bad); }
+.lesson .tip { background: var(--warn-soft); border-radius: 10px; padding: 10px 12px; }
 .divider { width: 60%; height: 1px; background: var(--border); margin: 6px 0; }
 .speak {
   border: 1px solid var(--border); background: var(--surface-2); border-radius: 99px;
