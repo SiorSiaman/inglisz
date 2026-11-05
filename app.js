@@ -483,7 +483,7 @@ function markKnown(id, days = 30) {
 
 /* ================= Router ================= */
 const ROUTES = {};
-const NAV_OF = { pick: 'learn', import: 'words', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
+const NAV_OF = { pick: 'learn', import: 'words', decks: 'words', deck: 'words', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
 function render() {
   const [r, arg] = (location.hash.replace(/^#\/?/, '') || 'home').split('/');
   const name = ROUTES[r] ? r : 'home';
@@ -606,7 +606,8 @@ ROUTES.pick = () => {
     const due = ws.filter(w => state.cards[w.id] && state.cards[w.id].due <= t).length;
     return `<label class="check"><input type="checkbox" data-pc="${esc(k)}" ${catOn(k) ? 'checked' : ''}>
       <div class="txt"><div class="en">${esc(name)}${k.startsWith('u_') ? ' <span class="tag" style="font-size:.65rem">import</span>' : ''}</div>
-      <div class="pl">${nSlow(ws.length)} · ${fresh} nowych · ${due} do powtórki</div></div></label>`;
+      <div class="pl">${nSlow(ws.length)} · ${fresh} nowych · ${due} do powtórki</div></div>
+      <a class="btn" href="#/deck/${encodeURIComponent(k)}" style="min-height:36px;padding:4px 10px" onclick="event.stopPropagation()">Zobacz</a></label>`;
   }).join('');
   const selWords = WORDS.filter(w => inDeck(w));
   view.innerHTML = `
@@ -1070,7 +1071,8 @@ const wordsFilter = { level: 'all', cat: 'all', q: '', st: 'all' };
 ROUTES.words = () => {
   const chip = (group, val, label) => `<button class="filter ${wordsFilter[group] === val ? 'on' : ''}" data-g="${group}" data-v="${val}">${label}</button>`;
   view.innerHTML = `
-    <header class="top"><div><h1>Słówka</h1><span class="muted small">${WORDS.length} w bazie</span></div><a class="btn" href="#/import">+ Import</a></header>
+    <header class="top"><div><h1>Słówka</h1><span class="muted small">${WORDS.length} w bazie</span></div>
+      <div class="row"><a class="btn" href="#/decks">Talie</a><a class="btn" href="#/import">+ Import</a></div></header>
     <input class="search" id="q" type="search" placeholder="Szukaj po angielsku lub polsku…" value="${esc(wordsFilter.q)}">
     <div class="chips">${chip('level', 'all', 'Wszystkie poziomy')}${LEVELS.map(l => chip('level', l, l)).join('')}</div>
     <div class="chips">${chip('cat', 'all', 'Wszystkie kategorie')}${Object.entries(CATS).map(([k, v]) => chip('cat', k, v)).join('')}</div>
@@ -1097,30 +1099,166 @@ function drawWordList() {
   });
   if (q) list.sort((a, b) => (b.en.toLowerCase() === q) - (a.en.toLowerCase() === q) || (b.en.toLowerCase().startsWith(q)) - (a.en.toLowerCase().startsWith(q)));
   $('#count').textContent = `Znaleziono: ${list.length}`;
-  const shown = list.slice(0, wordsLimit);
-  $('#wlist').innerHTML = shown.length ? shown.map(w => {
-    const st = status(w.id);
-    return `<div class="item" data-id="${esc(w.id)}"><span class="dot ${st}" title="${STATUS_PL[st]}"></span>
-      <div class="txt"><div class="en">${esc(w.en)} <span class="muted small">· ${w.level}${w.ipa ? ' · /' + esc(w.ipa) + '/' : ''}</span></div><div class="pl">${esc(plOf(w))}</div>
-      <div class="ex">${w.ex ? `${esc(w.ex)}${w.exPl ? `<br>${esc(w.exPl)}` : ''}<br>` : ''}<button class="link-btn" data-edit="${esc(w.id)}">Popraw tłumaczenie</button>
-      <button class="link-btn" data-susp="${esc(w.id)}">${st === 'suspended' ? 'Wznów kartę' : 'Zawieś kartę'}</button></div></div>${speakBtn(w.en)}</div>`;
-  }).join('') + (list.length > wordsLimit ? `<button class="btn block" id="more" style="border:0;border-top:1px solid var(--border);border-radius:0">Pokaż więcej (${list.length - wordsLimit})</button>` : '')
-    : '<div class="item muted">Brak wyników</div>';
-  const more = $('#more');
-  if (more) more.onclick = () => { wordsLimit += 300; drawWordList(); };
-  $('#wlist').onclick = e => {
+  renderWordItems($('#wlist'), list, wordsLimit, () => { wordsLimit += 300; drawWordList(); }, drawWordList);
+}
+
+const dueLabel = c => {
+  if (!c) return '';
+  if (c.dueAt && c.dueAt > Date.now()) return 'powtórka za ' + Math.max(1, Math.round((c.dueAt - Date.now()) / 60000)) + ' min';
+  const d = (c.due ?? today()) - today();
+  return d <= 0 ? 'do powtórki dziś' : d === 1 ? 'powtórka jutro' : `powtórka za ${ivLabel(d)}`;
+};
+function wordItemHtml(w) {
+  const st = status(w.id);
+  const c = state.cards[w.id];
+  return `<div class="item" data-id="${esc(w.id)}"><span class="dot ${st}" title="${STATUS_PL[st]}"></span>
+    <div class="txt"><div class="en">${esc(w.en)} <span class="muted small">· ${w.level}${w.ipa ? ' · /' + esc(w.ipa) + '/' : ''}</span></div><div class="pl">${esc(plOf(w))}</div>
+    <div class="ex">${w.ex ? `${esc(w.ex)}${w.exPl ? `<br>${esc(w.exPl)}` : ''}<br>` : ''}
+      <span class="small">Status: ${STATUS_PL[st]}${c && st !== 'suspended' ? ' · ' + dueLabel(c) : ''}${c && c.lapses ? ` · pomyłek: ${c.lapses}` : ''}</span><br>
+      <button class="link-btn" data-edit="${esc(w.id)}">Popraw tłumaczenie</button>
+      <button class="link-btn" data-susp="${esc(w.id)}">${st === 'suspended' ? 'Wznów kartę' : 'Zawieś kartę'}</button>
+      ${c ? `<button class="link-btn" data-reset="${esc(w.id)}">Ucz od nowa</button>` : ''}
+      ${w.custom ? `<button class="link-btn" data-wdel="${esc(w.id)}" style="color:var(--bad)">Usuń z talii</button>` : ''}</div></div>${speakBtn(w.en)}</div>`;
+}
+// Wspólna lista słów (Słówka i widok talii): stronicowanie i akcje na słowie.
+function renderWordItems(el, list, limit, onMore, redraw) {
+  const shown = list.slice(0, limit);
+  el.innerHTML = shown.length ? shown.map(wordItemHtml).join('') +
+    (list.length > limit ? `<button class="btn block" data-more-words style="border:0;border-top:1px solid var(--border);border-radius:0">Pokaż więcej (${list.length - limit})</button>` : '')
+    : '<div class="item muted">Brak słów</div>';
+  el.onclick = e => {
+    if (e.target.closest('[data-more-words]')) { onMore(); return; }
     const ed = e.target.closest('[data-edit]');
-    if (ed) { editTranslation(BY_ID.get(ed.dataset.edit), drawWordList); return; }
+    if (ed) { editTranslation(BY_ID.get(ed.dataset.edit), redraw); return; }
     const su = e.target.closest('[data-susp]');
     if (su) {
       const id = su.dataset.susp;
       if (state.suspended[id]) { delete state.suspended[id]; toast('Karta wznowiona'); }
       else { state.suspended[id] = true; toast('Karta zawieszona'); }
-      save(); session = null; drawWordList(); return;
+      save(); session = null; redraw(); return;
+    }
+    const rs = e.target.closest('[data-reset]');
+    if (rs) {
+      if (!confirm('Zacząć naukę tego słowa od nowa? Historia powtórek tej karty zostanie usunięta.')) return;
+      delete state.cards[rs.dataset.reset]; delete state.buried[rs.dataset.reset];
+      save(); session = null; toast('Słowo wróci jako nowe'); redraw(); return;
+    }
+    const wd = e.target.closest('[data-wdel]');
+    if (wd) {
+      const w = BY_ID.get(wd.dataset.wdel);
+      if (!w || !confirm(`Usunąć „${w.en}” z talii?`)) return;
+      const d = custom.decks[w.cat];
+      if (d) d.words = d.words.filter(x => x.en.toLowerCase() !== w.en.toLowerCase());
+      delete state.cards[w.id]; delete state.suspended[w.id];
+      saveCustom(); applyCustom(); save(); session = null; toast('Usunięto słowo'); redraw(); return;
     }
     const it = e.target.closest('.item');
     if (it && !e.target.closest('button')) it.classList.toggle('open');
   };
+}
+
+/* ================= Talie ================= */
+function deckStats(cat) {
+  const ws = WORDS.filter(w => w.cat === cat);
+  const c = { total: ws.length, new: 0, learning: 0, review: 0, done: 0, susp: 0, due: 0 };
+  const t = today();
+  for (const w of ws) {
+    const st = status(w.id);
+    if (st === 'new') c.new++;
+    else if (st === 'learning') c.learning++;
+    else if (st === 'review') c.review++;
+    else if (st === 'suspended') c.susp++;
+    else c.done++;
+    const card = state.cards[w.id];
+    if (card && !isBlocked(w.id) && (card.due ?? t) <= t) c.due++;
+  }
+  return c;
+}
+ROUTES.decks = () => {
+  const rows = Object.entries(CATS).map(([k, name]) => {
+    const s = deckStats(k);
+    const pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
+    return `<a class="item" href="#/deck/${encodeURIComponent(k)}" style="text-decoration:none;color:inherit">
+      <div class="txt"><div class="en">${esc(name)}${k.startsWith('u_') ? ' <span class="tag" style="font-size:.65rem">moja</span>' : ''}</div>
+      <div class="pl">${nSlow(s.total)} · ${s.new} nowych · ${s.due} do powtórki · ${pct}% opanowane</div>
+      <div class="bar" style="margin-top:6px"><div style="width:${pct}%"></div></div></div><span>›</span></a>`;
+  }).join('');
+  view.innerHTML = `
+    <header class="top">${backLink('#/words', 'Słówka')}<a class="btn" href="#/import">+ Import</a></header>
+    <h1 style="margin-bottom:12px">Talie</h1>
+    <div class="list">${rows}</div>`;
+};
+
+const deckView = { q: '', st: 'all', limit: 150 };
+ROUTES.deck = id => {
+  if (!CATS[id]) { location.hash = '#/decks'; return; }
+  const isCustom = id.startsWith('u_');
+  const s = deckStats(id);
+  const chip = (val, label) => `<button class="filter ${deckView.st === val ? 'on' : ''}" data-dst="${val}">${label}</button>`;
+  view.innerHTML = `
+    <header class="top">${backLink('#/decks', 'Talie')}<span class="muted small">${isCustom ? 'Moja talia' : 'Talia wbudowana'}</span></header>
+    <h1 style="margin-bottom:10px;overflow-wrap:anywhere">${esc(CATS[id])}</h1>
+    <div class="kpis" style="margin-top:0;grid-template-columns:repeat(4,1fr)">
+      <div class="kpi"><b>${s.total}</b><span>${nSlow(s.total).split(' ')[1]}</span></div>
+      <div class="kpi"><b>${s.new}</b><span>nowe</span></div>
+      <div class="kpi"><b>${s.due}</b><span>do powtórki</span></div>
+      <div class="kpi"><b>${s.done}</b><span>opanowane</span></div>
+    </div>
+    <button class="btn primary block big" id="dlearn">Ucz się tylko tej talii</button>
+    ${isCustom ? `<div class="card-tools" style="margin:10px 0 0">
+      <button class="btn" id="drename">Zmień nazwę</button>
+      <button class="btn" id="dexport">Eksport</button>
+      <button class="btn" id="ddelete" style="color:var(--bad)">Usuń talię</button></div>` : ''}
+    <input class="search" id="dq" type="search" placeholder="Szukaj w tej talii…" value="${esc(deckView.q)}" style="margin-top:14px">
+    <div class="chips">${chip('all', 'Wszystkie')}${chip('new', 'Nowe')}${chip('learn', 'W nauce')}${chip('done', 'Opanowane')}${chip('susp', 'Zawieszone')}</div>
+    <div class="muted small" id="dcount" style="margin:4px 0 8px"></div>
+    <div class="list" id="dlist"></div>
+    ${isCustom ? `<a class="btn block" href="#/import" style="margin-top:10px">+ Dodaj słowa do talii</a>` : ''}`;
+  const draw = () => {
+    const q = deckView.q.trim().toLowerCase();
+    const list = WORDS.filter(w => {
+      if (w.cat !== id) return false;
+      const st = status(w.id);
+      if (deckView.st === 'new' && st !== 'new') return false;
+      if (deckView.st === 'learn' && !['learning', 'review'].includes(st)) return false;
+      if (deckView.st === 'done' && !['mastered', 'known'].includes(st)) return false;
+      if (deckView.st === 'susp' && st !== 'suspended') return false;
+      return !q || w.en.toLowerCase().includes(q) || plOf(w).toLowerCase().includes(q);
+    });
+    $('#dcount').textContent = `Pokazano: ${Math.min(list.length, deckView.limit)} z ${list.length}`;
+    renderWordItems($('#dlist'), list, deckView.limit, () => { deckView.limit += 300; draw(); }, () => ROUTES.deck(id));
+  };
+  $('#dq').oninput = e => { deckView.q = e.target.value; deckView.limit = 150; draw(); };
+  $$('[data-dst]').forEach(b => b.onclick = () => { deckView.st = b.dataset.dst; deckView.limit = 150; ROUTES.deck(id); });
+  $('#dlearn').onclick = () => {
+    const st = study();
+    Object.keys(CATS).forEach(k => st.cats[k] = k === id);
+    LEVELS.forEach(l => st.levels[l] = true);
+    save(); session = null; location.hash = '#/learn';
+  };
+  if (isCustom) {
+    $('#drename').onclick = () => {
+      const n = prompt('Nowa nazwa talii:', custom.decks[id].name);
+      if (!n || !n.trim()) return;
+      custom.decks[id].name = n.trim(); saveCustom(); applyCustom(); ROUTES.deck(id);
+    };
+    $('#dexport').onclick = () => exportDeckTsv(id);
+    $('#ddelete').onclick = () => {
+      if (!confirm(`Usunąć talię „${custom.decks[id].name}”? Postęp jej fiszek też zniknie.`)) return;
+      for (const cid of Object.keys(state.cards)) if (cid.startsWith(id + ':')) delete state.cards[cid];
+      delete custom.decks[id]; delete study().cats[id];
+      saveCustom(); applyCustom(); save(); session = null; location.hash = '#/decks';
+    };
+  }
+  draw();
+};
+function exportDeckTsv(id) {
+  const dd = custom.decks[id];
+  const tsv = '#separator:tab\n#html:false\n' + dd.words.map(x => [x.en, x.pl, x.ex || ''].map(v => v.replace(/[\t\n]/g, ' ')).join('\t')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([tsv], { type: 'text/tab-separated-values' }));
+  a.download = dd.name.replace(/[^\w\-ąćęłńóśźż ]+/gi, '') + '.txt';
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 /* ================= Import fiszek ================= */
@@ -1314,7 +1452,7 @@ ROUTES.import = () => {
     <section class="card">
       <h2>Moje talie</h2>
       ${decks.length ? `<div class="list">${decks.map(([k, dd]) => `
-        <div class="item"><div class="txt"><div class="en">${esc(dd.name)}</div><div class="pl">${nFiszek(dd.words.length)}</div></div>
+        <div class="item"><a class="txt" href="#/deck/${encodeURIComponent(k)}" style="text-decoration:none;color:inherit"><div class="en">${esc(dd.name)} ›</div><div class="pl">${nFiszek(dd.words.length)} · otwórz</div></a>
           <button class="btn" data-dexp="${esc(k)}" style="min-height:36px;padding:4px 10px">Eksport</button>
           <button class="btn" data-ddel="${esc(k)}" style="min-height:36px;padding:4px 10px;color:var(--bad)">Usuń</button></div>`).join('')}</div>`
         : '<p class="muted small">Nie masz jeszcze własnych talii.</p>'}
