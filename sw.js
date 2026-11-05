@@ -1,7 +1,7 @@
 // Tryb offline: pliki aplikacji trafiają do pamięci podręcznej.
 // Strategia "stale-while-revalidate": od razu pokazujemy wersję z pamięci,
 // a w tle pobieramy nowszą. Przy większych zmianach podbij CACHE.
-const CACHE = 'inglisz-v2';
+const CACHE = 'inglisz-v3';
 const FILES = [
   './',
   './index.html',

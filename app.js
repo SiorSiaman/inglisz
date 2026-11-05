@@ -9,6 +9,7 @@ const CATS = {
   colloc: 'Kolokacje i idiomy',
   work: 'Praca i biznes',
   telecom: 'Telekomunikacja',
+  tech: 'IT i technika',
   travel: 'Podróże',
 };
 
@@ -51,6 +52,7 @@ const DEFAULT_SETTINGS = {
   rate: 0.95,
   direction: 'mix',
   buildLevel: 'all',
+  deck: 'all',
   cats: Object.fromEntries(Object.keys(CATS).map(k => [k, true])),
 };
 
@@ -233,18 +235,33 @@ function status(id) {
 }
 const STATUS_PL = { new: 'nowe', learning: 'w nauce', review: 'powtarzane', mastered: 'opanowane', known: 'znane' };
 
+const DECKS = {
+  all: { label: 'Wszystkie', cats: null },
+  technical: { label: 'Techniczne', cats: ['telecom', 'tech'] },
+  telecom: { label: 'Telekomunikacja', cats: ['telecom'] },
+  tech: { label: 'IT i technika', cats: ['tech'] },
+  work: { label: 'Praca i biznes', cats: ['work'] },
+  travel: { label: 'Podróże', cats: ['travel'] },
+  phrases: { label: 'Zwroty i phrasal verbs', cats: ['phrasal', 'colloc'] },
+  core: { label: 'Słownik ogólny', cats: ['core', 'general'] },
+};
+function inDeck(w, deck = 'all') {
+  const d = DECKS[deck] || DECKS.all;
+  if (d.cats) return d.cats.includes(w.cat);
+  return !!state.settings.cats[w.cat];
+}
 function enabledWords() { return WORDS.filter(w => state.settings.cats[w.cat]); }
-function dueIds() {
+function dueIds(deck = 'all') {
   const t = today();
-  return Object.keys(state.cards).filter(id => BY_ID.has(id) && state.cards[id].due <= t && state.settings.cats[BY_ID.get(id).cat]);
+  return Object.keys(state.cards).filter(id => BY_ID.has(id) && state.cards[id].due <= t && inDeck(BY_ID.get(id), deck));
 }
-function newIntroducedToday() {
+function newIntroducedToday(deck = 'all') {
   const t = today();
-  return Object.values(state.cards).filter(c => c.first === t && c.s !== 'known').length;
+  return Object.entries(state.cards).filter(([id, c]) => c.first === t && c.s !== 'known' && BY_ID.has(id) && inDeck(BY_ID.get(id), deck)).length;
 }
-function newAvailable() {
-  const left = Math.max(0, state.settings.newPerDay - newIntroducedToday());
-  const pool = enabledWords().filter(w => !state.cards[w.id]);
+function newAvailable(deck = 'all') {
+  const left = Math.max(0, state.settings.newPerDay - newIntroducedToday(deck));
+  const pool = WORDS.filter(w => inDeck(w, deck) && !state.cards[w.id]);
   return { left: Math.min(left, pool.length), pool };
 }
 function orderNew(pool) {
@@ -299,9 +316,10 @@ function grade(id, g) {
   save();
 }
 
-function markKnown(id) {
+function markKnown(id, days = 30) {
+  // Znane słowo wraca dopiero po kilku miesiącach jako kontrola.
   const t = today();
-  state.cards[id] = { s: 'known', iv: 60, ef: 2.7, reps: 3, lapses: 0, first: t, due: t + 30 + Math.floor(Math.random() * 60) };
+  state.cards[id] = { s: 'known', iv: days * 2, ef: 2.7, reps: 3, lapses: 0, first: t, due: t + days + Math.floor(Math.random() * days * 2) };
 }
 
 /* ================= Router ================= */
@@ -365,9 +383,9 @@ ROUTES.home = () => {
 
 /* ================= Fiszki ================= */
 let session = null;
-function buildSession() {
-  const due = shuffle(dueIds()).map(id => ({ id, isNew: false }));
-  const { left, pool } = newAvailable();
+function buildSession(deck = state.settings.deck || 'all') {
+  const due = shuffle(dueIds(deck)).map(id => ({ id, isNew: false }));
+  const { left, pool } = newAvailable(deck);
   const fresh = orderNew(pool).slice(0, left).map(w => ({ id: w.id, isNew: true }));
   // Przeplatamy: co 3 powtórki jedno nowe słowo.
   const q = [];
@@ -375,32 +393,51 @@ function buildSession() {
     for (let i = 0; i < 3 && due.length; i++) q.push(due.shift());
     if (fresh.length) q.push(fresh.shift());
   }
-  return { queue: q, total: q.length, done: 0, revealed: false, dir: null, again: 0 };
+  return { deck, queue: q, total: q.length, done: 0, revealed: false, dir: null, again: 0, history: [] };
 }
 
 ROUTES.learn = () => {
-  if (!session || session.queue.length === 0) session = buildSession();
+  const deck = state.settings.deck || 'all';
+  if (!session || session.deck !== deck || (session.queue.length === 0 && !session.history.length)) session = buildSession(deck);
   showCard();
 };
+
+function deckBar() {
+  const cur = state.settings.deck || 'all';
+  return `<div class="chips" id="decks">${Object.entries(DECKS).map(([k, d]) => {
+    const n = dueIds(k).length + newAvailable(k).left;
+    return `<button class="filter ${cur === k ? 'on' : ''}" data-deck="${k}">${d.label} · ${n}</button>`;
+  }).join('')}</div>`;
+}
+function bindDeckBar() {
+  $$('#decks [data-deck]').forEach(b => b.onclick = () => {
+    state.settings.deck = b.dataset.deck; save(); session = null; ROUTES.learn();
+  });
+  const on = $('#decks .on'); if (on) on.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+const undoBtn = () => session && session.history.length
+  ? `<button class="btn" id="undo" style="min-height:38px;padding:6px 12px">↶ Cofnij</button>` : '';
 
 function showCard() {
   const s = session;
   if (s.queue.length === 0) {
     const doneAny = s.total > 0;
     view.innerHTML = `
-      <header class="top"><h1>Fiszki</h1></header>
+      <header class="top"><h1>Fiszki</h1>${undoBtn()}</header>
+      ${deckBar()}
       <section class="card center">
         <div class="done-emoji">${doneAny ? '🎉' : '☕'}</div>
         <h2>${doneAny ? 'Sesja ukończona!' : 'Brak słówek na teraz'}</h2>
-        <p class="muted">${doneAny ? `Przerobione karty: ${s.done}.` : 'Wszystkie powtórki zrobione, a dzienny limit nowych słów jest wyczerpany.'}
-        Możesz poćwiczyć zdania albo zwiększyć limit nowych słów w ustawieniach.</p>
+        <p class="muted">${doneAny ? `Przerobione karty: ${s.done}.` : 'W tej talii wszystkie powtórki są zrobione, a dzienny limit nowych słów wyczerpany.'}
+        Wybierz inną talię powyżej, poćwicz zdania albo zwiększ limit nowych słów w ustawieniach.</p>
         <div class="grid2">
           <a class="btn" href="#/build">Ułóż zdanie</a>
           <a class="btn" href="#/quiz">Quiz</a>
         </div>
         <p><a href="#/settings">Ustawienia limitu</a></p>
       </section>`;
-    session = null;
+    bindDeckBar();
+    if ($('#undo')) $('#undo').onclick = undo;
     return;
   }
   const item = s.queue[0];
@@ -413,15 +450,24 @@ function showCard() {
     ? `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}${speakBtn(w.en)}`
     : `<div class="word">${esc(plOf(w))}</div><div class="muted small">Jak to powiesz po angielsku?</div>`;
   view.innerHTML = `
-    <header class="top"><h1>Fiszki</h1><span class="muted small">Zostało: ${s.queue.length}</span></header>
+    <header class="top"><h1>Fiszki</h1><div class="row">${undoBtn()}<span class="muted small">Zostało: ${s.queue.length}</span></div></header>
+    ${deckBar()}
     <div class="bar"><div style="width:${pct}%"></div></div>
     <div class="flash" id="flash">
       <span class="tag ${item.isNew ? 'new' : ''}">${item.isNew ? 'NOWE · ' : ''}${w.level} · ${esc(CATS[w.cat])}</span>
       ${front}
       <div id="back" hidden></div>
     </div>
-    <div id="actions"><button class="btn primary big block" id="reveal">Pokaż odpowiedź</button></div>`;
+    <div id="actions">
+      ${item.isNew
+        ? `<div class="grid2"><button class="btn big g2" id="known">Znam, pomiń</button><button class="btn primary big" id="reveal">Pokaż</button></div>
+           <p class="muted small center" style="margin:8px 0 0">„Znam” usuwa słowo z nauki. Wróci za kilka miesięcy jako kontrola.</p>`
+        : `<button class="btn primary big block" id="reveal">Pokaż odpowiedź</button>`}
+    </div>`;
   if (s.dir === 'en-pl' && state.settings.autoSpeak) speak(w.en);
+  bindDeckBar();
+  if ($('#undo')) $('#undo').onclick = undo;
+  if ($('#known')) $('#known').onclick = answerKnown;
   $('#reveal').onclick = reveal;
   $('#flash').onclick = e => { if (!e.target.closest('button') && !s.revealed) reveal(); };
 }
@@ -447,18 +493,69 @@ function reveal() {
   const ivs = nextIntervals(state.cards[w.id]);
   const labels = ['Nie wiem', 'Trudne', 'Dobrze', 'Łatwe'];
   $('#actions').innerHTML = `<div class="grades">${labels.map((l, g) =>
-    `<button class="btn g${g}" data-g="${g}">${l}<small>${ivLabel(ivs[g])}</small></button>`).join('')}</div>`;
+    `<button class="btn g${g}" data-g="${g}">${l}<small>${ivLabel(ivs[g])}</small></button>`).join('')}</div>
+    <button class="btn block" id="known" style="margin-top:8px">Znam to dobrze, nie pokazuj przez kilka miesięcy</button>`;
   $$('#actions [data-g]').forEach(b => b.onclick = () => answer(+b.dataset.g));
+  $('#known').onclick = answerKnown;
+}
+
+function snapshot() {
+  const s = session;
+  const id = s.queue[0].id;
+  const t = today();
+  s.history.push({
+    id,
+    card: state.cards[id] ? JSON.stringify(state.cards[id]) : null,
+    log: state.log[t] ? JSON.stringify(state.log[t]) : null,
+    day: t,
+    queue: s.queue.slice(),
+    done: s.done,
+    again: s.again,
+  });
+  if (s.history.length > 30) s.history.shift();
+}
+
+function undo() {
+  const s = session;
+  const h = s && s.history.pop();
+  if (!h) return;
+  if (h.card) state.cards[h.id] = JSON.parse(h.card); else delete state.cards[h.id];
+  if (h.log) state.log[h.day] = JSON.parse(h.log); else delete state.log[h.day];
+  s.queue = h.queue; s.done = h.done; s.again = h.again;
+  save();
+  stopSpeech();
+  showCard();
+  toast('Cofnięto: ' + BY_ID.get(h.id).en);
 }
 
 function answer(g) {
   const s = session;
+  snapshot();
   const item = s.queue.shift();
   grade(item.id, g);
   if (g === 0) {
     s.queue.splice(Math.min(3, s.queue.length), 0, { id: item.id, isNew: false });
     s.again++;
   }
+  s.done++;
+  showCard();
+}
+
+function answerKnown() {
+  const s = session;
+  snapshot();
+  const item = s.queue.shift();
+  markKnown(item.id, 60);
+  // Usuń ewentualne powtórzenia tego słowa z kolejki.
+  s.queue = s.queue.filter(q => q.id !== item.id);
+  // Pominięte znane słowo nie zabiera miejsca: dokładamy kolejne nowe z tej samej talii.
+  if (item.isNew) {
+    const inQueue = new Set(s.queue.map(q => q.id));
+    const next = orderNew(newAvailable(s.deck).pool).find(w => !inQueue.has(w.id));
+    if (next) { s.queue.push({ id: next.id, isNew: true }); s.total++; }
+  }
+  logActivity(item.isNew ? 'new' : 'review', true);
+  save();
   s.done++;
   showCard();
 }

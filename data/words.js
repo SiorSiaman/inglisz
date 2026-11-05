@@ -467,5 +467,128 @@ tip | napiwek | Is the tip included?
 allergic to | uczulony na | I'm allergic to nuts.
 lost property | biuro rzeczy znalezionych | Where is the lost property office?
 emergency | nagły wypadek | In an emergency, call 112.
+` },
+{ cat: 'telecom', level: 'B2', items: `
+antenna | antena | The antenna was damaged in the storm.
+transceiver | nadajnik-odbiornik | We need to replace the faulty transceiver.
+microwave link | łącze radiowe (mikrofalowe) | The site is connected by a microwave link.
+gateway | brama sieciowa | All traffic goes through the gateway.
+IP address | adres IP | The device didn't get an IP address.
+subnet | podsieć | Each office has its own subnet.
+routing | trasowanie (routing) | There's a problem with the routing.
+routing table | tablica routingu | Check the routing table on the core router.
+protocol | protokół | Which protocol does the device use?
+packet | pakiet | Some packets are being dropped.
+traffic | ruch (sieciowy) | Traffic is much higher in the evening.
+load balancing | równoważenie obciążenia | Load balancing spreads traffic across servers.
+quality of service | jakość usług (QoS) | Quality of service is critical for voice calls.
+signal-to-noise ratio | stosunek sygnału do szumu | The signal-to-noise ratio is too low.
+modulation | modulacja | Higher modulation gives more throughput.
+frequency | częstotliwość | The radio works on a different frequency.
+wavelength | długość fali | Each channel uses a different wavelength.
+splice | spaw (światłowodu); spawać | The technician spliced the broken fibre.
+splitter | rozgałęźnik (splitter) | One splitter serves thirty-two homes.
+duct | kanalizacja kablowa | The cable runs through an underground duct.
+cabinet | szafa (telekomunikacyjna) | The street cabinet was flooded.
+rack | szafa rack, stelaż | Install the switch in the second rack.
+patch panel | panel krosowy | Label every port on the patch panel.
+patch cord | kabel krosowy (patchcord) | Replace the patch cord and test again.
+link budget | bilans łącza | The link budget is too tight for this distance.
+fault | usterka, awaria | The fault was on the customer's side.
+alarm | alarm | We received a critical alarm from the site.
+monitoring | monitoring, nadzór | Our monitoring system detected the outage.
+network operations centre | centrum zarządzania siecią (NOC) | Call the network operations centre.
+field engineer | technik terenowy | A field engineer will visit the site tomorrow.
+site survey | wizja lokalna | We need a site survey before installation.
+installation | instalacja, montaż | The installation took two days.
+commissioning | uruchomienie, oddanie do eksploatacji | Commissioning is planned for next week.
+acceptance test | test odbiorczy | The client signed the acceptance test.
+SIM card | karta SIM | Insert the SIM card and restart the phone.
+prepaid | na kartę (prepaid) | Prepaid customers can top up online.
+postpaid | abonamentowy | Most business clients are postpaid.
+tariff | taryfa, cennik | The new tariff includes unlimited data.
+data plan | pakiet danych | My data plan has 50 gigabytes.
+top-up | doładowanie | You can buy a top-up at any shop.
+number portability | przeniesienie numeru | Number portability takes one working day.
+call centre | infolinia, call center | The call centre is open 24/7.
+voicemail | poczta głosowa | Leave a message on my voicemail.
+broadband | internet szerokopasmowy | Broadband is now available in rural areas.
+landline | telefon stacjonarny | Fewer people use a landline today.
+mobile operator | operator komórkowy | There are four mobile operators in Poland.
+small cell | mała komórka (small cell) | Small cells improve coverage indoors.
+uplink | łącze w górę (uplink) | The uplink speed is much lower.
+downlink | łącze w dół (downlink) | Downlink speeds reached one gigabit.
+tilt | pochylenie (anteny) | We changed the antenna tilt to reduce interference.
+azimuth | azymut | Check the azimuth of each sector.
+` },
+{ cat: 'tech', level: 'B1', items: `
+server | serwer | The server is down again.
+database | baza danych | All customer data is stored in the database.
+software | oprogramowanie | We need to update the software.
+hardware | sprzęt | The problem is with the hardware, not the software.
+device | urządzenie | Restart the device and try again.
+interface | interfejs | The new interface is much easier to use.
+configure | konfigurować | Can you configure the router for me?
+configuration | konfiguracja | Save the configuration before you reboot.
+settings | ustawienia | Open the settings and change the password.
+install | instalować | I installed the latest version.
+uninstall | odinstalować | Uninstall the old app first.
+release | wydanie (wersji); wypuszczać | The next release is due in March.
+version | wersja | Which version are you using?
+bug | błąd (w programie) | We found a bug in the billing system.
+fix | naprawiać; poprawka | The fix will be ready tomorrow.
+patch | łatka (poprawka) | Install the security patch as soon as possible.
+crash | awaria, zawieszenie; zawiesić się | The application crashed during the demo.
+freeze | zawieszać się | My laptop keeps freezing.
+reboot | uruchomić ponownie | Reboot the server after the update.
+error message | komunikat o błędzie | What does the error message say?
+log file | plik logów | Send me the log file, please.
+power supply | zasilacz, zasilanie | The power supply failed.
+battery | bateria, akumulator | The battery lasts all day.
+charger | ładowarka | I forgot my phone charger.
+cable | kabel | Is the cable plugged in?
+plug in | podłączyć | Plug in the cable and wait a minute.
+socket | gniazdko | There's no free socket in this room.
+wireless | bezprzewodowy | The office has a wireless network.
+access point | punkt dostępowy | We installed a new access point on each floor.
+username | nazwa użytkownika | Enter your username and password.
+credentials | dane logowania | Never share your credentials.
+log in | zalogować się | I can't log in to the system.
+permission | uprawnienie, pozwolenie | You don't have permission to edit this file.
+backup | kopia zapasowa | We make a backup every night.
+restore | przywracać | We restored the data from the backup.
+storage | pamięć, przechowywanie danych | We're running out of storage.
+download | pobierać | Download the file from the shared folder.
+upload | wysyłać (na serwer) | Upload your report to the portal.
+data | dane | The data is updated every hour.
+spreadsheet | arkusz kalkulacyjny | I put all the numbers in a spreadsheet.
+dashboard | pulpit, panel | The dashboard shows network status in real time.
+script | skrypt | I wrote a script to automate the report.
+automate | automatyzować | We want to automate this process.
+workflow | przepływ pracy, proces | The new workflow saves us a lot of time.
+integration | integracja | The integration with the CRM is almost done.
+specification | specyfikacja | Read the technical specification first.
+documentation | dokumentacja | The documentation is out of date.
+user manual | instrukcja obsługi | It's explained in the user manual.
+prototype | prototyp | We built a prototype in two weeks.
+pilot project | projekt pilotażowy | The pilot project starts in May.
+scalable | skalowalny | We need a scalable solution.
+performance | wydajność | The performance improved after the upgrade.
+bottleneck | wąskie gardło | The database is the main bottleneck.
+maintenance | konserwacja, utrzymanie | The system is down for maintenance.
+spare part | część zamienna | We keep spare parts in the warehouse.
+warranty | gwarancja | The device is still under warranty.
+tender | przetarg | We won the tender for the new network.
+procurement | zakupy, zaopatrzenie | Procurement must approve the order.
+milestone | kamień milowy | We reached the first milestone on time.
+deliverable | produkt (rezultat projektu) | What are the deliverables for this phase?
+scope | zakres | That's outside the scope of the project.
+kick-off meeting | spotkanie otwierające projekt | The kick-off meeting is on Monday.
+status update | informacja o postępach | Can you send me a quick status update?
+requirement | wymaganie | The client changed the requirements again.
+cybersecurity | cyberbezpieczeństwo | Cybersecurity is a top priority.
+vulnerability | podatność (luka bezpieczeństwa) | They found a vulnerability in the firmware.
+firmware | oprogramowanie układowe (firmware) | Update the firmware on all routers.
+artificial intelligence | sztuczna inteligencja | We use artificial intelligence to predict faults.
 ` }
 ];
