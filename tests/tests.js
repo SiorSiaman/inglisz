@@ -300,6 +300,40 @@
     eq(ids.length, 24); eq(new Set(ids).size, 24, 'powtórki między sesjami');
   });
 
+  await test('Statystyki ćwiczeń: każdy rodzaj zapisuje wynik i pokazuje się w Postępach', async () => {
+    // Ułóż zdanie (dobrze), quiz (10 dobrze), pary (dobrze), luka (źle), gramatyka (1 dobrze)
+    await go('#/build');
+    const s = SENTENCES.find(x => x.pl === $('.prompt').textContent);
+    for (const t of tokenize(s.en)) [...document.querySelectorAll('#bank .chip:not(.used)')].find(c => c.textContent === t).click();
+    $('#check').click();
+    await go('#/quiz');
+    for (let i = 0; i < 10; i++) { const w = quiz.qs[quiz.i]; [...document.querySelectorAll('.option')].find(o => o.dataset.id === w.id).click(); $('#next').click(); }
+    await go('#/pairs');
+    for (const b of [...document.querySelectorAll('.pair[data-side="en"]')]) { b.click(); document.querySelector(`.pair[data-side="pl"][data-id="${CSS.escape(b.dataset.id)}"]`).click(); }
+    await go('#/gaps');
+    $('#gapin').value = 'zzz'; $('#gok').click();
+    startGrammarRun('present-perfect'); await sleep(20);
+    const { lid, i } = grun.items[0]; const ex = LESSON_BY_ID.get(lid).ex[i];
+    if (ex[0] === 'c') $(`.option[data-k="${ex[3]}"]`).click();
+    else if (ex[0] === 'o') { for (const t of tokenize(ex[2])) [...document.querySelectorAll('#gbank .chip:not(.used)')].find(c => c.textContent === t).click(); $('#gcheck').click(); }
+    else { $('#gin').value = ex[2][0]; $('#gcheck').click(); }
+    grun = null;
+    const xt = state.log[today()].xt;
+    eq(xt.build.n, 1, 'ułóż'); eq(xt.build.ok, 1);
+    eq(xt.quiz.n, 10, 'quiz (bez dodatkowego wpisu na końcu)'); eq(xt.quiz.ok, 10);
+    eq(xt.pairs.n, 1, 'pary'); eq(xt.pairs.ok, 1);
+    eq(xt.gaps.n, 1, 'luka'); eq(xt.gaps.ok, 0);
+    eq(xt.grammar.n, 1, 'gramatyka'); eq(xt.grammar.ok, 1);
+    eq(state.log[today()].x, 14, 'suma ćwiczeń');
+    assert(Object.values(xt).every(v => v.t >= 0 && v.t <= 120000 * v.n), 'czas w granicach');
+    await go('#/stats');
+    const tbl = $('.ex-table');
+    assert(tbl, 'brak tabeli ćwiczeń');
+    for (const name of ['Ułóż zdanie', 'Quiz', 'Dopasuj pary', 'Uzupełnij lukę', 'Gramatyka']) assert(tbl.textContent.includes(name), 'brak wiersza ' + name);
+    assert(!tbl.textContent.includes('Wymowa'), 'wymowa ukryta');
+    assert(view.textContent.includes('93%'), 'skuteczność 13/14');
+  });
+
   /* ---------- Zapis ---------- */
   await test('Eksport/import stanu zachowuje dane', () => {
     state.cards.know = schedule(null, 4); state.edits.know = 'xx';

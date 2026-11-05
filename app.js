@@ -257,7 +257,13 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
-// kind: 'new' | 'review' | 'ex'; ok: czy poprawnie; extra: { ms, rv (ocena karty w stanie review), rvOk }
+// Zegar ćwiczeń: czas od pokazania ekranu albo od poprzedniej odpowiedzi (max 2 min, żeby przerwa nie zawyżała).
+let exClock = Date.now();
+const EX_TYPES = {
+  build: 'Ułóż zdanie', listen: 'Ze słuchu', gaps: 'Uzupełnij lukę', dictation: 'Dyktando',
+  pairs: 'Dopasuj pary', quiz: 'Quiz', grammar: 'Gramatyka', speak: 'Wymowa',
+};
+// kind: 'new' | 'review' | 'ex'; ok: czy poprawnie; extra: { ms, rv (ocena karty w stanie review), rvOk, type (rodzaj ćwiczenia) }
 function logActivity(kind, ok, extra = {}) {
   const t = today();
   const e = state.log[t] || (state.log[t] = { r: 0, n: 0, ok: 0, x: 0 });
@@ -267,6 +273,16 @@ function logActivity(kind, ok, extra = {}) {
   else if (kind === 'review') e.r++;
   else e.x++;
   if (ok) e.ok++;
+  if (kind === 'ex') {
+    const now = Date.now();
+    const ms = extra.ms ?? Math.min(120000, Math.max(0, now - exClock));
+    exClock = now;
+    extra = { ...extra, ms };
+    const type = extra.type || 'other';
+    const xt = e.xt || (e.xt = {});
+    const s = xt[type] || (xt[type] = { n: 0, ok: 0, t: 0 });
+    s.n++; if (ok) s.ok++; s.t += ms;
+  }
   if (extra.ms) e.t = (e.t || 0) + extra.ms;
   if (extra.rv) { e.rv = (e.rv || 0) + 1; if (extra.rvOk) e.rvOk = (e.rvOk || 0) + 1; }
 }
@@ -513,6 +529,7 @@ function render() {
   if (name === 'home' && !state.onboarded && Object.keys(state.cards).length === 0) name = 'welcome';
   if (mix && !MIX_ROUTES.includes(name)) mix = null; // wyjście z treningu mieszanego
   stopSpeech();
+  if (!mix) exClock = Date.now();
   ROUTES[name](arg ? decodeURIComponent(arg) : undefined);
   const nav = NAV_OF[name] || name;
   $$('.tabbar a').forEach(a => a.classList.toggle('active', a.dataset.route === nav));
@@ -764,7 +781,7 @@ ROUTES.pairs = () => {
     if (matched === chosen.length) {
       const ok = mistakes === 0;
       for (const id of wrongIds) if (state.cards[id]) state.cards[id].due = Math.min(state.cards[id].due ?? today(), today());
-      logActivity('ex', ok); save();
+      logActivity('ex', ok, { type: 'pairs' }); save();
       $('#pfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}"><b>${ok ? 'Bezbłędnie!' : `Gotowe, pomyłki: ${mistakes}`}</b></div>
         <button class="btn primary block" id="pnext">Dalej</button>`;
       $('#pnext').onclick = () => afterExercise(ok, () => ROUTES.pairs());
@@ -1202,7 +1219,7 @@ function builderScreen({ title, mode, promptHtml, target, extra, toolbar = '' })
     const ok = given === tokens.map(normTok).join(' ');
     lastOk = ok;
     feedback(ok);
-    logActivity('ex', ok); save();
+    logActivity('ex', ok, { type: mode === 'listen' ? 'listen' : 'build' }); save();
     $('#fb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
       <b>${ok ? 'Świetnie!' : 'Prawie. Poprawna odpowiedź:'}</b>
       <div class="row wrap">${esc(target)} ${speakBtn(target)}</div>${extra || ''}</div>`;
@@ -1255,7 +1272,6 @@ ROUTES.quiz = () => {
 function quizQuestion() {
   const q = quiz;
   if (q.i >= q.qs.length) {
-    logActivity('ex', false); save();
     view.innerHTML = `
       <header class="top">${backLink('#/practice', 'Ćwiczenia')}</header>
       <section class="card center">
@@ -1295,7 +1311,7 @@ function quizQuestion() {
     $$('.option').find(x => x.dataset.id === w.id).classList.add('right');
     // Błąd w quizie = słowo wraca do powtórki dziś.
     if (!ok && state.cards[w.id]) { state.cards[w.id].due = today(); }
-    logActivity('ex', ok); save();
+    logActivity('ex', ok, { type: 'quiz' }); save();
     if (!enToPl) speak(w.en);
     $('#fb').innerHTML = `${w.ex ? `<p class="example">${esc(w.ex)}</p>` : ''}<button class="btn primary block big" id="next">Dalej</button>`;
     $('#next').onclick = () => { q.i++; quizQuestion(); };
@@ -1432,7 +1448,7 @@ ROUTES.speak = () => {
       if (!alts.length) { $('#micst').textContent = 'Nic nie usłyszałem. Spróbuj jeszcze raz.'; return; }
       const b = bestMatch(target, alts);
       const ok = b.score >= (mode === 'word' ? 100 : 80);
-      if (tries === 1) logActivity('ex', ok);
+      if (tries === 1) logActivity('ex', ok, { type: 'speak' });
       save();
       $('#micst').textContent = 'Dotknij, żeby spróbować jeszcze raz';
       $('#sfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}" style="text-align:left">
@@ -1491,7 +1507,7 @@ ROUTES.gaps = () => {
     gapOk = good;
     feedback(ok);
     if (!good && state.cards[w.id]) state.cards[w.id].due = Math.min(state.cards[w.id].due ?? today(), today());
-    logActivity('ex', good); save();
+    logActivity('ex', good, { type: 'gaps' }); save();
     $('#gapfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
       <b>${ok ? (hints ? 'Dobrze (z podpowiedzią)' : 'Świetnie!') : close ? 'Prawie – literówka.' : 'Niestety nie.'}</b>
       <div class="row wrap">${esc(w.ex)} ${speakBtn(w.ex)}</div></div>`;
@@ -1527,7 +1543,7 @@ ROUTES.dictation = () => {
     const ok = d.score >= 90;
     dictOk = !!given && ok;
     if (given) feedback(ok);
-    logActivity('ex', dictOk); save();
+    logActivity('ex', dictOk, { type: 'dictation' }); save();
     $('#dfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
       <b>${given ? (ok ? 'Świetnie!' : 'Sprawdź błędy') : 'Poprawne zdanie'}${given ? ` (${d.score}%)` : ''}</b>
       ${given ? `<div style="margin:4px 0">${diffHtml(d)}</div>` : ''}
@@ -1953,7 +1969,7 @@ function showGrammarItem() {
     if (!gs.seen.includes(i)) gs.seen.push(i);
     if (ok) gs.wrong = gs.wrong.filter(x => x !== i);
     else if (!gs.wrong.includes(i)) gs.wrong.push(i);
-    logActivity('ex', ok);
+    logActivity('ex', ok, { type: 'grammar' });
     save();
     const correct = correctSentence(ex);
     const answers = type === 'c' ? [ex[2][ex[3]]] : type === 'o' ? [ex[2]] : ex[2];
@@ -2336,6 +2352,45 @@ ROUTES.stats = () => {
   const totalReviews = sumRange(-Infinity, e => e.r + e.n);
   const days30 = Object.keys(logs).filter(d => +d >= t - 29 && cnt(logs[d]) > 0).length;
 
+  // Ćwiczenia według rodzaju: [30 dni, łącznie].
+  const exAgg = from => {
+    const out = {};
+    for (const [d, e] of Object.entries(logs)) {
+      if (+d < from || !e.xt) continue;
+      for (const [k, v] of Object.entries(e.xt)) {
+        const o = out[k] || (out[k] = { n: 0, ok: 0, t: 0 });
+        o.n += v.n || 0; o.ok += v.ok || 0; o.t += v.t || 0;
+      }
+    }
+    return out;
+  };
+  const ex30 = exAgg(t - 29), exAll = exAgg(-Infinity);
+  const exTotal = sumRange(-Infinity, e => e.x);
+  const exN30 = Object.values(ex30).reduce((a, v) => a + v.n, 0), exOk30 = Object.values(ex30).reduce((a, v) => a + v.ok, 0);
+  const exRows = Object.keys(EX_TYPES).filter(k => exAll[k] && (k !== 'speak' || state.settings.speechEnabled || exAll[k].n));
+  const pctTxt = (ok, n) => n ? Math.round((ok / n) * 100) + '%' : '–';
+  const exSection = `
+    <section class="card">
+      <h2>Ćwiczenia</h2>
+      <div class="stat-grid">
+        <div class="kpi"><b>${exN30}</b><span>zadań w ostatnich 30 dniach</span></div>
+        <div class="kpi"><b>${pctTxt(exOk30, exN30)}</b><span>poprawnych (30 dni)</span></div>
+        <div class="kpi"><b>${fmtMin(Object.values(ex30).reduce((a, v) => a + v.t, 0))}</b><span>czasu w ćwiczeniach (30 dni)</span></div>
+        <div class="kpi"><b>${exTotal}</b><span>zadań łącznie</span></div>
+      </div>
+      ${exRows.length ? `<table class="ex-table">
+        <thead><tr><th>Rodzaj</th><th>30 dni</th><th>Poprawnie</th><th>Łącznie</th></tr></thead>
+        <tbody>${exRows.map(k => {
+          const m = ex30[k] || { n: 0, ok: 0 }, a = exAll[k];
+          const p = m.n ? Math.round((m.ok / m.n) * 100) : null;
+          return `<tr><td>${EX_TYPES[k]}</td><td>${m.n}</td>
+            <td><div class="ex-pct"><div class="bar"><div style="width:${p ?? 0}%;background:${p === null ? 'var(--border)' : p >= 80 ? 'var(--good)' : p >= 60 ? 'var(--accent)' : 'var(--warn)'}"></div></div><span>${p === null ? '–' : p + '%'}</span></div></td>
+            <td>${a.n} <span class="muted small">(${pctTxt(a.ok, a.n)})</span></td></tr>`;
+        }).join('')}</tbody></table>`
+        : `<p class="muted small">Tu pojawią się wyniki z ćwiczeń: układania zdań, luk, dyktanda, par, quizów i gramatyki.</p>`}
+      ${exTotal > Object.values(exAll).reduce((a, v) => a + v.n, 0) ? `<p class="muted small">Zadania sprzed aktualizacji są liczone tylko w sumie łącznej.</p>` : ''}
+    </section>`;
+
   // Rozkład odstępów (karty w powtórkach).
   const buckets = [['≤ 1 d', 0, 1], ['2–7 d', 2, 7], ['8–21 d', 8, 21], ['22 d – 3 mies.', 22, 90], ['> 3 mies.', 91, Infinity]];
   const ivCounts = buckets.map(([, a, b]) => Object.values(state.cards).filter(c => c.s === 'review' && (c.iv || 0) >= a && (c.iv || 0) <= b).length);
@@ -2363,11 +2418,11 @@ ROUTES.stats = () => {
       <div class="stat-grid">
         <div class="kpi"><b>${fmtMin(time30)}</b><span>w ostatnich 30 dniach</span></div>
         <div class="kpi"><b>${days30 ? fmtMin(time30 / days30) : '–'}</b><span>średnio na dzień nauki</span></div>
-        <div class="kpi"><b>${fmtMin(timeAll)}</b><span>łącznie</span></div>
+        <div class="kpi"><b>${fmtMin(timeAll)}</b><span>łącznie (fiszki i ćwiczenia)</span></div>
         <div class="kpi"><b>${totalReviews}</b><span>odpowiedzi na fiszkach</span></div>
       </div>
       <p class="muted small">„Zapamiętane” to odsetek powtórek, w których nie wybrałeś „Nie wiem”. Cel ustawiony w algorytmie: ${Math.round((state.settings.retention || 0.9) * 100)}%.</p>
-    </section>
+    </section>${exSection}
     <section class="card">
       <h2>Słówka według statusu</h2>
       <div class="bar" style="display:flex;height:14px">

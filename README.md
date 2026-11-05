@@ -15,7 +15,7 @@ Aplikacja do nauki angielskiego (PWA) od A1 do C1, instalowana na telefonie prze
 - **Ćwiczenia**: trening mieszany, dopasuj pary, ułóż zdanie, ze słuchu, uzupełnij lukę, dyktando, quiz, test poziomu.
   Wymowa z mikrofonem jest ukryta (włącz w Ustawieniach).
 - **Motywacja**: seria dni, dzienny cel, zamrożenia serii, dźwięki i wibracje, podsumowania sesji.
-- **Postępy**: mapa aktywności, prognoza powtórek, czas nauki, skuteczność, odstępy.
+- **Postępy**: mapa aktywności, prognoza powtórek, czas nauki, skuteczność, odstępy, wyniki każdego rodzaju ćwiczeń.
 - **Import**: talie Anki `.apkg`, eksport tekstowy Anki, CSV/TSV, wklejona lista; pomijanie duplikatów; eksport talii.
 - **Zapis**: localStorage + IndexedDB, kopie z 7 dni, eksport/import kopii.
 
@@ -26,7 +26,7 @@ python -m http.server 8123
 Potem otwórz http://localhost:8123
 
 ## Testy
-Otwórz http://localhost:8123/tests/tests.html. Testy (55) sprawdzają dane, algorytm, sesje, import, wszystkie ekrany
+Otwórz http://localhost:8123/tests/tests.html. Testy (56) sprawdzają dane, algorytm, sesje, import, wszystkie ekrany
 i ćwiczenia. Twój postęp jest zapisywany przed testami i przywracany po nich.
 
 ## Źródła danych i licencje
