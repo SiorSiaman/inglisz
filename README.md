@@ -2,6 +2,8 @@
 
 Aplikacja do nauki angielskiego (PWA) od A1 do C1, instalowana na telefonie przez przeglądarkę. Działa offline.
 
+**Aplikacja:** https://siorsiaman.github.io/inglisz/ (na Androidzie: Chrome → menu ⋮ → „Zainstaluj aplikację”).
+
 ## Funkcje
 - **Fiszki** z algorytmem **FSRS-4.5** (jak w Anki), krokami nauki w minutach, regulowaną docelową skutecznością,
   cofaniem, „Znam, pomiń”, odkładaniem do jutra i zawieszaniem kart, trybem wpisywania odpowiedzi i skrótami klawiszowymi.
