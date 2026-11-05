@@ -80,7 +80,7 @@ addExtra('wish', [
   ['c', 'If only it ___ so expensive!', ["weren't", "isn't", "won't be"], 0, 'Teraz: weren\'t.'],
   ['c', 'He wishes he ___ to her when he had the chance.', ['had spoken', 'spoke', 'speaks'], 0, 'Przeszłość.'],
   ['c', 'I wish people ___ drop litter.', ["wouldn't", "don't", "won't"], 0, 'Irytacja: wouldn\'t.'],
-  ['c', 'I wish I ___ where she is.', ['knew', 'know', 'had know'], 0, 'Teraz: knew.'],
+  ['c', 'I wish I ___ how to fix this.', ['knew', 'know', 'had know'], 0, 'Teraz: knew.'],
   ['c', 'We wish we ___ the tickets – the show was terrible.', ["hadn't bought", "didn't buy", "wouldn't buy"], 0, 'Przeszłość.'],
   ['c', 'I wish you ___ here.', ['were', 'are', 'will be'], 0, 'Teraz: were.'],
   ['c', 'If only I ___ listened to you!', ['had', 'have', 'would'], 0, 'Przeszłość: had listened.'],

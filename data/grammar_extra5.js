@@ -8,7 +8,7 @@ addExtra('modals-obligation', [
   ['c', 'I ___ get up at 5 tomorrow. My flight is at 7.', ['have to', 'must to', 'has to'], 0, 'Obowiązek z okoliczności.'],
   ['c', 'You ___ eat more vegetables.', ['should', 'must to', 'have'], 0, 'Rada.'],
   ['c', 'Children ___ play with matches.', ['must not', "don't have to", "needn't"], 0, 'Zakaz.'],
-  ['c', '___ I bring my passport?', ['Do I need to', 'Need I to', 'Must I to'], 0, 'Pytanie: Do I need to…?'],
+  ['c', '___ bring my passport?', ['Do I need to', 'Need I to', 'Must I to'], 0, 'Pytanie: Do I need to…?'],
   ['c', 'You ___ have told me earlier!', ['should', 'must', 'have to'], 0, 'Wyrzut o przeszłość: should have + III forma.'],
   ['c', 'We ___ to book in advance – there were plenty of seats.', ["didn't need", "mustn't", "shouldn't"], 0, 'W przeszłości nie było potrzeby.'],
   ['c', "You ___ worry. Everything is under control.", ["don't need to", "mustn't to", "haven't to"], 0, 'Nie musisz.'],

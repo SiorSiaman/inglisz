@@ -659,7 +659,7 @@ battle | bitwa, walka, walczyć | He almost died during the battle. | On prawie 
 ourselves | się, siebie, sami | We must take good care of ourselves. | Musimy o siebie dbać. | aʊəˈselvz
 allow | pozwalać, przyznawać, uwzględniać | I do not allow sleeping in class. | Nie pozwalam na spanie w klasie. | əˈlaʊ
 nine | dziewięć | There are nine people in my family. | Mam w rodzinie dziewięć osób. | naɪn
-gay | homoseksualista, homo, homoseksualny | I am not gay, but my boyfriend is. | Nie jestem gejem, ale mój chłopak jest. | geɪ
+gay | gej, homoseksualny | I am not gay, but my boyfriend is. | Nie jestem gejem, ale mój chłopak jest. | geɪ
 department | dział, wydział, departament | The toy department is on the fifth floor. | Dział z zabawkami jest na piątym piętrze. | dɪˈpɑ:tmənt
 guilty | winny | He was guilty of making a mistake. | Był winnym popełnienia tego błędu. | ˈgɪltɪ
 apart | osobno, z dala; apart from = oprócz | The brothers were born twelve years apart. | Bracia urodzili się w odstępie dwunastu lat. | əˈpɑ:t
@@ -854,7 +854,6 @@ target | cel | The arrow fell short of the target. | Strzała chybiła celu. | �
 nurse | pielęgniarka, siostra, pielęgnować | One of his sisters is a nurse. | Jedna z jego sióstr jest pielęgniarką. | nɜ:s
 fake | fałszerstwo, imitacja, oszust | Tom bought beer using a fake ID. | Tom kupił piwo posługując się fałszywym dowodem osobistym. | feɪk
 oil | ropa naftowa, olej napędowy, ropa | He is famous as an oil king. | On jest znany jako król olejowy. | ɔɪl
-suicide | samobójstwo |  |  | ˈsu:ɪsaɪd
 belong | należeć | Which party do you belong to? | Do jakiego ugrupowania należysz? | bɪˈlɒŋ
 perfectly | całkowicie, zupełnie, doskonale | Tom and Mary understand each other perfectly. | Tom i Mary idealnie się rozumieją. | ˈpɜ:fəktlɪ
 remain | pozostawać, resztki | We wish to remain what we are. | Chcemy zostać tacy, jak jesteśmy. | rɪˈmeɪn
@@ -1405,9 +1404,9 @@ nightmare | zły sen, koszmar | Going out on the street is a nightmare. | Wyjśc
 glory | sława, chwała, piękno | We ran for the glory of the school. | Pobiegliśmy na chwałę szkoły. | ˈglɔ:rɪ
 agency | agencja, biuro | He works for an advertising agency. | On pracuje w agencji reklamowej. | ˈeɪʤənsɪ
 apple | jabłko, jabłoń | There is an apple on the desk. | Na biurku leży jabłko. | ˈæpəl
+border | granica, pogranicze, obramowanie | How can I get to the border? | Jak mogę dostać się do granicy? | ˈbɔ:də
 ` },
 { cat: 'core', level: "B1", items: `
-border | granica, pogranicze, obramowanie | How can I get to the border? | Jak mogę dostać się do granicy? | ˈbɔ:də
 rope | lina, sznur, przywiązywać liną | I only have fifty meters of rope. | Mam tylko pięćdziesiąt metrów liny. | rəʊp
 duck | kaczka, uchylać się | Catch that duck and bring it here. | Złap tą kaczkę i przynieś ją tu. | dʌk
 reputation | reputacja, opinia | Our professor has a good reputation. | Nasz profesor ma dobrą reputację. | ˌrepjʊˈteɪʃən
@@ -2307,9 +2306,9 @@ fairly | dość, uczciwie, naprawdę | This is fairly good except for minor mist
 fee | opłata, honorarium, gaża | They charged Tom a late payment fee. | Tom został obciążony opłatą za zwłokę. | fi:
 wade | brodzić, przedzierać się |  |  | weɪd
 radiation | promieniowanie, radiacja | Is there any danger of radiation? | Jest jakiekolwiek zagrożenie promieniowaniem? | ˌreɪdɪˈeɪʃən
+register | lista, rejestr, rejestrować się | New guests must register in the hotel book. | Nowi goście muszą się wpisać do księgi hotelowej. | ˈreʤɪstə
 ` },
 { cat: 'core', level: "B2", items: `
-register | lista, rejestr, rejestrować się | New guests must register in the hotel book. | Nowi goście muszą się wpisać do księgi hotelowej. | ˈreʤɪstə
 specifically | szczególnie, specjalnie, specyficznie |  |  | spɪˈsɪfɪkəlɪ
 ideal | ideał, idealny | The beach is an ideal place for children to play. | Plaża jest idealnym miejscem do zabawy dla dzieci. | aɪˈdɪəl
 turtle | żółw | We found a turtle in the garden. | Znaleźliśmy żółwia w ogrodzie. | ˈtɜ:təl
@@ -2795,7 +2794,6 @@ exclusive | eksluzywny, wyłączny | The two qualities are mutually exclusive. |
 greet | witać, powitać | Greet her, if you see her! | Pozdrów ją, jeśli ją zobaczysz. | gri:t
 confusion | pomyłka, chaos, zamieszanie | The accident threw traffic into great confusion. | Wskutek tego wypadku na ulicy zapanował chaos. | kənˈfju:ʒən
 thud | głuchy łomot, głucho uderzać |  |  | θʌd
-hooker | dziwka |  |  | ˈhʊkə
 dreadful | okropny, straszny | I had a dreadful dream last night. | Miałem straszny sen ostatniej nocy. | ˈdredfʊl
 forty | czterdzieści | Forty miles is a good distance. | Czterdzieści mil to dobry dystans. | ˈfɔ:tɪ
 brass | mosiądz, tabliczka, instrumenty blaszane | Gold is similar in color to brass. | Złoto jest podobne w kolorze do mosiądzu. | brɑ:s
@@ -3209,10 +3207,10 @@ whisper | szeptać, szept | Why do the winds whisper at dusk? | Dlaczego wiatry 
 variety | różnorodność, rodzaj, odmiana | This problem may be solved in a variety of ways. | Ten problem może być rozwiązany na różne sposoby. | vəˈraɪətɪ
 grain | ziarno, zboże, słój | A grain of sand fell into my eye. | Wpadł mi piasek do oka. | greɪn
 essentially | w zasadzie |  |  | ɪˈsenʃəlɪ
-` },
-{ cat: 'core', level: "C1", items: `
 subtle | subtelny | There was a subtle difference between their views. | Pomiędzy ich poglądami zarysowywała się subtelna różnica. | ˈsʌtəl
 explosive | środek wybuchowy, materiał wybuchowy, wybuchowy |  |  | ɪkˈspləʊsɪv
+` },
+{ cat: 'core', level: "C1", items: `
 origin | pochodzenie | The origin of the fire is unknown. | Przyczyna pożaru nie jest znana. | ˈɒrɪʤɪn(z)
 rogue | łajdak, nicpoń, szelma |  |  | rəʊg
 superintendent | nadzorca, kierownik, komisarz | The superintendent will hear about this. | Dyrektor o tym usłyszy. | ˌsu:pərɪnˈtendənt
@@ -3287,7 +3285,6 @@ thankful | szczęśliwy, uszczęśliwiony | He is thankful for your kindness. | 
 interior | wnętrze, wewnętrzny |  |  | ɪnˈtɪərɪə
 urge | popęd, żądza, przynaglać | Tom felt the urge to run away. | Tom czuł wielką chęć ucieczki. | ɜ:ʤ
 strain | obciążenie, stres, napięcie | The liquid does not strain well. | Ten płyn nie odcedza się dobrze. | streɪn
-gypsy | Cygan | This novel presents a very romantic account of Gypsy vagabonds. | Ta powieść to nader romantyczny opis cygańskich włóczęgów. | ˈʤɪpsɪ
 tomato | pomidor | Strictly speaking, the tomato is a fruit. | Ściśle mówiąc, pomidor jest owocem. | təˈmɑ:təʊ
 compassion | współczucie, litość |  |  | kəmˈpæʃən
 examination | egzamin, analiza, badanie | I congratulate you on passing the examination. | Gratuluję ci zdania egzaminu. | ɪgˌzæmɪˈneɪʃən
@@ -3710,7 +3707,6 @@ bedtime | pora snu | Would you mind reading a bedtime story to Tom? | Przeczyta�
 rail | poręcz, wieszak, szyna | She was as thin as a rail. | Była chuda jak tyczka. | reɪl
 rooster | kogut | A majestic rooster paced around the yard. | Po podwórku przechadzał się majestatyczny kogut. | ˈru:stə
 container | pojemnik, kontener, kontenerowy | The container is full. | Pojemnik jest pełen. | kənˈteɪnə
-stripper | striptiserka, striptiser |  |  | ˈstrɪpə
 banker | bankowiec, bankier | I am a banker. | Jestem bankierem. | ˈbæŋkə
 bacteria | bakterie | Bacteria are microscopic organisms. | Bakterie są mikroskopijnymi organizmami. | bækˈtɪərɪə
 assassination | morderstwo |  |  | əˌsæsɪˈneɪʃən
@@ -4011,5 +4007,1509 @@ brace | zebrać się w sobie, zebrać się, zabezpieczyć się | Tom was wearing
 ban | zakazać, zakaz | You came despite my ban. | Przyszli mimo mojego zakazu. | bæn
 thrust | pchać, wpychać, przepychać się |  |  | θrʌst
 achievement | osiągnięcie, wyczyn, spełnienie | What do you consider your greatest achievement? | Co uważasz za swoje największe osiągnięcie? | əˈʧi:vmənt
+monastery | klasztor |  |  | ˈmɒnəstrɪ
+newly | nowo | Not far from us is a newly opened school. | Niedaleko od nas znajduje się nowo otwarta szkoła. | ˈnju:lɪ
+impatient | niecierpliwy | He was impatient to see his daughter. | Bardzo chciał zobaczyć córkę. | ɪmˈpeɪʃənt
+recruit | rekrutować, werbować, rekrut |  |  | rɪˈkru:t
+ignorance | nieświadomość, ignorancja | Ignorance does not protect against punishment. | Nieznajomość prawa nie chroni przed jego zastosowaniem. | ˈɪgnərəns
+artery | tętnica |  |  | ˈɑ:tərɪ
+dynamic | dynamiczny, dynamika |  |  | daɪˈnæmɪk
+distribution | rozkład, dystrybucja | Fedora is a Linux distribution. | Fedora jest dystrybucją Linux. | ˌdɪstrɪˈbju:ʃən
+stereo | sprzęt stereo, stereo, stereofoniczny |  |  | ˈsterɪəʊ
+ark | arka |  |  | ɑ:k
+carpenter | cieśla, stolarz | I want to be a carpenter. | Chcę być stolarzem. | ˈkɑ:pɪntə
+bluff | blef, blefować |  |  | blʌf
+unbearable | nie do zniesienia | Bearing can be unbearable. | Znoszenie może być nie do zniesienia. | ʌnˈbeərəbəl
+juicy | soczysty, smakowity | She sinks her teeth into a juicy red apple. | Wbija swoje zęby w soczyste czerwone jabłko. | ˈʤu:sɪ
+eerie | niesamowity, dziwny |  |  | ˈɪərɪ
+troop | oddział, wojsko, przegrupowywać się |  |  | tru:p
+pact | pakt, traktat |  |  | pækt
+apparent | pozorny, oczywisty, widoczny | It is apparent that he will win the election. | To jasne, że on wygra wybory. | əˈpærənt
+foreigner | obcokrajowiec, cudzoziemiec | That company is managed by a foreigner. | Tą firmą zarządza obcokrajowiec. | ˈfɒrɪnə
+employer | pracodawca | His employer deducted $50 from his wages. | Jego pracodawca potrącił 50 dolarów z jego zarobków. | ɪmˈplɔɪə
+grim | ponury, przygnębiający, zacięty |  |  | grɪm
+medieval | średniowieczny | I want to visit a medieval village. | Chciałbym zwiedzić średniowieczną wioskę. | ˌmedɪˈi:vəl
+rehearse | ćwiczyć, mieć próbę | Let's rehearse the fourth scene. | Zagrajmy czwartą scenę. | rɪˈhɜ:s
+preparation | przygotowanie, preparat | We all made preparation for the meeting. | Wszyscy poczyniliśmy przygotowania przed zebraniem. | ˌprepəˈreɪʃən
+microwave | kuchenka mikrofalowa | I don't have a microwave oven. | Nie mam kuchenki mikrofalowej. | ˈmaɪkrəweɪv
+denial | zaprzeczenie, wyparcie, odmowa | The police didn't believe his denial. | Policja nie wierzyła w jego zaprzeczenia. | dɪˈnaɪəl
+flute | flet (poprzeczny) | He can play a flute. | On umie grać na flecie. | flu:t
+juvenile | młodociany, dziecinny, młodociany przestępca |  |  | ˈʤu:vənaɪl
+paddy | pole ryżowe |  |  | ˈpædɪ
+memo | memorandum, raport |  |  | ˈmeməʊ
+canvas | płótno, brezent, obraz | The canvas was torn in three places. | Płótno było porwane w trzech miejscach. | ˈkænvəs
+driveway | podjazd |  |  | ˈdraɪvweɪ
+kitten | kociak | The kitten is playing in the rain. | Kociak gra w deszczu. | ˈkɪtən
+deceive | oszukiwać | Tom tried to deceive Mary. | Tom próbował oszukać Mary. | dɪˈsi:v
+consultant | konsultant, doradca, lekarz specjalista |  |  | kənˈsʌltənt
+architecture | architektura | Talking about music is like dancing about architecture. | Mówienie o muzyce to jak tańczenie o architekturze. | ˈɑ:kɪtekʧə
+contribution | wkład, udział, wpłata | I'd like to thank you for your very generous contribution. | Chciałbym ci podziękować za twój hojny wkład. | ˌkɒntrɪˈbju:ʃən
+tractor | traktor, podajnik |  |  | ˈtræktə
+unacceptable | nie do przyjęcia | I'm sorry but your excuses are unacceptable. | Przykro mi, ale Twoje wymówki są nie do przyjęcia. | ˌʌnəkˈseptəbəl
+squadron | eskadra, szwadron |  |  | ˈskwɒdrən
+devotion | oddanie, poświęcenie, pobożność |  |  | dɪˈvəʊʃən
+plumber | hydraulik | He is a plumber. | Jest hydraulikiem. | ˈplʌmə
+broom | miotła | Tom took the broom out of the hall closet. | Tom wyjął miotłę z szafy w przedpokoju. | bru:m
+informant | informator, donosiciel |  |  | ɪnˈfɔ:mənt
+ox | wół | The plural of ox is oxen. | Liczba mnoga słowa wół to woły. | ɒks
+vase | wazon | This is the vase that Tom broke. | To wazon, który stłukł Tom. | vɑ:z
+glance | spoglądać, rzucać okiem, przeglądać | She threw a suspicious glance at him. | Spojrzała nań podejrzliwie. | glɑ:ns
+collective | kolektywny, wspólny |  |  | kəˈlektɪv
+sixty | sześćdziesiąt | A circle has three hundred sixty degrees. | Okrąg ma trzysta sześćdziesiąt stopni. | ˈsɪkstɪ
+heritage | dziedzictwo | We have a rich historical heritage. | Mamy bogate dziedzictwo historyczne. | ˈherɪtɪʤ
+fisherman | rybak | The fisherman cast his line into the water. | Rybak rzucił linę w wodę. | ˈfɪʃəmən
+willow | wierzba |  |  | ˈwɪləʊ
+preliminary | wstępny, wstępne czynności |  |  | prɪˈlɪmɪnərɪ
+server | serwer, usługodawca | Did the server just go down again? | Czy serwer znów upadł? | ˈsɜ:və
+mat | mata, podkładka, dywanik | I found the key underneath the mat. | Znalazłam klucz pod matą. | mæt
+appreciation | uznanie, zrozumienie, wzrost wartości |  |  | əˌpri:ʃɪˈeɪʃən
+historic | historyczny, przełomowy |  |  | hɪˈstɒrɪk
+promote | propagować, promować, awansować | The government has taken measures to promote domestic industry. | Rząd podjął kroki w celu promocji krajowego przemysłu. | prəˈməʊt
+high-pitched | przeraźliwy, przenikliwy |  |  | ˌhaɪˈpɪʧt
+introduction | wprowadzenie, przedmowa, wstęp | What did I write in the introduction? | Co napisałam we wstępie? | ˌɪntrəˈdʌkʃən
+valid | ważny, uzasadniony | My passport is no longer valid. | Mój paszport jest już nieważny. | ˈvælɪd
+part-time | niepełnoetatowy, na niepełnym etacie |  |  | ˌpɑ:tˈtaɪm
+barge | barka, wpadać |  |  | bɑ:ʤ
+ashore | na brzeg, do brzegu |  |  | əˈʃɔ:
+panda | panda | Nancy had never seen a giant panda before. | Nancy nigdy wcześniej nie widziała pandy. | ˈpændə
+discretion | dyskrecja, rozwaga | I hope I can count on your discretion. | Mam nadzieję, że mogę liczyć na twoją dyskrecję. | dɪˈskreʃən
+insect | owad | The cockroach is a disgusting insect. | Karaluch to odrażający owad. | ˈɪnsekt
+prophecy | proroctwo |  |  | ˈprɒfɪsɪ
+absent | nieobecny, nieuważny | Why were you absent from school yesterday? | Czemu nie było cię wczoraj w szkole? | ˈæbsənt
+machinery | urządzenia mechaniczne, maszyny, maszyneria | Machinery uses a lot of electricity. | Maszyny zużywają dużo energii elektrycznej. | məˈʃi:nərɪ
+carrot | marchewka, zachęta | The carrot is good for soup. | Marchewka jest dobra do zupy. | ˈkærət
+puff | pociągać, pykać, sapać |  |  | pʌf
+scholar | uczony, uczeń, stypendysta | He is more a teacher than a scholar. | Jest bardziej nauczycielem niż uczonym. | ˈskɒlə
+expertise | wiedza specjalistyczna, fachowość |  |  | ˌekspɜ:ˈti:z
+strap | pasek, ramiączko, przymocowywać |  |  | stræp
+embarrassment | zakłopotanie, skrępowanie, kłopot |  |  | ɪmˈbærəsmənt
+vanilla | wanilia | The only flavor ice cream that Tom eats is vanilla. | Jedyny smak lodów, który je Tom, to waniliowe. | vəˈnɪlə
+beacon | sygnał świetlny, sygnał |  |  | ˈbi:kən
+handkerchief | chusteczka do nosa, chusteczka | How much is this handkerchief? | Ile kosztuje ta chustka? | ˈhæŋkəʧɪf
+lighten | rozjaśniać się, rozjaśniać, zmniejszać wagę | It was just a joke. Lighten up! | Rozchmurz się, to był żart! | ˈlaɪtən
+flora | flora |  |  | ˈflɔ:rə
+polar | biegunowy, diametralnie różny, niedźwiedź polarny |  |  | ˈpəʊlə
+translator | tłumacz | Tom was once a translator. | Tom był kiedyś tłumaczem. | trænsˈleɪtə
+brotherhood | braterstwo |  |  | ˈbrʌðəhʊd
+understandable | zrozumiały | Can you phrase your answer in an understandable manner? | Możesz sformułować swoją odpowiedź w zrozumiały sposób? | ˌʌndəˈstændəbəl
+banner | transparent |  |  | ˈbænə
+academic | naukowy, uniwersytecki, akademicki | His academic achievements are impressive. | Jego osiągnięcia naukowe są imponujące. | ˌækəˈdemɪk
+predator | drapieżnik | The wolf is a predator. | Wilk jest drapieżnikiem. | ˈpredətə
+syrup | syrop |  |  | ˈsɪrəp
+unpredictable | nie do przewidzenia | I think Tom is unpredictable. | Myślę, że Tom jest nieprzewidywalny. | ˌʌnprɪˈdɪktəbəl
+suspension | zawieszenie, most wiszący |  |  | səˈspenʃən
+category | kategoria | Each category is assigned a unique code. | Każda kategoria ma przypisany unikalny kod. | ˈkætɪgərɪ
+transition | przejście, zmiana |  |  | trænˈzɪʃən
+cautious | ostrożny | I am very cautious. | Jestem bardzo ostrożny. | ˈkɔ:ʃəs
+comparison | porównanie | In comparison with Tokyo, London is small. | W porównaniu do Tokyo, Londyn jest mały. | kəmˈpærɪsən
+freshman | nowy student, nowy |  |  | ˈfreʃmən
+banquet | bankiet |  |  | ˈbæŋkwɪt
+toothbrush | szczoteczka do zębów | I use an electric toothbrush. | Używam elektrycznej szczoteczki do zębów. | ˈtu:θbrʌʃ
+vulgar | wulgarny | She is extremely vulgar in her speech. | Jest niezwykle wulgarna w swoich słowach. | ˈvʌlgə
+haunt | nawiedzać, prześladować, miejsce chętnie odwiedzane |  |  | hɔ:nt
+improvement | polepszenie, ulepszenie | The housing situation shows no hope of improvement. | Sytuacja mieszkaniowa raczej nie rokowała nadziei na poprawę. | ɪmˈpru:vmənt
+bakery | piekarnia (gdzie się piecze) | She is buying a cake in the bakery. | Ona kupuje ciasto w cukierni. | ˈbeɪkərɪ
+admission | przyjęcie, wstęp, opłata za wstęp | He made an admission that he had lied. | Przyznał, że skłamał. | ədˈmɪʃən
+essay | wypracowanie, esej | You can finish your essay now. | Możesz teraz dokończyć swój esej. | ˈeseɪ
+twitter | ćwierkać, świergotać | Do you have a Twitter account? | Masz konto na Twitterze? | ˈtwɪtə
+ecstasy | ekstaza, zachwyt |  |  | ˈekstəsɪ
+snatch | wyrywać, łapać, urywek |  |  | snæʧ
+tropical | tropikalny | This kind of plant grows only in the tropical regions. | Ten rodzaj rośliny rośnie tylko w regionach tropikalnych. | ˈtrɒpɪkəl
+pharmacy | apteka | Is there a pharmacy nearby? | Czy w pobliżu jest apteka? | ˈfɑ:məsɪ
+altitude | wysokość |  |  | ˈæltɪtju:d
+grind | mielić, mleć, wciskać | She always has some axe to grind. | Zawsze ma coś do narzekania. | graɪnd
+mute | niemy, tłumić | She's deaf and mute, and is getting blind, too. | Ona jest głucha i niema , zaczyna również ślepnąć. | mju:t
+full-time | pełnowymiarowy, w pełnym wymiarze godzin, koniec gry |  |  | ˌfʊlˈtaɪm
+empress | cesarzowa |  |  | ˈemprɪs
+sniff | pociągać nosem, wąchać, pociągnięcie nosem | Dogs sniff out danger. | Psy wywęszają niebezpieczeństwo. | snɪf
+slick | zbyt gładki, gładki, zręczny |  |  | slɪk
+unarmed | nieuzbrojony |  |  | ʌnˈɑ:md
+vent | otwór wentylacyjny, wylot, wyładowywać |  |  | vent
+breakthrough | przełom |  |  | ˈbreɪkθru:
+stud | guzek, nit, kolczyk |  |  | stʌd
+tactical | taktyczny |  |  | ˈtæktɪkəl
+dine | jeść obiad | Let's dine out for a change. | Dla odmiany zjedzmy coś na mieście. | daɪn
+limb | kończyna, odnóże |  |  | lɪm
+wool | wełna | He pulled the wool over their eyes. | Nabrał ich. | wʊl
+numb | zdrętwiały, skostniały, kostnieć | My hands are numb from the cold. | Ręce mi zgrabiały od zimna. | nʌm
+priceless | bezcenny | This piece of art was really priceless. | To dzieło sztuki jest naprawdę bezcenne. | ˈpraɪslɪs
+rocking | kołyszący się, kołysanie się |  |  | ˈrɒkɪŋ
+cabbage | kapusta | I like all vegetables except for cabbage. | Lubię wszystkie warzywa z wyjątkiem kapusty. | ˈkæbɪʤ
+intruder | intruz, natręt |  |  | ɪnˈtru:də
+considerable | znaczny | There is considerable optimism that the economy will improve. | Nie brak optymistycznych głosów, mówiących o poprawie stanu gospodarki. | kənˈsɪdərəbəl
+inspire | pobudzać, skłaniać, natchnąć |  |  | ɪnˈspaɪə
+positively | zdecydowanie, naprawdę |  |  | ˈpɒzɪtɪvlɪ
+feminine | kobiecy, żeński | The names of trees are always feminine in Latin. | Nazwy drzew w języku łacińskim są zawsze żeńskie. | ˈfemɪnɪn
+vague | mętny, niejasny, niewyraźny | She had a vague feeling of guilt. | Miała niejasne poczucie winy. | veɪg
+partly | częściowo | The wall is partly covered with ivy. | Ściana jest częściowo pokryta bluszczem. | ˈpɑ:tlɪ
+insight | wgląd, pojmowanie |  |  | ˈɪnsaɪt
+screenplay | scenariusz |  |  | ˈskri:npleɪ
+marquis | markiz |  |  | ˈmɑ:kwɪs
+ripe | dojrzały | A ripe apple dropped from the tree. | Dojrzałe jabłko spadło z drzewa. | raɪp
+inherit | dziedziczyć | I will inherit his estate. | Odziedziczy jego majątek. | ɪnˈherɪt
+decline | zmniejszać się, pogarszać się, zmniejszenie się | She tried to persuade him not to decline the offer. | Próbowała go przekonać, żeby nie odrzucał propozycji. | dɪˈklaɪn
+fang | kieł |  |  | fæŋ
+gigantic | gigantyczny | A gigantic bird came flying toward him. | Ogromny ptak wyleciał na niego z naprzeciwka. | ʤaɪˈgæntɪk
+headmaster | dyrektor szkoły, dyrektor |  |  | ˈhedmɑ:stə
+tenth | dziesiąty | School begins on the tenth of April. | Szkoła zaczyna się 10 kwietnia. | tenθ
+yield | ustępować, oddawać, dawać | The company shares give a high yield. | Akcje tej firmy wygenerowały duży zysk. | ji:ld
+backstage | kulisy, zakulisowy |  |  | ˈbæksteɪʤ
+quiz | quiz, wypytywać |  |  | kwɪz
+mosque | meczet | We went to the mosque. | Poszliśmy do meczetu. | mɒsk
+weaver | tkaczka, tkacz |  |  | ˈwi:və
+belongings | czyjeś rzeczy, rzeczy | They are all my personal belongings. | To wszystko to moje osobiste rzeczy. | bɪˈlɒŋɪŋz
+chilly | chłodny |  |  | ˈʧɪlɪ
+eldest | najstarszy | The four sisters are wonderful. The eldest is the most beautiful. | Cztery siostry są cudowne. Najstarsza jest najładniejsza. | ˈeldɪst
+feedback | informacja zwrotna, opinia | Do you have any feedback for us? | Czy masz dla nas jakieś uwagi? | ˈfi:dbæk
+repeatedly | powtórnie | This is something that has happened repeatedly. | To coś, co zdarzało się wielokrotnie. | rɪˈpi:tɪdlɪ
+exquisite | przepiękny, nadzwyczajny | This soup is exquisite. | Ta zupa jest nadzwyczajna. | ˈekskwɪzɪt
+pickle | marynata, tarapaty, marynować | She's in a pickle. | Ona jest w tarapatach. | ˈpɪkəl
+arctic | arktyczny | Temperatures in the Arctic are rising rapidly. | Temperatury w Arktyce gwałtownie rosną. | ˈɑ:rktɪk
+secondary | drugorzędny, średni | Which secondary school do you go to? | Do którego gimnazjum idziesz? | ˈsekəndərɪ
+manipulate | manipulować | Tom tried to manipulate me. | Tom próbował mnie zmanipulować. | məˈnɪpjəleɪt
+liberal | liberalny, hojny, obfity | I wouldn't consider myself a liberal. | Nie uważam siebie za liberała. | ˈlɪbərəl
+bun | bułka słodka, bułka, kok |  |  | bʌn
+sly | chytry, wiele mówiący, znaczący | She looked at me with a sly smile on her face. | Spojrzała na mnie z szelmowskim uśmiechem na twarzy. | slaɪ
+motto | motto |  |  | ˈmɒtəʊ
+moss | mech |  |  | mɒs
+lava | lawa | Tom stared at the lava lamp for hours. | Tom godzinami gapił się na lampę z lawą. | ˈlɑ:və
+monthly | comiesięczny, miesięcznik | I pay 100,000 yen in monthly rent for my apartment. | Płacę 100,000 jenów miesięcznie za wynajem mieszkania. | ˈmʌnθlɪ
+tickle | łaskotać, łechtać | Tom began to tickle Mary. | Tom zaczął łaskotać Mary. | ˈtɪkəl
+convenience | wygoda, udogodnienie | Please write me back at your earliest convenience. | Proszę odpisać najszybciej, jak to będzie możliwe. | kənˈvi:nɪəns
+flashlight | duża latarka, latarka, lampa błyskowa | Don’t flash a flashlight into eyes! | Nie świeć latarka po oczach! | ˈflæʃlaɪt
+notorious | notoryczny, o złej reputacji | Blackbeard was a notorious English pirate. | Czarnobrody był znanym angielskim piratem. | nəˈtɔ:rɪəs
+streak | smuga, pasemko, pasmo |  |  | stri:k
+equivalent | ekwiwalentny, odpowiadający, ekwiwalent | That Japanese word has no equivalent in English. | To japońskie słowo nie ma odpowiednika w angielskim. | ɪˈkwɪvələnt
+pitiful | żałosny |  |  | ˈpɪtɪfʊl
+fin | płetwa |  |  | fɪn
+propaganda | propaganda | You are not immune to propaganda. | Nie jesteś odporna na propagandę. | ˌprɒpəˈgændə
+doorstep | stopień przy drzwiach | This was on the doorstep. | To było na wycieraczce. | ˈdɔ:step
+fearless | nieustraszony |  |  | ˈfɪəlɪs
+errand | sprawunek |  |  | ˈerənd
+cathedral | katedra | Where is the cathedral located? | Gdzie znajduje się katedra? | kəˈθi:drəl
+strangle | udusić, zduszać | Tom couldn't quite bring himself to strangle Mary. | Tom nie potrafił się zmusić, żeby udusić Mary. | ˈstræŋgəl
+briefly | krótko, zwięźle, w skrócie | Tell me, briefly, what happened. | Opowiedz mi pokrótce co się stało. | ˈbri:flɪ
+experimental | eksperymentalny, doświadczalny, próbny |  |  | ɪkˌsperəˈmentəl
+mainland | kontynent, kontynentalny |  |  | ˈmeɪnlənd
+judgement | ocena, osąd, wyrok |  |  | ˈʤaʤmənt
+pike | szczupak, pika |  |  | paɪk
+slot | szpara, otwór, miejsce |  |  | slɒt
+torment | męka, udręka, męczyć |  |  | 
+mermaid | syrena | The legend says that she was a mermaid. | Legenda mówi, że była syreną. | ˈmɜ:meɪd
+reader | czytelnik, czytnik, lektor | The proof is left to the reader. | Decyzja należy do czytelnika. | ˈri:də
+keyboard | klawiatura | Tom pressed a key on the computer keyboard. | Tom nacisnął przycisk na klawiaturze komputera. | ˈki:bɔ:d
+roam | włóczyć się, wędrować |  |  | rəʊm
+seventeen | siedemnaście | Ford won by one hundred-seventeen votes. | Ford wygrał przewagą stu siedemnastu głosów. | ˌsevənˈti:n
+openly | otwarcie | He is openly gay. | Nie kryje, że jest gejem. | ˈəʊpənlɪ
+deacon | diakon |  |  | ˈdi:kən
+jackpot | najwyższa wygrana, pula |  |  | ˈʤækpɒt
+extract | wydobywać, wyciągać, wycinek | How do we extract the coal from the ground? | Jak wydobywamy węgiel z ziemi? | 
+cherish | piastować, żywić, miłować |  |  | ˈʧerɪʃ
+unity | jedność | The Emperor is the symbol of the unity of the people. | Cesarz jest symbolem jedności narodu. | ˈju:nɪtɪ
+forge | fałszować, podrabiać, formować |  |  | fɔ:ʤ
+skilled | wykwalifikowany, wyszkolony, wprawny | My father is a skilled fisherman. | Mój ojciec jest świetnym rybakiem. | skɪld
+calf | cielę, młode, łydka | The calf was born this morning. | Cielę urodziło się dziś rano. | kɑ:f
+allowance | zasiłek, odliczenie | Don't fritter away your allowance. | Nie przepuść całego kieszonkowego. | əˈlaʊəns
+homosexual | homoseksualny, homoseksualista | And if I was homosexual, would that be a sin? | A czy będąc homoseksualistą, popełniałbym grzech? | ˌhəʊməˈsekʃʊəl
+idle | bezczynny, bezrobotny, pusty | I prefer working hard to just sitting idle. | Wolę ciężko pracować niż siedzieć bezczynnie. | ˈaɪdəl
+resent | czuć urazę, mieć za złe |  |  | rɪˈzent
+likewise | podobnie | The exit is likewise on the ground floor. | Wyjście jest także na parterze. | ˈlaɪkwaɪz
+riddle | podziurawić, przeżerać, zagadka | It is no use trying to solve the riddle. | Nie ma sensu rozwiązywanie tej łamigłówki. | ˈrɪdəl
+ghetto | getto |  |  | ˈgetəʊ
+sunglasses | okulary słoneczne | Sunglasses protect our eyes from the sun. | Okulary przeciwsłoneczne chronią nasze oczy przed słońcem. | ˈsʌnglɑ:sɪz
+valve | zawór | Did you close that valve? | Zamknąłeś ten zawór? | vælv
+publisher | wydawca | The editor and the publisher are both my cousins. | Redaktor i wydawca są obaj moimi kuzynami. | ˈpʌblɪʃə
+marathon | maraton, maratoński | Lots of people took part in the marathon. | Dużo ludzi wzięło udział w maratonie. | ˈmærəθən
+burglar | włamywacz, alarm przeciwwłamaniowy | The burglar gained access to the house through this door. | Włamywacz dostał się do domu tymi drzwiami. | ˈbɜ:glə
+infant | dziecko małe, dziecko |  |  | ˈɪnfənt
+falcon | sokół | The falcon has perfect vision. | Sokół ma doskonały wzrok. | ˈfɔ:kən
+humiliate | poniżać | She likes to humiliate people. | Lubi upokarzać ludzi. | hju:ˈmɪlɪeɪt
+hydrogen | wodór | Water is made up of oxygen and hydrogen. | Woda składa się z tlenu i wodoru. | ˈhaɪdrəʤən
+scope | możliwość, zakres |  |  | skəʊp
+gravy | sos | Would you like some more gravy? | Czy chciałbyś jeszcze trochę sosu? | ˈgreɪvɪ
+vocal | rozgłośny, wokalny, część wokalna |  |  | ˈvəʊkəl
+metaphor | metafora, przenośnia | This is a metaphor. | To metafora. | ˈmetəfə
+kindergarten | przedszkole | Dan has known Linda since kindergarten. | Dan znał Lindę od przedszkola. | ˈkɪndəgɑ:tən
+merciful | litościwy, miłosierny, zbawczy | Blessed are the merciful: for they will be shown mercy. | Błogosławieni miłosierni, albowiem oni miłosierdzia dostąpią. | ˈmɜ:sɪfʊl
+affirmative | twierdzący, potwierdzający |  |  | əˈfɜ:mətɪv
+runaway | uciekinier, zbieg, samoistnie odjeżdżający |  |  | ˈrʌnəweɪ
+shoo | odganiać, zaganiać |  |  | ʃu:
+adapt | dostosowywać się, przystosowywać, adaptować | He is quick to adapt to new circumstances. | On szybko przystosowuje się do nowych okoliczności. | əˈdæpt
+vintage | z najlepszego okresu, wino z dobrego rocznika |  |  | ˈvɪntɪʤ
+spotlight | reflektor punktowy, szperacz |  |  | ˈspɒtlaɪt
+frontier | granica | We crossed the frontier yesterday. | Przekroczyliśmy wczoraj granicę. | ˈfrʌntɪə
+holiness | świętość |  |  | ˈhəʊlɪnɪs
+isolation | odosobnienie, osamotnienie | Everyone is locked up at home in self-isolation. | Każdy jest zamknięty w domu w samoizolacji. | ˌaɪsəˈleɪʃən
+loft | strych |  |  | lɒft
+ribbon | wstążka, taśma | She bound her hair with a ribbon. | Związała włosy gumką. | ˈrɪbən
+decency | przyzwoitość |  |  | ˈdi:sənsɪ
+reactor | reaktor |  |  | rɪˈæktə
+buckle | klamra, sprzączka, zapinać |  |  | ˈbʌkəl
+vanity | próżność, kosmetyczka |  |  | ˈvænɪtɪ
+secondly | po drugie |  |  | ˈsekəndlɪ
+fishy | rybi, naciągany |  |  | ˈfɪʃɪ
+muffin | babeczka, muffin |  |  | ˈmʌfɪn
+hale | krzepki |  |  | heɪl
+tailor | krawiec męski, krawiec, przysposabiać | You never told me Tom was a tailor. | Nigdy mi nie powiedziałeś, że Tom był krawcem. | ˈteɪlə
+chimney | komin | Sparks were coming out of the chimney. | Iskry wydobywały się z kominka. | ˈʧɪmnɪ
+packet | paczka, opakowanie |  |  | ˈpækɪt
+blouse | bluzka | Janet bought a skirt and a blouse. | Janet kupiła spódnicę i bluzkę. | blaʊz
+kite | latawiec | Tom was as high as a kite. | Tom był kompletnie naćpany. | kaɪt
+rhyme | rymować się, rymować, rym | The poem's rhyme scheme is highly complex. | Struktura rymów tego wiersza jest niezwykle skomplikowana. | raɪm
+equation | równanie | Solve this cubic equation: x³ + 2x² − x − 2 = 0. | Rozwiąż równanie sześcienne x³ + 2x² − x − 2 = 0. | ɪˈkweɪʒən
+transmitter | przekaźnik |  |  | trænzˈmɪtə
+lime | wapno, lipa, lima |  |  | laɪm
+remorse | wyrzuty sumienia | He has no remorse. | On nie ma żadnych wyrzutów sumienia. | rɪˈmɔ:s
+marker | znak, znacznik |  |  | ˈmɑ:kə
+gem | kamień szlachetny, klejnot |  |  | ʤem
+determination | determinacja, zdecydowanie, ustalenie | He made a determination to be a doctor. | Postanowił zostać lekarzem. | dɪˌtɜ:mɪˈneɪʃən
+beaver | bóbr, harować |  |  | ˈbi:və
+well-known | dobrze znany, znany |  |  | ˌwelˈnəʊn
+testament | testament, świadek |  |  | ˈtestəmənt
+abort | poronić, przerwać ciążę, przerwać (przed zakończeniem) |  |  | əˈbɔ:t
+heap | sterta, kupa, masa |  |  | hi:p
+ketchup | keczup | Tom forgot the ketchup. | Tom zapomniał o keczupie. | ˈkeʧʌp
+tummy | brzuszek |  |  | ˈtʌmɪ
+hog | wieprz, zagarniać |  |  | hɒg
+catastrophe | katastrofa |  |  | kəˈtæstrəfɪ
+rover | wędrowiec |  |  | rəʊvə
+moreover | co więcej | He was a doctor; moreover, a poet. | Był lekarzem, a ponadto poetą. | mɔ:rˈəʊvə
+fascist | faszysta, faszystowski |  |  | ˈfæʃɪst
+colt | źrebak | Is Cookie a colt or a filly? | Czy Cookie to ogierek czy klaczka? | kəʊlt
+hardy | wytrwały, wytrzymały, mrozoodporny |  |  | ˈhɑ:dɪ
+truce | rozejm | Then is it war again, after so long a truce? | A więc znowu wojna, po tak długim zawieszeniu broni? | tru:s
+bronze | brąz, brązowy | They set up a bronze statue of the hero. | Ustawili bohaterowi pomnik z brązu. | brɒnz
+airline | linia lotnicza | They are a good airline to fly with. | To dobra firma do latania samolotem. | ˈeəlaɪn
+incapable | niezdolny, niezdatny do niczego, niezdatny | The building is incapable of repair. | Budynek nie nadaje się do naprawy, | ɪŋˈkeɪpəbəl
+surround | otaczać | I like to surround myself with spiders. | Lubię otaczać się pająkami. | səˈraʊnd
+consolation | pociecha, pocieszenie |  |  | ˌkɒnsəˈleɪʃən
+gutter | rynsztok, rynna, brukowy |  |  | ˈgʌtə
+broker | makler, pośrednik |  |  | ˈbrəʊkə
+seizure | atak, przejęcie, zawładnięcie |  |  | ˈsi:ʒə
+fright | strach, przestrach | He turned pale with fright. | Zrobił się blady ze strachu. | fraɪt
+berry | jagoda |  |  | ˈberɪ
+contribute | przyczyniać się, oferować, wpłacać | Everyone is free to contribute. | Każdy może współpracować. | kənˈtrɪbju:t
+jewellery | biżuteria |  |  | ˈʤu:əlrɪ
+obstacle | przeszkoda |  |  | ˈɒbstəkəl
+ale | ale (piwo angielskie) | Do you like ginger ale? | Czy lubisz piwo korzenne? | eɪl
+biscuit | herbatnik | My cat kind of looks like a biscuit. | Mój kot wygląda trochę jak herbatnik. | ˈbɪskɪt
+redemption | odkupienie |  |  | rɪˈdempʃən
+thug | zbir, łotr |  |  | θʌg
+concussion | wstrząs mózgu |  |  | kənˈkʌʃən
+disgust | odraza, wstręt, brzydzić | Tom stared at Mary with disgust. | Tom patrzył na Mary z obrzydzeniem. | dɪsˈgʌst
+arise | powstawać |  |  | əˈraɪz
+plasma | osocze | Blood consists of erythrocytes, leukocytes, platelets, and plasma. | Krew składa się z erytrocytów, leukocytów, płytek krwi i osocza. | ˈplæzmə
+regain | odzyskiwać |  |  | rɪˈgeɪn
+conductor | konduktor, dyrygent, przewodnik elektryczny | You can purchase a ticket from the conductor. | Bilet może pan kupić u konduktora. | kənˈdʌktə
+gender | płeć (społeczno-kulturowa), rodzaj | Some animals change gender. | Niektóre zwierzęta zmieniają płeć. | ˈʤendə
+cocky | zarozumiały |  |  | ˈkɒkɪ
+dispute | nieporozumienie, podważać | Nothing is ever done here without dispute. | Nic tutaj nie jest nigdy zrobione bez sporów. | dɪˈspju:t
+brute | zwierzę, bydlę, zwierzak |  |  | bru:t
+telly | telewizja, telewizor | It's on telly right now. | Leci teraz w telewizji. | ˈtelɪ
+capsule | kapsułka, kapsuła, kabina załogowa |  |  | ˈkæpsju:l
+psychopath | psychopata | But your ex is a psychopath! | Twój były jest psychopatą. | ˈsaɪkəpæθ
+bind | wiązać, związywać, przywiązywać | Break free from the chains that bind you! | Uwolnij się od łańcuchów, które cię przywiązują! | baɪnd
+bundle | tobół, tłumok, pakować | She was a bundle of nerves last night. | Zeszłej nocy była kłębkiem nerwów. | ˈbʌndəl
+polo | polo (gra) |  |  | ˈpəʊləʊ
+meteor | meteor | What is a meteor? | Co to jest meteor? | ˈmi:tɪə
+starboard | sterburta, prawy |  |  | ˈstɑ:bɔ:d
+chauffeur | kierowca, wozić | I had my chauffeur drive Tom to the airport. | Mój szofer zawiózł Toma na lotnisko. | ˈʃəʊfə
+download | pobierać (z internetu) | When can I download the new data? | Kiedy mogę pobrać nowe dane? | ˌdaʊnˈləʊd
+garrison | garnizon, obsadzać | The garrison was forced to surrender. | Garnizon był zmuszony się poddać. | ˈgærɪsən
+postcard | kartka pocztowa, widokówka | My parents sent me a postcard. | Moi rodzice wysłali mi pocztówkę. | ˈpəʊstkɑ:d
+convert | przekształcać, przestawiać, nawracać | How do I convert miles to kilometers? | Jak przeliczyć mile na kilometry? | 
+reef | rafa |  |  | ri:f
+treasury | skarbnica, skarb państwa |  |  | ˈtreʒərɪ
+mathematics | matematyka | We had an examination in mathematics today. | Dziś mieliśmy egzamin z matematyki. | ˌmæθəˈmætɪks
+shameful | zawstydzający, haniebny |  |  | ˈʃeɪmfʊl
+abbey | opactwo, klasztor |  |  | ˈæbɪ
+strategic | strategiczny | Algeria and Russia are strategic partners. | Algieria i Rosja są strategicznymi partnerami. | strəˈti:ʤɪk
+payroll | lista płac | He is still on the payroll of the company. | Ciągle jest na liście płac firmy. | ˈpeɪrəʊl
+immense | ogromny, gigantyczny | An immense monument was erected in honor of the eminent philosopher. | Ku czci znakomitego filozofa wzniesiono olbrzymi pomnik. | ɪˈmens
+heartless | bez serca, bezlitosny | It is heartless of him to say so. | Trzeba nie mieć serca, żeby coś takiego powiedzieć. | ˈhɑ:tlɪs
+teller | kasjer | A fortune-teller read my hand. | Wróżka czytała z mojej ręki. | ˈtelə
+mop | zmywak do podłogi (np. z gąbki), kudły, zmywać podłogę | Tom cleaned the floor with a mop. | Tom wymył podłogę mopem. | mɒp
+atom | atom, odrobina | Scientists have succeeded in splitting the atom. | Naukowcom udało się rozszczepić atom. | ˈætəm
+unload | wyładowywać, pozbywać się | I helped Tom and Mary unload their van. | Pomogłem Tomowi i Mary rozładować ich furgonetkę. | ʌnˈləʊd
+regional | regionalny, rejonowy | Fried spiders are a regional delicacy in Cambodia. | Smażone pająki to regionalny przysmak w Kambodży. | ˈri:ʤənəl
+secrecy | sekret, dyskrecja |  |  | ˈsi:krɪsɪ
+thesis | teza, rozprawa, praca |  |  | ˈθi:sɪs
+leverage | nacisk, siła dźwigni |  |  | ˈli:vərɪʤ
+weary | znużony, wyczerpany, nużyć się | I became weary of waiting for her. | Znużyło mnie czekanie na nią. | ˈwɪərɪ
+employ | zatrudniać, używać, posługiwać się | I will employ somebody who can speak English. | Zatrudnię kogoś znającego angielski. | ɪmˈplɔɪ
+provoke | prowokować, wywoływać |  |  | prəˈvəʊk
+stool | stołek |  |  | stu:l
+postpone | odkładać, odraczać | I had to postpone my appointment. | Musiałem przełożyć umówione spotkanie. | pəstˈpəʊn
+extensive | rozległy, ogromny, obszerny | The earthquake in Hokkaido caused extensive damage. | Trzęsienie ziemi w Hokkaido spowodowało rozległe szkody. | ɪkˈstensɪv
+optimistic | optymistyczny | You should try being more optimistic. | Powinieneś starać się być bardziej optymistycznym. | ˌɒptɪˈmɪstɪk
+spooky | makabryczny, przerażający |  |  | ˈspu:kɪ
+skate | łyżwa, wrotka, płaszczka | Tom is able to skate. | Tom potrafi jeździć na desce. | skeɪt
+maze | labirynt, gmatwanina | Yesterday we went into a huge maze. | Wczoraj weszliśmy do ogromnego labiryntu. | meɪz
+fireplace | kominek | I am warming myself by the fireplace. | Ogrzewam się przy kominku. | ˈfaɪəpleɪs
+vicar | wikariusz, pastor |  |  | ˈvɪkə
+beetle | żuk, chrząszcz |  |  | ˈbi:təl
+stupidity | głupota, głupstwo | Thanks to your stupidity, we lost the game. | Przez twoją głupotę przegraliśmy grę. | stju:ˈpɪdɪtɪ
+pupil | uczeń, źrenica | Every pupil in the class is present. | Każdy uczeń w tej klasie jest obecny. | ˈpju:pəl
+hostess | gospodyni, stewardesa, hostesa | He married an air hostess. | Ożenił się ze stewardessą. | ˈhəʊstɪs
+sneaky | ukradkowy |  |  | ˈsni:kɪ
+swollen | opuchnięty | My feet are swollen. | Moje stopy są spuchnięte. | ˈswəʊlən
+mixture | mieszanka, mieszanina |  |  | ˈmɪksʧə
+liberation | wyzwolenie |  |  | ˌlɪbəˈreɪʃən
+nay | a nie |  |  | neɪ
+reindeer | renifer |  |  | ˈreɪndɪə
+shampoo | szampon, myć szamponem | I bought some shampoo and toothpaste. | Kupiłem szampon i pastę do zębów. | ʃæmˈpu:
+overhead | napowietrzny, nad głową |  |  | ˌəʊvəˈhed
+disturbance | zamieszki, zaburzenia |  |  | dɪˈstɜ:bəns
+motivation | motywacja | Australians don't need motivation to drink beer, it comes natural. | Australijczycy nie potrzebują motywacji aby pić piwo, to przychodzi naturalnie. | məʊtɪˈveɪʃən
+mist | mgła, pokrywać się mgiełką | As the sun rises, the morning mist gradually fades away. | Wstaje słońce i poranna mgła stopniowo przerzedza się. | mɪst
+sculpture | rzeźba, rzeźbiarstwo | I just don't get modern sculpture. | Ja po prostu nie rozumiem współczesnej rzeźby. | ˈskʌlpʧə
+manor | dwór obronny, dwór, majątek | There are many beds in the manor. | W dworze jest wiele łóżek. | ˈmænə
+convoy | konwój |  |  | ˈkɒnvɔɪ
+merit | wartość, zaleta, zasługa |  |  | ˈmerɪt
+sway | chwiać się, poddawać się, wpływ |  |  | sweɪ
+salty | słony | We have salty meat in the kitchen. | W kuchni mamy słone mięso. | ˈsɒltɪ
+elf | elf, krasnoludek | Mary is an elf. | Mary jest elfem. | elf
+contractor | kontrahent, przedsiębiorca |  |  | kənˈtræktə
+arch | łuk, podbicie stopy, podbicie |  |  | ɑ:ʧ
+bathe | kąpać się, kąpać się (w łazience), przemywać | I have to bathe the cat today. | Dzisiaj muszę wykąpać kota. | beɪð
+cardiac | nasercowy, sercowy |  |  | ˈkɑ:dɪæk
+velvet | aksamit | The dress was covered with blue velvet. | Suknia była pokryta błękitnym aksamitem. | ˈvelvɪt
+stem | pień, łodyga, nóżka | A rose has thorns on its stem. | Róża ma kolce na łodydze. | stem
+warfare | wojna, działania wojenne |  |  | ˈwɔ:feə
+filter | filtrować, przesączać się, przedzierać się | The kidneys filter blood in the body. | Nerki filtrują krew w organizmie. | ˈfɪltə
+sterling | funt szterling, szterling |  |  | ˈstɜ:lɪŋ
+gran | babcia |  |  | græn
+disc | krążek, tarcza, dysk | This is my favorite track on the entire disc. | To mój ulubiony kawałek na tej płycie. | dɪsk
+percentage | procent, udział procentowy | What percentage of marriages end in divorce? | Ile procent małżeństw kończy się rozwodem? | pəˈsentɪʤ
+bravery | odwaga |  |  | ˈbreɪvərɪ
+diaper | pielucha |  |  | ˈdaɪəpə
+morality | moralność | Her morality is flexible. | Jej moralność jest elastyczna. | məˈrælɪtɪ
+leopard | lampart | The leopard was getting bored with its spots. | Lampartowi zaczynały się nudzić jego cętki. | ˈlepəd
+magnet | magnes | His car is a real pussy magnet. | Jego samochód naprawdę przyciąga cipki. | ˈmægnɪt
+vaccine | szczepionka | I hope we'll have an effective COVID-19 vaccine soon. | Mam nadzieję, że wkrótce będziemy mieli skuteczną szczepionkę na COVID-19. | ˈvæksi:n
+aggression | agresywność, agresja |  |  | əˈgreʃən
+burglary | włamanie |  |  | ˈbɜ:glərɪ
+increasingly | coraz bardziej |  |  | ɪŋˈkri:sɪŋlɪ
+sidewalk | chodnik | He parked his car beside the sidewalk. | Zaparkował samochód przy chodniku. | ˈsaɪdwɔ:k
+shady | cienisty, ciemny |  |  | ˈʃeɪdɪ
+resolution | rezolucja, postanowienie, zdeterminowanie | He made a resolution to write in his diary every day. | Zdecydował sie pisać codziennie w swoim pamiętniku. | ˌrezəˈlu:ʃən
+scenery | sceneria, pejzaż, dekoracja | The scenery is beautiful beyond description. | Widok jest piękny nie do opisania. | ˈsi:nərɪ
+hitch | przytwierdzać, jechać stopem, jechać autostopem |  |  | hɪʧ
+wink | mrugnięcie, mrugać | I hardly slept a wink all night. | Ledwie zmrużyłem oko. | wɪŋk
+assessment | ocena, oszacowanie | I think that the assessment is unfair. | Myślę, że ocena jest niesprawiedliwa. | əˈsesmənt
+rainy | deszczowy | Save up something for a rainy day. | Odłóż coś na czarną godzinę. | ˈreɪnɪ
+amendment | poprawka |  |  | əˈmendmənt
+getaway | ucieczka, zbiegnięcie |  |  | ˈgetəweɪ
+blackout | zaciemnienie, omdlenie |  |  | ˈblækaʊt
+leash | smycz | Keep Tom on a short leash. | Trzymaj Toma krótko. | li:ʃ
+raft | tratwa, gumowa tratwa ratunkowa, tratwa ratunkowa |  |  | rɑ:ft
+contagious | zakaźny, zaraźliwy |  |  | kənˈteɪʤəs
+operational | działający, do użycia, do zastosowania |  |  | ˌɒpəˈreɪʃənəl
+buffet | bić, uderzać, bufet | Are you still at the buffet? | Ciągle jesteś w bufecie? | 
+cocoa | kakao |  |  | ˈkəʊkəʊ
+perception | wnikliwość, widzenie, dostrzeganie |  |  | pəˈsepʃən
+dense | gęsty, tępy |  |  | dens
+pending | zbliżający się, aż do |  |  | ˈpendɪŋ
+nod | skinąć głową, skinąć, wskazywać głową | Tom signaled Mary with a nod. | Tom dał Mary znak kiwnięciem głowy. | nɒd
+bouquet | bukiet | Tom was carrying a bouquet of flowers. | Tom niósł bukiet kwiatów. | bʊˈkeɪ
+philosopher | filozof | "Can life exist without sin?" asked the old philosopher. | "Czy życie może istnieć bez grzechu?" zapytał stary filozof. | fɪˈlɒsəfə
+bulb | cebulka, żarówka, bańka | The light bulb has burned out. | Żarówka się przepaliła. | bʌlb
+sinner | grzesznik |  |  | ˈsɪnə
+ongoing | zachodzący, trwający |  |  | ˈɒngəʊɪŋ
+veteran | weteran, kombatant, uczestnik wojny | Tom is a veteran now. | Tom jest teraz weteranem. | ˈvetərən
+drip | kapać, skapywać, kapanie | I had an intravenous drip in hospital. | Miałam podaną kroplówkę w szpitalu. | drɪp
+gale | wicher, wichura |  |  | geɪl
+flint | krzemień, kamień do zapalniczki, kamień |  |  | flɪnt
+membership | członkostwo | There's no membership fee for joining. | Nie płaci się za wstąpienie. | ˈmembəʃɪp
+chalk | kreda, pisać kredą | He runs fastest by a long chalk. | On biega zdecydowanie najszybciej. | ʧɔ:k
+liable | odpowiedzialny (prawnie), skłonny do | In a similar situation, the company was held liable. | W podobnej sytuacji orzeczono winę przedsiębiorstwa. | ˈlaɪəbəl
+manuscript | rękopis | He showed me the manuscript of his new play. | Pokazał mi rękopis swojej nowej sztuki. | ˈmænjəskrɪpt
+loot | łupić, grabić, łup | The thieves split up their loot. | Złodzieje podzielili łup. | lu:t
+perish | ginąć, przepadać, psuć się |  |  | ˈperɪʃ
+clone | klon, imitacja, składak |  |  | kləʊn
+hangover | kac, kociokwik, przeżytek | I have a hangover today. | Mam dziś kaca. | ˈhæŋəʊvə
+flatter | pochlebiać |  |  | ˈflætə
+weasel | łasica | The weasel is noted for its bad smell. | Łasica jest znana ze swego nieprzyjemnego zapachu. | ˈwi:zəl
+lace | koronka, sznurowadło, podprawiać | The dress was trimmed with lace. | Sukienka była wykończona koronką. | leɪs
+indication | znak |  |  | ˌɪndɪˈkeɪʃən
+undress | rozbierać się, rozbierać | The mother started to undress the baby. | Matka zaczęła rozbierać niemowlę. | ʌnˈdres
+dolphin | delfin | A dolphin is a mammal. | Delfin jest ssakiem. | ˈdɒlfɪn
+depart | odjeżdżać, odbiegać, odstępować | I had no option but to depart. | Nie miałem innego wyjścia, jak tylko wyjechać. | dɪˈpɑ:t
+monument | pomnik, statua, zabytek | The monument was set up in the park. | Pomnik został ustawiony w parku. | ˈmɒnjəmənt
+invade | najeżdżać, przeprowadzać inwazję, opanowywać |  |  | ɪnˈveɪd
+hazel | leszczyna, orzechowy | You have such beautiful, hazel eyes. | Masz takie piękne, piwne oczy. | ˈheɪzəl
+rep | przedstawiciel (handlowy) | I'm a sales rep. | Jestem przedstawicielem handlowym. | rep
+sinister | złowieszczy | He gave me a sinister look. | Rzucił mi złowrogie spojrzenie. | ˈsɪnɪstə
+assemble | gromadzić się, gromadzić, montować |  |  | əˈsembəl
+generosity | hojność, szczodrość |  |  | ʤenəˈrɒsɪtɪ
+amusement | rozbawienie, zabawa, rozrywka |  |  | əˈmju:zmənt
+lantern | latarnia | Give the lantern to me. | Podaj mi latarkę. | ˈlæntən
+combine | łączyć, połączyć, zespół | You should combine theory with practice. | Powinieneś połączyć teorię z praktyką. | 
+limp | kuleć, kuśtykać, kulenie |  |  | lɪmp
+matrix | matryca | The matrix consisted of five rows and seven columns. | Macierz składała się z pięciu rzędów i siedmiu kolumn. | ˈmeɪtrɪks
+incompetent | niekompetentny | I think Tom is incompetent. | Myślę, że Tom jest niekompetentny. | ɪŋˈkɒmpɪtənt
+closure | zamknięcie, blokada | The plant's closure spelt disaster for the town. | Zamknięcie fabryki oznaczało dla miasta katastrofę. | ˈkləʊʒə
+descent | zejście w dół, schodzenie, pochodzenie |  |  | dɪˈsent
+parachute | spadochron | Valentina became interested in parachute jumping when she was young. | Walentyna zainteresowała się skokami spadochronowymi jak była młoda. | ˈpærəʃu:t
+excessive | nadmierny | Excessive smoking will injure your health. | Przesadnie palenie zaszkodzi twojemu zdrowiu. | ɪkˈsesɪv
+hump | garb, wybój, dźwigać |  |  | hʌmp
+fuzzy | puszysty, kędzierzawy, nieostry |  |  | ˈfʌzɪ
+pageant | przedstawienie historyczne |  |  | ˈpæʤənt
+wan | wybladły |  |  | wɒn
+wildlife | przyroda, zwierzęta |  |  | ˈwaɪldlaɪf
+homecoming | powrót, powrót do domu |  |  | ˈhəʊmkʌmɪŋ
+hazard | ryzyko, niebezpieczeństwo, ryzykować |  |  | ˈhæzəd
+slug | ślimak nagi, przywalić | Tom put slug pellets on the cabbage patch. | Tom położył granulki na ślimaki na grządce kapusty. | slʌg
+frustration | frustracja |  |  | frʌˈstreɪʃən
+deception | podstęp, oszustwo |  |  | dɪˈsepʃən
+preach | wygłaszać kazanie, głosić |  |  | pri:ʧ
+practise | stosować, praktykować, uprawiać | I practise every day. | Codziennie ćwiczę. | ˈpræktɪs
+significance | znaczenie |  |  | sɪgˈnɪfɪkəns
+drummer | perkusista, dobosz | How good a drummer is Tom? | Jak dobrym perkusistą jest Tom? | ˈdrʌmə
+specimen | okaz, przykład | A good specimen might weigh up to a kilo. | Dobry okaz może ważyć nawet do kilograma. | ˈspesɪmən
+misunderstand | mylnie rozumieć |  |  | ˌmɪsʌndəˈstænd
+asthma | astma | Do you have any asthma medicine? | Czy masz jakiś lek na astmę? | ˈæsmə
+hypocrite | obłudnik, hipokryta | Agenda 2030 is a hypocrite bullshit. | Agenda 2030 to hipokrytyczne pieprzenie. | ˈhɪpəkrɪt
+advocate | być zwolennikiem, zwolennik | You are not an advocate. | Nie jesteś adwokatem. | ˈædvəkeɪt
+radioactive | radioaktywny |  |  | ˌreɪdɪəʊˈæktɪv
+apprentice | terminator, praktykant | He worked as an apprentice for three years. | → Pracował jako praktykant przez trzy lata. | əˈprentɪs
+unreasonable | nierozsądny | Employees feel the pressure of unreasonable expectations. | Pracownicy odczują presję nieuzasadnionych oczekiwań. | ʌnˈri:zənəbəl
+inmate | pensjonariusz, mieszkaniec |  |  | ˈɪnmeɪt
+siege | oblężenie |  |  | ˈsi:ʤ
+cobra | kobra |  |  | ˈkəʊbrə
+harbour | przystań, port, ukrywać | The lost fishing boat made a safe return to harbour. | Zagubiony kuter dopłynął bezpiecznie do nabrzeża. | ˈhɑ:bə
+rattle | postukiwać, kołatać, zirytować | The baby was playing with a rattle. | Dziecko bawiło się grzechotką. | ˈrætəl
+declaration | wyznanie, deklaracja, oznajmienie | Please fill out the Customs Declaration Form. | Proszę wypełnić deklarację celną. | ˌdekləˈreɪʃən
+virtual | wirtualny, faktyczny |  |  | ˈvɜ:ʧʊəl
+intuition | intuicja |  |  | ˌɪntjʊˈɪʃən
+bypass | pomijać, omijać, objazd | I managed to bypass the geoblocking on that site. | Udało mi się ominąć blokowanie geograficzne na tej stronie. | ˈbaɪpɑ:s
+pneumonia | zapalenie płuc |  |  | nju:ˈməʊnɪə
+manly | męski |  |  | ˈmænlɪ
+groan | jęczeć, skrzypieć, jęk |  |  | grəʊn
+dungeon | loch, więzienie |  |  | ˈdʌnʤən
+consequence | konsekwencja | Your cough is the consequence of smoking. | Twój kaszel jest przyczyną palenia. | ˈkɒnsɪkwəns
+intercept | zatrzymywać, przechwytywać |  |  | ˌɪntəˈsept
+substantial | znaczny, poważny, istotny |  |  | səbˈstænʃəl
+brag | przechwalać się | It was nothing to brag about. | Nie było się czym chwalić. | bræg
+pitcher | dzbanek, rzucający |  |  | ˈpɪʧə
+royalty | rodzina królewska, tantiema |  |  | ˈrɔɪəltɪ
+spontaneous | spontaniczny, samoistny | I wish I could be more spontaneous. | Chciałbym być bardziej spontaniczny. | spɒnˈteɪnɪəs
+peep | zerkać, zaglądać, zerknięcie |  |  | pi:p
+ache | ból, boleć | My joints ache when it gets cold. | Moje stawy bolą, gdy robi się zimno. | eɪk
+swat | pacnąć, uderzyć |  |  | swɒt
+emerge | wyłaniać się, wychodzić, pojawiać się |  |  | ɪˈmɜ:ʤ
+gambler | gracz, hazardzista |  |  | ˈgæmblə
+insecure | niepewny |  |  | ˌɪnsɪˈkjʊə
+attendant | obsługujący, towarzyszący |  |  | əˈtendənt
+sympathetic | współczujący, przychylny, sympatyczny | Layla seemed to be sympathetic to Sami's situation. | Layla zdawała się współczuć sytuacji Samiego. | ˌsɪmpəˈθetɪk
+heroine | bohaterka | She wants to be a heroine. | Ona chce zostać bohaterką. | ˈherəʊɪn
+dictionary | słownik | Look up the words in your dictionary. | Poszukaj słów w słowniku. | ˈdɪkʃənərɪ
+oppose | sprzeciwiać się |  |  | əˈpəʊz
+mineral | minerał, mineralny |  |  | ˈmɪnərəl
+venom | jad |  |  | ˈvenəm
+bamboo | bambus | The bamboo shoot bent under the weight of the snow. | Bambus uginał się pod ciężarem śniegu. | ˌbæmˈbu:
+particle | cząstka, partykuła | This particle turns a noun into a verb. | Ta partykuła zmienia rzeczownik w czasownik. | ˈpɑ:tɪkəl
+octopus | ośmiornica | The shark ate the octopus. | Rekin zjadł ośmiornicę. | ˈɒktəpəs
+meaningful | znaczący, posiadający znaczenie |  |  | ˈmi:nɪŋfʊl
+daytime | pora dzienna |  |  | ˈdeɪtaɪm
+dowry | wiano |  |  | ˈdaʊərɪ
+collision | zderzenie, kolizja |  |  | kəˈlɪʒən
+faculty | władze umysłowe i cielesne, wydział uniwersytecki, wydział |  |  | ˈfækəltɪ
+operative | działający, agent |  |  | ˈɒpərətɪv
+ounce | uncja (28,35 g), odrobina |  |  | aʊns
+gadget | urządzenie | What's your favorite gadget? | Jaki jest twój ulubiony gadżet? | ˈgæʤɪt
+console | pocieszać, konsola |  |  | 
+caravan | przyczepa kempingowa, karawana | Tom lives in a caravan. | Tom mieszka w przyczepie kempingowej. | ˈkærəvæn
+spinal | kręgowy, stos pacierzowy |  |  | ˈspaɪnəl
+recess | przerwa, nisza, wnęka |  |  | rɪˈses
+eminence | znakomitość, eminencja |  |  | ˈemɪnəns
+cheeky | bezczelny | The cheeky seagull kept stealing my fries. | Zuchwała mewa ciągle kradła mi frytki. | ˈʧi:kɪ
+powerless | bezsilny | Human beings are powerless before nature. | Człowiek jest bezsilny wobec przyrody. | ˈpaʊəlɪs
+external | zewnętrzny, aspekty zewnętrzne | The external scars tell only part of the story. | Zewnętrzne blizny to tylko część historii. | ɪkˈstɜ:nəl
+quarantine | kwarantanna, odbywać kwarantannę |  |  | ˈkwɒrənti:n
+headline | nagłówek, najważniejsze wydarzenia |  |  | ˈhedlaɪn
+tablet | tabletka, tablet | Your tablet is on the shelf. | Twój tablet jest na półce. | ˈtæblɪt
+founder | fundator, założyciel, zawodzić | The university bears the name of its founder. | Uniwersytet nosi imię swego założyciela. | ˈfaʊndə
+squash | zgniatać, squash (sport) |  |  | skwɒʃ
+saloon | limuzyna, salon, bar |  |  | səˈlu:n
+tuition | nauka, czesne | Who paid your tuition? | Kto opłacił twoje czesne? | tjʊˈɪʃən
+tame | oswojony, potulny, mało ekscytujący |  |  | teɪm
+occasional | okresowy, okazjonalny | There was occasional laughter. | Był sporadyczny śmiech. | əˈkeɪʒənəl
+clinical | medyczny, kliniczny, sterylny |  |  | ˈklɪnɪkəl
+serpent | wąż | The serpent tempted Eve. | Wąż kusił Ewę. | ˈsɜ:pənt
+prop | podpierać, podpora |  |  | prɒp
+mend | naprawiać się, naprawiać, cerować |  |  | mend
+lonesome | osamotniony |  |  | ˈləʊnsəm
+legion | legion, chmara |  |  | ˈli:ʤən
+tread | deptać, nadepnąć, wdeptywać |  |  | tred
+scorpion | skorpion | Tom died from a scorpion sting. | Tom zmarł od użądlenia skorpiona. | ˈskɔ:pɪən
+opium | opium | Religion is the opium of the people. | Religia to opium dla ludu. | ˈəʊpɪəm
+athletic | atletyczny, lekkoatletyczny | Owing to the rain, the athletic meeting was put off. | Z powodu deszczu odłożono zawody sportowe. | æθˈletɪk
+jumper | pulower, kombinezon | This jumper is too tight for me. | Ten sweter jest na mnie za ciasny. | ˈʤʌmpə
+seminar | seminarium |  |  | ˈsemɪnɑ:
+commence | rozpoczynać się, rozpoczynać |  |  | kəˈmens
+worthwhile | opłacalny | It is worthwhile visiting the museum. | Warto zwiedzić to muzeum. | ˌwɜ:θˈwaɪl
+morale | morale |  |  | məˈrɑ:l
+evaluation | ocena, oszacowanie |  |  | ɪˌvæljʊˈeɪʃən
+precision | precyzja, dokładność | Mica is sometimes used as the dielectric in high-precision capacitors. | Mika jest czasami używana jako dielektryk w precyzyjnych kondensatorach. | prɪˈsɪʒən
+revelation | rewelacja, odkrycie |  |  | ˌrevəˈleɪʃən
+tenant | najemca lokalu, najemca, dzierżawca |  |  | ˈtenənt
+diabetes | cukrzyca |  |  | ˌdaɪəˈbɪ:ti:z
+alternate | naprzemienny, co drugi, przerzucać się |  |  | 
+diversion | rozrywka, atrakcja, odwrócenie uwagi |  |  | daɪˈvɜ:ʃən
+dedication | ofiarność, poświęcenie się, dedykacja |  |  | ˌdedɪˈkeɪʃən
+wager | zakład |  |  | ˈweɪʤə
+smelly | śmierdzący |  |  | ˈsmelɪ
+trench | rów, okop |  |  | trenʧ
+cameraman | kamerzysta |  |  | ˈkæmərəmən
+batter | bić, maltretować, uderzać |  |  | ˈbætə
+dye | barwić, farbować, barwnik |  |  | daɪ
+abduction | uprowadzenie |  |  | æbˈdʌkʃən
+manslaughter | zabójstwo |  |  | ˈmænslɔ:tə
+remedy | środek, lekarstwo, zaradzić | We have yet to discover an effective remedy for cancer. | Musimy odkryć skuteczny lek na raka. | ˈremədɪ
+damp | wilgotny, wilgoć | Clean the window with a damp cloth. | Umyj okno wilgotną ścierką. | dæmp
+thigh | udo | He put his hand on my thigh. | Położył rękę na moim udzie. | θaɪ
+cologne | woda kolońska |  |  | kəˈləʊn
+accusation | oskarżenie |  |  | ˌækju:ˈzeɪʃən
+outsider | człowiek niezależny, człowiek nie związany z grupą, ktoś poza nawiasem |  |  | ˌaʊtˈsaɪdə
+serum | surowica |  |  | ˈsɪərəm
+oral | ustny, oralny, doustny | The exam had an oral section. | Egzamin miał część ustną. | ˈɔ:rəl
+woe | nieszczęście |  |  | wəʊ
+alias | pseudonim, czyli |  |  | ˈeɪlɪəs
+apron | fartuch | My mother has a red apron. | Moja matka ma czerwony fartuch. | ˈeɪprən
+vein | żyła, żyłka (liścia), styl |  |  | veɪn
+tonic | tonik, środek tonizujący, odżywka | Let's qualify this gin with tonic water. | Okraśmy ten gin tonikiem. | ˈtɒnɪk
+dim | ciemny, mroczny, niewyraźny | We saw a dim light in the darkness. | Dostrzegliśmy nikłe światło w ciemności. | dɪm
+steep | stromy, spadzisty, ostry | We climbed up the steep mountain. | Wspięłyśmy się na stromą górę. | sti:p
+overdose | zbyt duża dawka | Tom died of a drug overdose. | Tom zmarł z przedawkowania narkotyków. | ˈəʊvədəʊz
+automobile | samochód | He works in the automobile industry. | Pracuje w przemyśle samochodowym. | ˈɔ:təməbi:l
+loo | ubikacja | I need the loo! | Muszę iść do toalety ! | lu:
+hound | pies myśliwski, szczuć |  |  | haʊnd
+cloak | płaszcz, peleryna, płaszczyk |  |  | kləʊk
+pastry | płat tortowy, ciastko |  |  | ˈpeɪstrɪ
+successor | następca |  |  | səkˈsesə
+accidental | przypadkowy | That discovery was quite accidental. | To odkrycie było dość przypadkowe. | ˌæksɪˈdentəl
+convey | przekazywać, komunikować, transportować | I can convey my feelings in words. | Potrafię wyrazić swoje uczucia słowami. | kənˈveɪ
+prototype | prototyp | This design is too inefficient to prototype. | Ten projekt jest zbyt nieefektywny jak na prototyp. | ˈprəʊtətaɪp
+fling | rzucać się, rzucać, przygoda |  |  | flɪŋ
+uptight | spięty | Tom is a little uptight. | Tomek jest trochę spięty. | ˈʌptaɪt
+fingerprint | odcisk palca, odcisk, zdejmować odciski palców |  |  | ˈfɪŋgəprɪnt
+sensational | sensacyjny, niezwykły |  |  | senˈseɪʃənəl
+jockey | dżokej |  |  | ˈʤɒkɪ
+mourn | boleć po stracie, boleć, opłakiwać | Blessed are those who mourn: for they will be comforted. | Błogosławieni, którzy się smucą, albowiem oni będą pocieszeni. | mɔ:n
+intercom | interkom (telefon głośno mówiący), domofon |  |  | ˈɪntəkɒm
+penthouse | apartament na ostatnim piętrze | This penthouse is spacious. | Ta przybudówka jest przestronna. | ˈpenthaʊs
+peck | dziobać, cmokać, muskać ustami |  |  | pek
+gospel | ewangelia, święty, gospel (muzyka) | It's the gospel truth. | To święta prawda. | ˈgɒspəl
+presumably | przypuszczalnie |  |  | prɪˈzju:məblɪ
+assumption | założenie, objęcie | That's a reasonable assumption. | To rozsądne założenie. | əˈsʌmpʃən
+sideways | z boku, na bok, boczny |  |  | ˈsaɪdweɪz
+squid | kałamarnica, kalmar | A squid has ten arms. | Kałamarnica ma dziesięć ramion. | skwɪd
+mushroom | grzyb, wyłaniać się | What is this mushroom? | Co to za grzyb? | ˈmʌʃru:m
+freeway | autostrada bezpłatna, autostrada | My car battery died in the middle of the freeway. | Akumulator wyczerpał mi się na środku autostrady. | ˈfri:weɪ
+believer | zwolennik, wierzący |  |  | bɪˈli:və
+tornado | tornado | The tornado destroyed the whole village. | Tornado zniszczyło całą wioskę. | tɔ:ˈneɪdəʊ
+notch | nacięcie, szczerba, stopień | Yo, man, this shit is top notch. | Siema koleś, to gówno jest nawyższej klasy. | nɒʧ
+annoy | złościć, drażnić | She is doing that only to annoy him. | Robi to tylko po to, by go zdenerwować. | əˈnɔɪ
+loaf | bochenek | Half a loaf is better than none. | Lepszy rydz niż nic. | ləʊf
+idiotic | idiotyczny, kretyński |  |  | ˌɪdɪˈɒtɪk
+inconvenience | niedogodność, niewygoda, kłopot | Not having a telephone is an inconvenience. | Brak telefonu to niedogodność. | ˌɪŋkənˈvi:njəns
+plum | śliwka, śliwkowy | Do you like plum cake? | Lubisz ciasto śliwkowe? | plʌm
+solicitor | radca prawny, adwokat |  |  | səˈlɪsɪtə
+amnesia | amnezja |  |  | æmˈni:zɪə
+distinct | odrębny, wyraźny |  |  | dɪˈstɪŋkt
+sweeping | półkolisty, daleko idący, zbyt uogólniający | My father is sweeping the garage. | Mój ojciec zamiata garaż. | ˈswi:pɪŋ
+arson | umyślne podpalenie |  |  | ˈɑ:sən
+furthermore | co więcej, a przy tym | No, no, and furthermore, no! | Nie, nie i jeszcze raz nie! | ˌfɜ:ðəˈmɔ:
+quarry | kamieniołom, zdobycz, wydobywać |  |  | ˈkwɒrɪ
+depot | skład, stacja kolejowa, stacja |  |  | ˈdepəʊ
+circulation | obieg, nakład, krążenie |  |  | ˌsɜ:kjʊˈleɪʃən
+socialist | socjalista, socjalistyczny | The Socialist Party only got 18% of the votes. | Partia Socjalistyczna uzyskała tylko 18% głosów. | ˈsəʊʃəlɪst
+dryer | suszarka | How much does this hair dryer cost? | Ile kosztuje ta suszarka do włosów? | ˈdraɪə
+moody | kapryśny, mający humory, w złym humorze |  |  | ˈmu:dɪ
+receiver | słuchawka, odbiornik, odbiorca | I put the receiver to my ear. | Przyłożyłem słuchawkę do ucha. | rɪˈsi:və
+harness | uprząż, pasy mocujące, zaprzęgać |  |  | ˈhɑ:nɪs
+slate | łupek |  |  | sleɪt
+necessity | konieczność, rzecz nieodzowna, rzecz niezbędna | Necessity is the mother of all invention. | Potrzeba matką wynalazku. | nɪˈsesɪtɪ
+orderly | porządny, sanitariusz | Please form an orderly queue. | Stancie w uporządkowanej kolejce. | ˈɔ:dəlɪ
+scold | besztać, łajać | Don't scold her. She's too young to understand. | Nie karć jej. Jest zbyt mała, by to zrozumieć. | skəʊld
+certainty | pewność |  |  | ˈsɜ:təntɪ
+upright | wyprostowany, pionowy, prawy |  |  | ˈʌpraɪt
+trek | podróżować, podróż |  |  | trek
+patron | patron, mecenas, klient |  |  | ˈpeɪtrən
+reel | szpula, rolka, kołowrotek | The jig, reel and hornpipe are the most popular Irish dances. | Jig, reel i hornpipe to najpopularniejsze irlandzkie tańce. | ri:l
+typewriter | maszyna do pisania | This typewriter has seen plenty of use. | Ta maszyna do pisania była intensywnie użytkowana. | ˈtaɪpraɪtə
+utmost | najwyższy |  |  | ˈʌtməʊst
+remotely | w najmniejszym stopniu, w oddaleniu | I often use SSH to access my computers remotely. | Często używam SSH dla zdalnego dostępu do moich komputerów. | rɪˈməʊtlɪ
+glee | zadowolenie, radość |  |  | gli:
+revolver | rewolwer |  |  | rɪˈvɒlvə
+dwell | zamieszkiwać, rozpamiętywać |  |  | dwel
+squat | kucać, mieszkać na dziko, przysadzisty |  |  | skwɒt
+manic | maniakalny, szaleńczy |  |  | ˈmænɪk
+groove | rowek |  |  | gru:v
+mailbox | skrzynka pocztowa | Where is the mailbox? | Gdzie jest skrzynka pocztowa? | ˈmeɪlbɒks
+lynch | linczować |  |  | lɪnʧ
+scrape | skrobać, zeskrobywać, oskrobywać |  |  | skreɪp
+commandant | dowódca |  |  | ˈkɒməndænt
+conventional | konwencjonalny |  |  | kənˈvenʃənəl
+transaction | transakcja | Do you wish to make any other transaction? | Czy kontynuujesz zakupy? | trænˈzækʃən
+ignition | zapłon |  |  | ɪgˈnɪʃən
+epidemic | epidemia |  |  | ˌepɪˈdemɪk
+shaggy | zmierzwiony |  |  | ˈʃægɪ
+statistics | statystyka | Statistics show that the population of the world is increasing. | Statystyki pokazują, że światowa populacja zwiększa się. | stəˈtɪstɪks
+destructive | niszczycielski | Greed is a destructive force. | Chciwość jest siłą niszczycielską. | dɪˈstrʌktɪv
+solitude | samotność |  |  | ˈsɒlɪtju:d
+panther | pantera |  |  | ˈpænθə
+liability | podatność, ciężar, skaranie boskie |  |  | laɪəˈbɪlɪtɪ
+whichever | jakikolwiek, którykolwiek | You may choose whichever you want. | Możesz wybrać którykolwiek zechcesz. | wɪʧˈevə
+hunk | kawał (np. mięsa, chleba) |  |  | hʌŋk
+trout | pstrąg | Trout with oranges is for dinner tonight. | Dziś na kolację będzie pstrąg z pomarańczami. | traʊt
+repent | żałować |  |  | rɪˈpent
+prosperity | powodzenie, koniunktura | A year of snow is a year of prosperity. | Rok śniegu jest rokiem dobrobytu. | prɒˈsperɪtɪ
+literary | literacki, poetycki |  |  | ˈlɪtərərɪ
+martyr | męczennik |  |  | ˈmɑ:tə
+excess | nadmierny, zbyteczny, nadmiar | He is generous to excess. | On jest aż za bardzo szczodry. | 
+unemployment | bezrobocie |  |  | ˌʌnɪmˈplɔɪmənt
+install | instalować, umieszczać | I wish I could figure out how to install this software. | Chciałbym się dowiedzieć, jak zainstalować ten program. | ɪnˈstɔ:l
+arrogance | arogancja | Your ignorance is a byproduct of your arrogance. | Twoja ignorancja jest produktem ubocznym twojej arogancji. | ˈærəgəns
+jeopardy | niebezpieczeństwo |  |  | ˈʤepədɪ
+dependent | zależny, osoba na czyimś utrzymaniu | He is still dependent on his parents. | Wciąż jest zależny od swoich rodziców. | dɪˈpendənt
+abnormal | nienormalny |  |  | æbˈnɔ:məl
+bandage | bandaż, bandażować | The nurse gently put a bandage around my head. | Pielęgniarka delikatnie owinęła bandaż dookoła mojej głowy. | ˈbændɪʤ
+charter | statut, konstytucja, czarter |  |  | ˈʧɑ:tə
+litter | śmieci, miot, lęg |  |  | ˈlɪtə
+standby | rezerwa, (w) gotowości |  |  | ˈstændbaɪ
+generate | wytwarzać, generować, produkować |  |  | ˈʤenəreɪt
+residue | resztki, pozostałości |  |  | ˈrezɪdju:
+kilo | kilogram, kilo | How much is the kilo of tomatoes? | Ile kosztuje kilogram pomidorów? | ˈki:ləʊ
+probable | prawdopodobny, możliwy |  |  | ˈprɒbəbəl
+vicinity | bliskość, pobliże | We live in the vicinity of the school. | Mieszkamy w pobliżu szkoły. | vɪˈsɪnɪtɪ
+flank | bok, flanka |  |  | flæŋk
+predictable | przewidywalny |  |  | prɪˈdɪktəbəl
+expansion | rozrost, ekspansja, rozszerzenie |  |  | ɪkˈspænʃən
+scarlet | szkarłatny, szkarłat |  |  | ˈskɑ:lɪt
+itchy | swędzący | My eyes are itchy. | Oczy mnie swędzą. | ˈɪʧɪ
+stirring | wzburzający |  |  | ˈstɜ:rɪŋ
+ensign | flaga, bandera, chorąży |  |  | ˈensaɪn
+haste | pośpiech | Make haste, or you will be late. | Pospiesz się, albo się spóźnisz. | heɪst
+commotion | poruszenie | What happened there? Why such commotion? | Co tam się stało? Co to za zamieszanie? | kəˈməʊʃən
+extinct | wymarły, nieczynny, wygasły | Dinosaur eggs? Impossible. These animals are already extinct. | Jaja dinozaura? Niemożliwe. Te zwierzęta już wymarły. | ɪkˈstɪŋkt
+bumper | zderzak, rekordowy |  |  | ˈbʌmpə
+mare | kobyła, klacz | Is this a stallion or a mare? | Czy to ogier czy klacz? | ˈmeə
+input | wprowadzanie, wejście, wejściowy |  |  | ˈɪnpʊt
+recite | recytować | I could recite the story by heart. | Mógłbym wyrecytować z pamięci tę historię. | rɪˈsaɪt
+slash | pociąć, rozciąć, walić się |  |  | slæʃ
+exaggerate | przesadzać, wyolbrzymiać | The old man tends to exaggerate. | Staruszek lubi przesadzać. | ɪgˈzæʤəreɪt
+pineapple | ananas | I like eating pineapple for breakfast. | Lubię jeść ananasa na śniadanie. | ˈpaɪnæpəl
+fireman | strażak | The fireman soon put the fire out. | Strażacy szybko ugasili ogień. | ˈfaɪəmən
+thorn | cierń, kolec, krzak z kolcami | Every rose has its thorn. | Nie ma róży bez kolców. | θɔ:n
+workout | trening |  |  | ˈwɜ:kaʊt
+vacant | wolny, nie zajęty, rozproszony |  |  | ˈveɪkənt
+infantry | piechota |  |  | ˈɪnfəntrɪ
+booking | rezerwacja | We'd better make a booking beforehand. | Lepiej zróbmy wcześniej rezerwację. | ˈbʊkɪŋ
+purity | czystość |  |  | ˈpjʊərɪtɪ
+honourable | prawy, uczciwy, czcigodny |  |  | ˈɒnərəbəl
+militia | milicja, straż miejska |  |  | mɪˈlɪʃə
+hasty | pośpieszny |  |  | ˈheɪstɪ
+ramp | rampa, podjazd | Three men jumped out, rolled an old mower down the ramp. | Trzech mężczyzn wyskoczyło, stoczyło starą kosiarkę w dół rampy. | ræmp
+boulevard | bulwar |  |  | ˈbu:lvɑ:d
+rook | gawron, wieża | A rook is a chess piece. | Wieża jest figurą w szachach. | ru:k
+acquire | zdobywać, nabywać |  |  | əˈkwaɪə
+dedicate | poświęcać się, poświęcać |  |  | ˈdedɪkeɪt
+debut | debiut |  |  | ˈdeɪbju:
+occupy | zajmować, okupować, trwać |  |  | ˈɒkjəpaɪ
+cod | dorsz | Cod is a lean fish with little bones. | Dorsz należy do ryb chudych i mało ościstych. | kɒd
+clarity | przejrzystość, jasność, precyzyjność | Those people appreciate clarity. | Ludzie doceniają klarowność. | ˈklærɪtɪ
+daft | durny, przygłupiasty | I think that's not a daft solution. | Myślę, że to nie jest głupie wyjście. | dɑ:ft
+grumpy | marudzący, wściekły |  |  | ˈgrʌmpɪ
+eddy | wirować, wir |  |  | ˈedɪ
+infirmary | szpital |  |  | ɪnˈfɜ:mərɪ
+sermon | kazanie | The preacher gave a beautiful sermon. | Pastor wygłosił piękne kazanie. | ˈsɜ:mən
+greasy | tłusty, zatłuszczony | The food at that restaurant is too greasy for me. | Jedzenie w tej restauracji jest dla mnie za tłuste. | ˈgri:sɪ
+anatomy | anatomia, struktura | He has no idea about anatomy. | On nie wie nic o anatomii. | əˈnætəmɪ
+straightforward | prosty, bezpośredni | This is a straightforward case. | To prosty przypadek. | ˌstreɪtˈfɔ:wəd
+prejudice | uprzedzenie, preferencja | It is harder to crack a prejudice than an atom. | Uprzedzenie trudniej jest rozbić niż atom | ˈpreʤʊdɪs
+flare | rakieta świetlna, rakieta, rozjarzać się |  |  | fleə
+milky | mleczny, z mlekiem | The Milky Way is over 100,000 light-years wide. | Droga Mleczna ma ponad 100000 lat świetlnych szerokości. | ˈmɪlkɪ
+premiere | premiera |  |  | ˈpremɪeə
+glamorous | olśniewający, zachwycający |  |  | ˈglæmərəs
+cinnamon | cynamon | You smell like cinnamon. | Pachniesz cynamonem. | ˈsɪnəmən
+referee | sędzia | Only the referee can make that decision. | Tylko sędzia może podjąć tę decyzję. | ˌrefəˈri:
+threshold | próg |  |  | ˈθreʃhəʊld
+torpedo | torpeda, torpedować |  |  | tɔ:ˈpi:dəʊ
+housewife | gospodyni domowa, pani domu |  |  | ˈhaʊswaɪf
+fossil | skamieniałość | Coal is a fossil fuel. | Węgiel jest paliwem kopalnym. | ˈfɒsɪl
+abdomen | brzuch | My lower abdomen feels bloated. | Moje podbrzusze jest opuchnięte. | ˈæbdəmən
+soak | moczyć się, moczyć, przemakać | Soak this sponge in water. | Namocz tę gąbkę w wodzie. | səʊk
+educational | edukacyjny | It is essential that every child have the same educational opportunities. | Konieczne jest, by każde dziecko miało te same możliwości wykształcenia. | ˌedjəˈkeɪʃənəl
+resurrection | wskrzeszenie | Resurrection is at hand. | Wskrzeszenie jest pod ręką. | ˌrezəˈrekʃən
+clutch | ściskać, chwytać się, szpon | A drowning man will clutch at a straw. | Tonący brzytwy się chwyta. | klʌʧ
+fusion | zespolenie, połączenie, synteza termojądrowa |  |  | ˈfju:ʒən
+gloomy | mroczny, posępny, ponury |  |  | ˈglu:mɪ
+madly | szalenie, szaleńczo | Tom is madly in love with Mary. | Tom jest szaleńczo zakochany w Mary. | ˈmædlɪ
+lighthouse | latarnia morska |  |  | ˈlaɪthaʊs
+chronic | chroniczny |  |  | ˈkrɒnɪk
+valet | lokaj |  |  | ˈvælɪt
+condemn | potępiać, ganić, skazywać |  |  | kənˈdem
+resemblance | podobieństwo |  |  | rɪˈzembləns
+suicidal | samobójczy | Tom told me that he thought Mary was suicidal. | Tom powiedział mi, że myślał, że Mary ma skłonności samobójcze. | ˌsu:ɪˈsaɪdəl
+wireless | bezprzewodowy |  |  | ˈwaɪəlɪs
+paddle | wiosło, pagaj, chlapanie się | The paddle steamer is just leaving port. | Parostatek wypływa właśnie z portu. | ˈpædəl
+itch | swędzieć, mieć chrapkę, swędzenie | Why do mosquito bites itch? | Dlaczego ukąszenia komarów swędzą? | ˈɪʧ
+gibberish | bełkot |  |  | ˈʤɪbərɪʃ
+ingredient | składnik | Corn is the main ingredient of this salad. | Kukurydza to główny składnik tej sałatki. | ɪŋˈgri:dɪənt
+withdrawal | wycofanie się, wycofanie, cofnięcie |  |  | wɪðˈdrɔ:əl
+pry | wtrącać się | I don't want to pry into your private life. | Nie chcę się wtrącać w twoje prywatne życie. | praɪ
+sexuality | płciowość, seksualność |  |  | ˌseksjʊˈælɪtɪ
+considerate | pełen względów, troskliwy |  |  | kənˈsɪdəreɪt
+sovereign | władca, suwerenny | Puerto Rico is not a sovereign state. | Portoryko nie jest państwem suwerennym. | ˈsɒvrɪn
+cadet | kadet |  |  | kəˈdet
+clarify | wyjaśniać |  |  | ˈklærɪfaɪ
+immature | niedojrzały | Tom was very immature. | Tom był bardzo niedojrzały. | ˌɪməˈtjʊə
+dairy | mleczarnia, mleczny | I seldom eat dairy products. | Rzadko jem nabiał. | ˈdeərɪ
+attach | przyłączać, dołączać, odnosić się | I forgot to attach a stamp to the envelope. | Zapomniałem nakleić znaczek na kopertę. | əˈtæʧ
+spectacle | przedstawienie, spektakl, okulary | It was quite the spectacle. | To było niezłe przedstawienie. | ˈspektəkəl
+allegiance | lojalność, oddanie |  |  | əˈli:ʤəns
+slope | zbocze, stok, nachylenie | We were climbing a steep slope. | Wspinałyśmy się po stromym zboczu. | sləʊp
+paste | papka, klej, pasta |  |  | peɪst
+fiery | rozogniony, rozpalony, rozpłomieniony |  |  | ˈfaɪərɪ
+typically | zazwyczaj, typowo |  |  | ˈtɪpɪkəlɪ
+eclipse | zaćmienie, zmierzch, upadek | Did you see yesterday's total lunar eclipse? | Widziałeś wczorajsze całkowite zaćmienie Księżyca? | ɪˈklɪps
+impose | narzucać, nakładać, wymierzać | Tom didn't want to impose on Mary. | Tom nie chciał narzucać się Mary. | ɪmˈpəʊz
+revenue | przychód, dochód |  |  | ˈrevɪnju:
+user | użytkownik |  |  | ˈju:zə
+dent | wginać, wgięcie |  |  | dent
+spiral | spirala, spiralny |  |  | ˈspaɪərəl
+rumour | pogłoska, plotka | The rumour has already spread. | Plotka już się rozeszła. | ˈru:mə
+touchdown | lądowanie, wodowanie | In American football, a touchdown scores six points. | W futbolu amerykańskim za touchdown dostaje się sześć punktów. | ˈtʌʧdaʊn
+posh | elegancki, modny, znakomity |  |  | pɒʃ
+chubby | pulchny | He likes chubby girls. | Podobają mu się pulchne dziewczyny. | ˈʧʌbɪ
+manifest | oczywisty, unaoczniony, przedstawiać |  |  | ˈmænɪfest
+witchcraft | czary |  |  | ˈwɪʧkrɑ:ft
+trance | trans |  |  | trɑ:ns
+symphony | symfonia, orkiestra symfoniczna | What are the instruments of a symphony orchestra? | Jakie są instrumenty orkiestry symfonicznej? | ˈsɪmfənɪ
+traumatic | traumatyczny, urazowy | I suffer from post-traumatic stress disorder. | Cierpię na zespół stresu pourazowego. | trɔ:ˈmætɪk
+frequent | częsty, uczęszczać do | The trains are less frequent at night time. | Pociągi jeżdżą rzadziej w nocy. | 
+spacecraft | statek kosmiczny |  |  | ˈspeɪskrɑ:ft
+negotiation | negocjacje | The negotiation has entered upon a new phase. | Negocjacje wkroczyły w nową fazę. | nɪˌgəʊʃɪˈeɪʃən
+calculate | obliczać, kalkulować, wyrachowywać | Calculate how much money we will need next year. | Policz ile pieniędzy będziemy potrzebować w następnym roku. | ˈkælkjʊleɪt
+persistent | uporczywy | The coronavirus causes persistent coughing. | Koronawirus powoduje uporczywy kaszel. | pəˈsɪstənt
+despicable | podły |  |  | dɪˈspɪkəbəl
+bruise | siniak, siniaczyć | Tom has a bruise on his right leg. | Tom ma siniaka na prawej nodze. | bru:z
+mischief | figlarność, psotliwość, dokazywanie |  |  | ˈmɪsʧɪf
+arc | łuk |  |  | ɑ:k
+cognac | koniak |  |  | ˈkɒnjæk
+lair | legowisko, pieczara | Beowulf decided to follow the dragon to its lair. | Beowulf postanowił pójść za smokiem do jego jamy. | leə
+stepfather | ojczym | This is my stepfather. | To jest mój ojczym. | ˈstepfɑ:ðə
+congregation | kongregacja, zgromadzenie wiernych | The priest blessed the congregation. | Kapłan pobłogosławił wiernych. | ˌkɒngrɪˈgeɪʃən
+outrage | gniewać, szokować, rozgniewanie |  |  | ˈaʊtreɪʤ
+flexible | giętki | Her morality is flexible. | Jej moralność jest elastyczna. | ˈfleksɪbəl
+ice-cream | lody |  |  | ˌaɪsˈkri:m
+captive | jeniec, schwytany |  |  | ˈkæptɪv
+canteen | stołówka, kantyna | Tom eats in the canteen every day. | Tom je codziennie na stołówce. | kænˈti:n
+controversial | kontrowersyjny | This movie is highly controversial. | Ten film jest wysoce kontrowersyjny. | ˌkɒntrəˈvɜ:ʃəl
+enthusiastic | entuzjastyczny | George is very enthusiastic about his new job. | George jest bardzo entuzjastyczny wobec swojej nowej pracy. | ɪnˌθju:zɪˈæstɪk
+acute | ostry | He felt an acute pain in his chest. | Poczuł gwałtowny ból w klatce piersiowej. | əˈkju:t
+icy | lodowaty, oblodzony | The icy wind cut us to the bones. | Mroźny wiatr przewiał nas do szpiku kości. | ˈaɪsɪ
+flyer | ulotka, lotnik |  |  | ˈflaɪə
+bladder | pęcherz |  |  | ˈblædə
+caretaker | dozorca, konserwator |  |  | ˈkeəteɪkə
+pep | animusz, werwa, mowa podtrzymująca na duchu |  |  | pep
+grape | winogrono | Ivo saw the grape. | Iwo ściął winogrono. | greɪp
+metallic | metaliczny |  |  | mɪˈtælɪk
+seldom | rzadko | We have seldom seen such a sight! | Rzadko widzimy taki widok! | ˈseldəm
+poetic | poetyczny, poetycki |  |  | pəʊˈetɪk(əl)
+duct | przewód, rura, kanalik |  |  | dʌkt
+insensitive | niewrażliwy | Insensitive remarks can be hurtful. | Niedelikatne uwagi mogą być przykre. | ɪnˈsensɪtɪv
+initiate | inicjować, zaczynać, wprowadzać |  |  | ɪˈnɪʃɪeɪt
+nonetheless | mimo to |  |  | ˌnʌnðəˈles
+composition | skład, wypracowanie, kompozycja | The girl who wrote this composition is Nancy. | Dziewczyna, która napisała tę kompozycję, to Nancy. | ˌkɒmpəˈzɪʃən
+indulge | oddawać się, dogadzać, spełniać |  |  | ɪnˈdʌlʤ
+wrench | szarpać, skręcić, odrywać |  |  | renʧ
+flaw | błąd, niedopatrzenie, skaza | I can't find a single flaw in his theory. | Nie potrafię znaleźć ani jednej luki w jego teorii. | flɔ:
+napkin | serwetka | May I have a napkin, please? | Czy mogę dostać serwetkę. | ˈnæpkɪn
+doorway | przejście, drzwi | A thief lurked in the dark doorway. | Złodziej czaił się w ciemnej sieni. | ˈdɔ:weɪ
+muddy | zabłocony, błotnisty, mulisty | Tom was careful not to get his shoes muddy. | Tom starał się, aby nie pobrudzić butów błotem. | ˈmʌdɪ
+canned | puszkowany, konserwowy, zarejestrowany | Canned food doesn't interest her. | Puszkowane jedzenie jej nie interesuje. | kænd
+suction | ssanie, przyssanie |  |  | ˈsʌkʃən
+solemn | poważny, uroczysty |  |  | ˈsɒləm
+override | unieważniać, mieć pierwszeństwo przed |  |  | ˌəʊvəˈraɪd
+mosquito | moskit, komar | Tom was bitten by a mosquito. | Tom został ugryziony przez komara. | məsˈki:təʊ
+fragrance | aromat |  |  | ˈfreɪgrəns
+meadow | łąka | Cows are eating grass in the meadow. | Krowy jedzą trawę na łące. | ˈmedəʊ
+needy | potrzebujący |  |  | ˈni:dɪ
+refugee | uciekinier, uchodźca | Tom applied for refugee status. | Tom ubiega się o status uchodźcy. | ˌrefju:ˈʤi:
+break-in | włamanie |  |  | ˈbreɪkɪn
+interpretation | interpretacja, przekład ustny, przekład |  |  | ɪnˌtɜ:prɪˈteɪʃən
+incomplete | niekompletny, niepełny |  |  | ˌɪŋkəmˈpli:t
+dilemma | dylemat | I am in a terrible dilemma. | Mam straszny dylemat. | dɪˈlemə
+prominent | ważny, prominentny, widoczny |  |  | ˈprɒmɪnənt
+hoover | odkurzacz, odkurzać |  |  | ˈhu:və
+consul | konsul |  |  | ˈkɒnsəl
+hairdresser | fryzjer | Once a month, I go to the hairdresser. | Raz w miesiącu chodzę do fryzjera. | ˈheədresə
+stuffing | nadzienie, farsz |  |  | stʌfɪŋ
+intimacy | intymność |  |  | ˈɪntɪməsɪ
+examiner | egzaminator |  |  | ɪgˈzæmɪnə
+qualify | otrzymywać dyplom, otrzymywać kwalifikacje, modyfikować | Let's qualify this gin with tonic water. | Okraśmy ten gin tonikiem. | ˈkwɒlɪfaɪ
+imminent | bliski, nadciągający | He prepared for his imminent departure. | Przygotował się do nadchodzącego wyjazdu. | ˈɪmɪnent
+diesel | diesel, olej napędowy | Do the trains run on diesel oil? | Czy pociągi jeżdżą na oleju napędowym? | ˈdi:zəl
+meditation | medytacja |  |  | ˌmedɪˈteɪʃən
+bulk | masa, większość | We buy stationery in bulk. | Materiały biurowe kupujemy hurtowo. | bʌlk
+prosecute | ścigać sądownie, oskarżać |  |  | ˈprɒsɪkju:t
+paw | łapa, bić kopytem | The cat was touching the mouse with its paw. | Kot dotykał łapą myszy. | pɔ:
+staircase | schody | The toilet is behind the staircase. | Toaleta znajduje się za schodami. | ˈsteəkeɪs
+plaster | gips, tynk, plaster opatrunkowy | Has the plaster set? | Gips zasechł? | ˈplɑ:stə
+proceedings | postępowanie prawne, działania, sprawozdania |  |  | prəˈsi:dɪŋz
+fraternity | braterstwo, bractwo |  |  | frəˈtɜ:nɪtɪ
+volcanic | wulkaniczny |  |  | vɒlˈkænɪk
+carve | rzeźbić, wycinać, kroić |  |  | kɑ:v
+hybrid | mieszaniec, hybryda, mieszany | Tom encouraged Mary to buy a hybrid car. | Tom zachęcił Mary do kupna samochodu hybrydowego. | ˈhaɪbrɪd
+chunk | kawał | I was hit by a huge chunk of meat. | Zostałem uderzony dużym kawałkiem mięsa. | ʧʌŋk
+interrogate | przesłuchiwać | Their job is to interrogate suspects. | Ich praca polega na przesłuchiwaniu podejrzanych. | ɪnˈterəgeɪt
+voyager | podróżnik |  |  | ˈvɔɪɪʤə
+commerce | handel | Commerce helps our economy. | Handel pomaga naszej gospodarce. | ˈkɒmɜ:s
+precaution | środek ostrożności, środek zapobiegawczy |  |  | prɪˈkɔ:ʃən
+printer | drukarka | The printer needs paper. | Drukarka potrzebuje papieru. | ˈprɪntə
+transcript | zapis, transkrypcja, odpis | Did you see the transcript? | Widziałeś transkrypcję? | ˈtrænskrɪpt
+conceal | ukrywać, zakrywać | The criminal had to conceal his identity. | Przestępca musiał ukryć swoją tożsamość. | kənˈsi:l
+paranoia | paranoja |  |  | ˌpærəˈnɔɪə
+airborne | powietrzny, w powietrzu |  |  | ˈeəbɔ:n
+sentiment | odczucie, uczucie, sentyment |  |  | ˈsentɪmənt
+pea | groszek | There's a pea in my right nostril. | Mam groszek w prawej dziurce od nosa. | pi:
+admirable | znakomity, godny podziwu |  |  | ˈædmərəbəl
+trivial | nie znaczący, banalny | That is a trivial problem. | To banalny problem. | ˈtrɪvɪəl
+parcel | paczka, pakunek | We received a large parcel. | Otrzymaliśmy wielką paczkę. | ˈpɑ:səl
+scroll | zwój |  |  | skrəʊl
+imprisonment | uwięzienie, więzienie | The judge sentenced him to one year's imprisonment. | Sędzia skazał go na rok pozbawienia wolności. | ɪmˈprɪzənmənt
+uncertain | niepewny | I was uncertain of my ability to do it. | Nie byłem pewien, czy potrafię to zrobić. | ʌnˈsɜ:tən
+deliberate | rozmyślny, świadomy, rozważny |  |  | 
+isolate | izolować, wyobcowywać, wyodrębniać | They want to isolate Russia. | Oni chcą izolować Rosję. | ˈaɪsəleɪt
+tighten | zaciskać się, zaciskać, naprężać się | You must tighten the knot. | Musisz zacisnąć węzeł. | ˈtaɪtən
+venue | miejsce |  |  | ˈvenju:
+revolt | bunt, rewolta, buntować się |  |  | rɪˈvəʊlt
+lunar | księżycowy | Did you see yesterday's total lunar eclipse? | Widziałeś wczorajsze całkowite zaćmienie Księżyca? | ˈlu:nə
+rightful | prawowity |  |  | ˈraɪtfʊl
+marvel | zadziwiać się, dziw |  |  | ˈmɑ:vəl
+bloodshed | rozlanie krwi | I appeal to stop the bloodshed immediately. | Wnoszę o natychmiastowe zatrzymanie rozlewu krwi. | ˈblʌdʃed
+offender | przestępca, sprawca wykroczenia, winowajca |  |  | əˈfendə
+offspring | potomstwo |  |  | ˈɒfsprɪŋ
+monstrous | monstrualny, potworny |  |  | ˈmɒnstrəs
+penetrate | docierać, przenikać |  |  | ˈpenətreɪt
+intervene | interweniować, ingerować, wchodzić w słowo | They shouldn't intervene in the internal affairs of another state. | Nie powinni interweniować w sprawy wewnętrzne innego państwa. | ˌɪntəˈvi:n
+patriot | patriota | The president speaks as a real patriot. | Prezydent przemawia jak prawdziwy patriota. | ˈpætrɪət
+infamous | niesławny, o złej sławie |  |  | ˈɪnfəməs
+lettuce | sałata | Please wash the lettuce well before you eat it. | Proszę, umyj dobrze sałatę przed zjedzeniem. | ˈletəs
+inferior | gorszy, podwładny | The cheap wine is inferior to the more expensive. | Tanie wino jest gorsze od droższego. | ɪnˈfɪərɪə
+boredom | nuda |  |  | ˈbɔ:dəm
+tolerance | wyrozumiałość, tolerancja |  |  | ˈtɒlərəns
+cashier | kasjer, kasa | The accountant and the cashier are brothers. | Księgowy i kasjer to bracia. | kæˈʃɪə
+underpants | majtki, kalesony | My underpants are wet. | Moje majtki są mokre. | ˈʌndəpænts
+seller | sprzedawca |  |  | ˈselə
+vertical | pionowy |  |  | ˈvɜ:tɪkəl
+dart | gnać, lecieć, rzucać | Tom threw the dart. | Rzuciłem rzutką. | dɑ:t
+zipper | zamek błyskawiczny | The zipper on my jacket got stuck. | Zamek zaciął mi się w kurtce. | ˈzɪpə
+acceptance | przyjęcie, potwierdzenie przyjęcia, akceptacja |  |  | əkˈseptəns
+emerald | szmaragd, szmaragdowy |  |  | ˈemərəld
+hassle | mordęga, sprzeczka, mordować |  |  | ˈhæsəl
+hopeful | pełen nadziei, optymistyczny, obiecujący | I feel hopeful about the future. | Jestem pełen nadziei na przyszłość. | ˈhəʊpfʊl
+instruction | nauka, nauczanie, pouczenie |  |  | ɪnˈstrʌkʃən
+clatter | brzęk, stukot, stukać |  |  | ˈklætə
+freight | fracht, ładunek, przesyłka |  |  | freɪt
+boiler | kocioł centralnego ogrzewania, kocioł |  |  | ˈbɔɪlə
+uneasy | niespokojny, niepewny | I am uneasy about the future of this country. | Niepokoję się o przyszłość tego kraju. | ʌnˈi:zɪ
+oneself | siebie, się, sam | One should take care of oneself. | Należy dbać o siebie. | wʌnˈself
+one-way | jednokierunkowy, w jedną stronę |  |  | wʌnˈweɪ
+eccentric | ekscentryczny, ekscentryk | Tom is a bit eccentric. | Tom jest trochę ekscentryczny. | ɪkˈsentrɪk
+wand | czarodziejska różdżka, różdżka | Where did I put my magic wand? | Gdzie położyłem swoją magiczną różdżkę? | wɒnd
+consume | konsumować, zużywać |  |  | kənˈsju:m
+formidable | groźny, trudny, niebywały |  |  | ˈfɔ:mɪdəbəl
+lesser | mniejszy, pomniejszy | We chose the lesser of the two evils. | Wybraliśmy mniejsze zło. | ˈlesə
+gel | zastygać w galaretę, zastygać, przybierać kształtów |  |  | ʤel
+authorization | upoważnienie |  |  | ˌɔ:θəraɪˈzeɪʃən
+pancake | naleśnik |  |  | ˈpænkeɪk
+probability | prawdopodobieństwo, możliwość | What is the probability of life showing up on Earth? | Jakie jest prawdopodobieństwo pojawienia się życia na ziemi? | ˌprɒbəˈbɪlɪtɪ
+accessory | akcesoria, wyposażenie, dodatki |  |  | əkˈsesərɪ
+contrast | kontrast, przeciwieństwo, przeciwstawiać |  |  | 
+liaison | porozumienie, łączność, związek miłosny |  |  | lɪˈeɪzən
+distribute | rozprowadzać, dystrybuować, dzielić | The soldiers distribute food to the refugees. | Żołnierze rozdają zupę uchodźcom. | dɪˈstrɪbju:t
+stability | stabilność | Ziri used a clamp on the workbench for stability. | Ziri użyła dla stabilności ścisku na falbanku. | stəˈbɪlɪtɪ
+stench | smród, odór |  |  | stenʧ
+flea | pchła, pchli | Where will the flea market be? | Gdzie będzie pchli targ? | fli:
+compelling | istotny |  |  | kəmˈpelɪŋ
+peacock | paw |  |  | ˈpi:kɒk
+subconscious | podświadomy, podświadomość | What is the subconscious? | Czym jest podświadomość? | sʌbˈkɒnʃəs
+pluck | ciągnąć, wyciągać, skubać |  |  | plʌk
+bungalow | bungalow, domek |  |  | ˈbʌŋgələʊ
+surge | poruszać się, falować, wzrastać | He is having a sudden surge of self-confidence! | Poczuł nagły przypływ pewności siebie. | sɜ:ʤ
+uranium | uran |  |  | ju:ˈreɪnɪəm
+menace | zagrożenie, groźba, zagrażać |  |  | ˈmenɪs
+cone | stożek, szyszka, rożek | The seagull stole Tom's ice cream cone. | Mewa ukradła wafelek z lodów Toma. | kəʊn
+extinction | wymarcie, wygaśnięcie | Is the Barbary stag doomed to extinction? | Czy jeleń berberyjski jest skazany na wyginięcie? | ɪkˈstɪŋkʃən
+equality | równość | There is no equality in nature. | W przyrodzie nie ma równości. | ɪˈkwɒlɪtɪ
+bourgeois | mieszczański, burżuazyjny, burżuj |  |  | ˈbʊəʒwɑ:
+insert | wsuwać, wkładać, wstawiać | Insert it wherever you like. | Włóż to tam, gdzie chcesz. | ɪnˈsɜ:t
+downhill | spadzisty, w dół zbocza, łatwy |  |  | ˌdaʊnˈhɪl
+pedal | pedał, pedałować |  |  | ˈpedəl
+terrain | teren |  |  | teˈreɪn
+premature | przedwczesny |  |  | ˈpreməʧʊə
+undone | rozwiązany | Your tie has come undone. | Krawat ci się rozwiązał. | ʌnˈdʌn
+treacherous | zdradliwy |  |  | ˈtreʧərəs
+inspect | badać, oglądać, kontrolować | You should inspect the car well before you buy it. | Powinieneś sprawdzić samochód zanim go kupisz. | ɪnˈspekt
+irresistible | nieodparty, nieprzeparty, nie do odparcia |  |  | ˌɪrɪˈzɪstəbəl
+sparrow | wróbel | That bird is probably a sparrow. | Ten ptak to chyba wróbel. | ˈspærəʊ
+performer | wykonawca, artysta |  |  | pəˈfɔ:mə
+brew | parzyć, warzyć, napar |  |  | bru:
+ingenious | przemyślny, pomysłowy |  |  | ɪnˈʤi:njəs
+challenger | rywal |  |  | ˈʧælɪnʤə
+bulletin | wiadomości, biuletyn |  |  | ˈbʊlətɪn
+preview | pokaz przedpremierowy, przegląd przed wydarzeniem, przegląd |  |  | prɪˈvju:
+tempt | kusić | Maybe you shouldn't tempt fate. | Może nie powinieneś kusić losu. | tempt
+procession | procesja |  |  | prəˈseʃən
+melon | melon, arbuz |  |  | ˈmelən
+knob | gałka, pokrętło |  |  | nɒb
+domain | domena, dziedzina, obszar | I can't figure out how to register a new domain name. | Nie mam pojęcia, jak zarejestrować nową domenę. | dəˈmeɪn
+conclude | wyciągać wnioski, wnioskować, kończyć się | From this you can conclude that feminism is still necessary. | Dlatego można dojść do wniosku, że feminizm wciąż jest potrzebny. | kənˈklu:d
+dresser | komoda, serwantka | Tom found something hidden behind the dresser. | Tom znalazł coś schowanego za kredensem. | ˈdresə
+windy | wietrzny | It has been windy for two days. | Od dwóch dni jest wietrznie. | ˈwɪndɪ
+patent | patent, patentować |  |  | ˈpeɪtənt
+profitable | dochodowy, korzystny | Never choose a vocation just because it looks profitable. | Nigdy nie wybieraj zawodu tylko dlatego, że wygląda na opłacalny. | ˈprɒfɪtəbəl
+salvage | ratować, ratunek, akcja ratunkowa |  |  | ˈsælvɪʤ
+lass | dziewczyna |  |  | læs
+productive | produktywny, owocny | I wish I was as productive as my sister. | Chciałbym być tak produktywny jak moja siostra. | prəˈdʌktɪv
+derby | derby, melonik |  |  | dɑ:bɪ
+goldfish | złota rybka | I have a memory like a goldfish. | Ja mam pamięć jak złota rybka. | ˈgəʊldfɪʃ
+leisure | czas wolny | The more leisure he has, the happier he is. | Im więcej ma wolnego czasu tym jest szczęśliwszy. | ˈleʒə
+buff | beżowy, hobbysta |  |  | bʌf
+tracker | tropiciel |  |  | ˈtrækə
+vitamin | witamina | Oranges contain a lot of vitamin C. | Pomarańcze zawierają wiele witaminy C. | ˈvɪtəmɪn
+heave | ciągnąć z wysiłkiem, ciągnąć, falować |  |  | hi:v
+goodwill | życzliwość |  |  | ˈgʊdwɪl
+boar | knur, dzik | A giant wild boar jumped out of the bushes. | Z krzaków wyskoczył olbrzymi dzik. | bɔ:
+bogus | podrabiany |  |  | ˈbəʊgəs
+brunette | brunetka | Wienczysława is the most beautiful brunette in the workplace. | Wieńczysława jest najpiękniejszą brunetką w klasie. | brʊˈnet
+jab | wbijać, zastrzyk | This jab will help numb the pain. | Ten zastrzyk pomoże uśmierzyć ból. | ʤæb
+hippie | hipis |  |  | ˈhɪpɪ
+incidentally | nawiasem mówiąc, przy okazji |  |  | ˌɪnsɪˈdentəlɪ
+compensate | rekompensować, kompensować, równoważyć |  |  | ˈkɒmpənseɪt
+outbreak | wybuch |  |  | ˈaʊtbreɪk
+sow | siać, zasiewać, maciora | As you sow, so will you reap. | Jak sobie pościelesz, tak się wyśpisz. | 
+dandy | elegant |  |  | ˈdændɪ
+detour | objazd | We need to make a slight detour. | Musimy pojechać troszkę na około. | ˈdi:tʊə
+desperation | desperacja |  |  | ˌdespəˈreɪʃən
+wrestle | walczyć wręcz, walczyć |  |  | ˈresəl
+parting | rozstanie się, rozstanie, przedziałek |  |  | ˈpɑ:tɪŋ
+err | błądzić, popełniać błędy | To err is human, to forgive divine. | Błądzić jest rzeczą ludzką, przebaczać – boską. | ɜ:
+dreamer | marzyciel | Tom is a dreamer, isn't he? | Tom jest marzycielem, nieprawdaż? | ˈdri:mə
+mandatory | obowiązkowy | English is a mandatory subject. | Angielski to przedmiot obowiązkowy. | ˈmændətərɪ
+nightingale | słowik |  |  | ˈnaɪtɪŋgeɪl
+premier | premier, główny |  |  | ˈpremjə
+squire | dziedzic, pan |  |  | ˈskwaɪə
+parasite | pasożyt | The leech is a parasite. | Pijawka jest pasożytem. | ˈpærəsaɪt
+influential | wpływowy | Tom is an influential local criminal. | Tom jest wpływowym lokalnym oprychem. | ˌɪnflʊˈenʃəl
+absorb | wchłaniać, absorbować, przyswajać | How much water can this sponge absorb? | Ile wody może wchłonąć ta gąbka? | əbˈsɔ:b
+tyrant | tyran |  |  | ˈtaɪrənt
+ownership | własność |  |  | ˈəʊnəʃɪp
+tweet | ćwierkać |  |  | twi:t
+raspberry | malina | I offered her a treat of raspberry jelly. | Poczęstowałem ją malinową galaretką. | ˈrɑ:zbərɪ
+racial | rasowy | He fought against racial discrimination. | On walczył z rasową dyskryminacją. | ˈreɪʃəl
+firstly | po pierwsze |  |  | ˈfɜ:stlɪ
+skunk | skunks | "Is Cookie a dog or a cat?" "She's a skunk." | "Cookie jest psem czy kotem?" "Jest skunksem." | skʌŋk
+audible | słyszalny |  |  | ˈɔ:dɪbəl
+communion | łączność, współuczestnictwo, komunia |  |  | kəˈmju:nɪən
+sphere | kula, sfera | He tried to enlarge his sphere of influence. | On próbował powiększyć swoją strefę wpływów. | sfɪə
+renaissance | renesans | Do you have Renaissance paintings? | Masz renesansowe obrazy? | rəˈneɪsəns
+anomaly | anomalia |  |  | əˈnɒməlɪ
+chant | zaśpiew, śpiewać |  |  | ʧɑ:nt
+outlaw | zakazywać, wyjmować spod prawa, wyjęty spod prawa | This guy is an outlaw. | Ten człowiek jest bandytą. | ˈaʊtlɔ:
+surname | nazwisko | How is your surname written? | Jak się pisze twoje nazwisko? | ˈsɜ:neɪm
+mid | środkowy, średni | What do you have for a mid-morning snack? | Co jesz na drugie śniadanie? | mɪd
+classmate | kolega z klasy, kolega | Anastazja is the classmate of Ania. | Anastazja jest Ani koleżanką z klasy. | ˈklɑ:smeɪt
+subtitle | napisy (w filmie), podtytuł |  |  | ˈsʌbtaɪtəl
+laden | obładowany |  |  | ˈleɪdən
+ballroom | sala balowa |  |  | ˈbɔ:lru:m
+shortage | brak | There is no shortage of ideas. | Pomysłów nie brakuje. | ˈʃɔ:tɪʤ
+phenomenal | fenomenalny |  |  | fɪˈnɒmɪnəl
+tremble | drżeć | He began to tremble during the movie. | W czasie filmu zaczął drżeć. | ˈtrembəl
+consulate | konsulat |  |  | ˈkɒnsjʊlɪt
+remark | zauważać, napomykać, komentować | I was interested in your remark. | Zainteresowała mnie twoja uwaga. | rɪˈmɑ:k
+scalpel | skalpel |  |  | ˈskælpəl
+competent | kompetentny, sprawny | The new waiter should be much more competent. | Nowy kelner powinien sobie lepiej radzić. | ˈkɒmpɪtənt
+texture | faktura |  |  | ˈteksʧə
+conquest | podbój, podbite ziemie, zdobycie | They extended their territory by conquest. | Poszerzyli swoje terytorium przez podbój. | ˈkɒŋkwest
+contestant | zawodnik, biorący udział |  |  | kənˈtestənt
+algorithm | algorytm |  |  | ˈælgərɪθəm
+decree | zarządzać, dekretować, dekret |  |  | dɪˈkri:
+rewrite | przepisywać, ulepszać | The teacher told him to rewrite his essay. | Nauczyciel kazał mu przepisać wypracowanie. | ˌri:ˈraɪt
+momentum | rozpęd |  |  | məˈmentəm
+foe | wróg | Better a new friend than an old foe. | Lepszy nowy przyjaciel niż stary wróg. | fəʊ
+nag | nudzić, nagabywać, zanudzać gderaniem |  |  | næg
+stepmother | macocha | His stepmother is my sister-in-law. | Jego macocha jest moją szwagierką. | ˈstepmʌðə
+revive | ożywiać się, ożywiać, ocucić |  |  | rɪˈvaɪv
+pip | pestka, sygnał czasu, sygnał |  |  | pɪp
+heath | wrzosowisko |  |  | hi:θ
+marrow | szpik, kabaczek | I got a bone-marrow transplant. | Miałem przeszczep szipku. | ˈmærəʊ
+minority | mniejszość | The chairman should take the minority opinion into account. | Przewodniczący powinien wziąć pod uwagę opinię mniejszości. | maɪˈnɒrɪtɪ
+portable | przenośny |  |  | ˈpɔ:təbəl
+popularity | popularność, wzięcie | Television has robbed cinema of its former popularity. | Telewizja odebrała kinu popularność. | ˌpɒpjəˈlærɪtɪ
+telegraph | telegraf | Do you know who invented the telegraph? | Czy wiesz, kto wynalazł telegraf? | ˈtelɪgræf
+hesitation | zawahanie się, zawahanie, niezdecydowanie |  |  | ˌhezɪˈteɪʃən
+cluster | grono, kiść, grupka |  |  | ˈklʌstə
+grandad | dziadek | Grandad is having forty winks on the settee. | Dziadek drzemie na kanapie. | ˈgrændæd
+jog | uprawiać jogging, biegać truchtem, wstrząsać |  |  | ʤɒg
+slay | mordować |  |  | sleɪ
+handbag | torebka | Mary got her phone out of her handbag. | Mary wyjęła swój telefon z torebki. | ˈhændbæg
+vinegar | ocet | At this property, they make excellent vinegar. | W tej posiadłości robią świetny ocet. | ˈvɪnɪgə
+splinter | drzazga, odłamek, rozpadać się na kawałki | I can't get this splinter out of my finger. | Nie potrafię wyjąć z palca tej drzazgi. | ˈsplɪntə
+nineteen | dziewiętnaście | I am nineteen years old. | Mam 19 lat. | ˌnaɪnˈti:n
+enchanted | oczarowany, zaczarowany |  |  | ɪnˈʧɑ:ntɪd
+respectful | pełen szacunku |  |  | rɪˈspektfʊl
+honk | trąbić |  |  | hɒŋk
+doughnut | donat, amerykański pączek | Help yourself to a doughnut. | Poczęstuj się pączkiem. | ˈdəʊnʌt
+wrapping | opakowanie |  |  | ˈræpɪŋ
+tar | smoła, dziegieć, smołować |  |  | tɑ:
+unfaithful | niewierny |  |  | ʌnˈfeɪθfʊl
+stance | postawa, pozycja |  |  | stæns
+clam | małż, zamknąć się |  |  | klæm
+sarcastic | sarkastyczny | Tom is very sarcastic. | Tom jest bardzo sarkastyczny. | sɑ:ˈkæstɪk
+blur | rozmyta plama, plama, zamazywać się |  |  | blɜ:
+nosy | wścibski |  |  | ˈnəʊzɪ
+inject | wstrzykiwać, wprowadzać |  |  | ɪnˈʤekt
+descend | zniżać się, schodzić, zjawiać się nagle |  |  | dɪˈsend
+burner | palnik |  |  | ˈbɜ:nə
+fluffy | puchaty | Kittens are soft and fluffy. | Kocięta są miękkie i puszyste. | ˈflʌfɪ
+melancholy | melancholia, melancholijny |  |  | ˈmelənkɒlɪ
+grieve | opłakiwać, rozpaczać | There's no right way to grieve. | Nie ma jednego, właściwego sposobu na przeżywanie żałoby. | gri:v
+awe | trwoga, przestrach |  |  | ɔ:
+earring | kolczyk |  |  | ˈɪərɪŋ
+unprecedented | bezprecedensowy |  |  | ʌnˈpresɪdentɪd
+yank | wyszarpywać |  |  | jæŋk
+postman | listonosz | It must be the postman. | To na pewno listonosz. | ˈpəʊstmən
+senseless | bezsensowny, bez zmysłów | It's senseless to worry about doing it. | Nie ma sensu martwić się o to. | ˈsenslɪs
+hostel | hostel, schronisko | Is there a youth hostel around here? | Czy w pobliżu jest jakieś schronisko młodzieżowe? | ˈhɒstəl
+cockroach | karaluch | The cockroach is a disgusting insect. | Karaluch to odrażający owad. | ˈkɒkrəʊʧ
+clamp | klamra, zacisk, przytwierdzać | Ziri used a clamp on the workbench for stability. | Ziri użyła dla stabilności ścisku na falbanku. | klæmp
+chemist | chemik, aptekarz | The duty chemist is open on Sunday morning. | Apteka dyżurna otwarta jest w niedzielę rano. | ˈkemɪst
+gunpowder | proch strzelniczy, proch | A spark led the gunpowder to explode. | Iskra spowodowała eksplozję prochu. | ˈgʌnpaʊdə
+gala | gala, galowy | The gala dinner is at 10 p.m. | Bankiet jest o dziesiątej wieczorem. | ˈgɑ:lə
+withstand | wytrzymywać | Robots can withstand dangerous conditions. | Roboty mogą wytrzymać niebezpieczne warunki. | wɪðˈstænd
+contemporary | współczesny, ówczesny | Contemporary problems require a new approach. | Problemy obecnych czasów wymagają nowego podejścia. | kənˈtempərərɪ
+billionaire | miliarder | Who wouldn't want to be a billionaire? | Kto nie chciałby zostać miliarderem? | ˌbɪljəˈneə
+cardboard | tektura, tekturowy |  |  | ˈkɑ:dbɔ:d
+everlasting | wieczny, trwały | True friendships are everlasting. | Prawdziwe przyjaźnie są wieczne. | ˌevəˈlɑ:stɪŋ
+diploma | dyplom |  |  | dɪˈpləʊmə
+rural | wiejski | We spent our holiday exploring rural France. | Spędziliśmy wakacje, odkrywając francuską wieś. | ˈrʊərəl
+receptionist | recepcjonista | The hotel is looking for a new head receptionist. | Hotel szuka nowego szefa recepcji. | rɪˈsepʃənɪst
+millennium | millennium, tysiąclecie |  |  | mɪˈlenɪəm
+layout | rozmieszczenie, rozplanowanie |  |  | ˈleɪaʊt
+immoral | niemoralny |  |  | ɪˈmɒrəl
+usher | prowadzić na miejsce, bileter |  |  | ˈʌʃə
+impulsive | impulsywny, żywiołowy | I've never done anything impulsive. | Nigdy nie zrobiłem niczego impulsywnego. | ɪmˈpʌlsɪv
+pollution | zanieczyszczanie środowiska, zanieczyszczenie | Most creatures in the sea are affected by pollution. | Zanieczyszczenie ma wpływ na większość morskich stworzeń. | pəˈlu:ʃən
+admirer | wielbiciel |  |  | ədˈmaɪərə
+rejoice | radować się | I rejoice in your success. | Cieszę się twoim sukcesem. | rɪˈʤɔɪs
+holder | opakowanie, właściciel, okaziciel |  |  | ˈhəʊldə
+merge | scalać się, scalać, wtapiać się |  |  | ˈmɜ:ʤ
+journalism | dziennikarstwo | In a democracy, it is important for journalism to be independent. | W kraju demokratycznym ważna jest wolność prasy. | ˈʤɜ:nəlɪzəm
+sundown | zachód słońca, zachód |  |  | ˈsʌndaʊn
+miraculous | cudowny |  |  | mɪˈrækjələs
+junction | połączenie, krzyżówka, węzeł | Be careful, it's a dangerous junction! | Uważaj, to niebezpieczne skrzyżowanie! | ˈʤʌŋkʃən
+consumption | zużycie, konsumpcja |  |  | kənˈsʌmpʃən
+metropolis | metropolia |  |  | mɪˈtrɒpəlɪs
+bridal | ślubny, weselny |  |  | ˈbraɪdəl
+victorious | zwycięski | We were completely victorious. | Odnieśliśmy druzgocące zwycięstwo. | vɪkˈtɔ:rɪəs
+squirt | strzykać, tryskać, natryskiwać |  |  | skwɜ:t
+casket | skrzynka, szkatułka, trumna |  |  | ˈkɑ:skɪt
+blaze | płonąć, jarzyć się, pożar | The firemen quickly extinguished the blaze. | Strażacy szybko ugasili pożar. | bleɪz
+destroyer | niszczyciel | Now I am become death, the destroyer of worlds. | Teraz stałem się śmiercią, niszczycielem światów. | dɪˈstrɔɪə
+offshore | odbrzegowy, od brzegu |  |  | ˌɒfˈʃɔ:
+tendency | tendencja, skłonność | This tendency is quite useful. | Ta tendencja jest dość korzystna. | ˈtendənsɪ
+nip | wyskakiwać, szczypać, szczypnięcie | We need to nip this in the bud. | Musimy to zdusić w zarodku. | nɪp
+viva | egzamin ustny |  |  | ˈvaɪvə
+intensive | intensywny |  |  | ɪnˈtensɪv
+backward | w tył, do tyłu, zacofany |  |  | ˈbækwəd
+thermal | termiczny, ocieplany |  |  | ˈθɜ:məl
+last-minute | w ostatniej chwili |  |  | ˌlɑ:stˈmɪnɪt
+circumstance | okoliczności, warunki, warunki (też materialne) |  |  | ˈsɜ:kəmstəns
+geography | geografia | I got a poor grade in geography. | Wpadła mi słaba ocena z geografii. | ʤɪˈɒgrəfɪ
+interpret | interpretować, rozumieć, przekładać | How do you interpret this verse? | Jak można zinterpretować ten wiersz? | ɪnˈtɜ:prɪt
+bosom | łono, serdeczny | She has a large bosom. | Ona ma duży biust. | ˈbʊzəm
+eighty | osiemdziesiąt | Mary is eighty-seven years old already. | Mary ma już osiemdziesiąt siedem lat. | ˈeɪtɪ
+shred | drzeć, ciąć na kawałeczki, strzęp |  |  | ʃred
+dread | bać się, strach |  |  | dred
+duration | trwanie, czas trwania |  |  | djʊˈreɪʃən
+formality | formalność, oficjalność, ceremonialność |  |  | fəˈmælɪtɪ
+heater | grzejnik, ogrzewacz wody, ogrzewacz | Don't put the wallet on the top of the heater. | Nie kładź portfela na grzejniku. | ˈhi:tə
+smug | zadowolony z siebie |  |  | smʌg
+ordeal | ciężkie przeżycie |  |  | ɔ:ˈdi:l
+agriculture | rolnictwo | Fertile soil is indispensable for agriculture. | Żyzna ziemia jest konieczna dla rolnictwa. | ˈægrɪˌkʌlʧə
+lasting | trwały |  |  | ˈlɑ:stɪŋ
+abyss | otchłań, przepaść |  |  | əˈbɪs
+sleigh | sanie |  |  | sleɪ
+rouge | róż |  |  | ru:ʒ
+dominant | dominujący |  |  | ˈdɒmɪnənt
+graphic | graficzny, plastyczny |  |  | ˈgræfɪk
+irrational | irracjonalny, nielogiczny, nierozumny |  |  | ɪˈræʃənəl
+mathematical | matematyczny | He is good at solving complicated mathematical problems. | On jest dobry w rozwiązywaniu skomplikowanych zadań matematycznych. | ˌmæθəˈmætɪkəl
+chariot | rydwan | The word "rook" comes from Sanskrit and means "chariot". | Słowo "rook" pochodzi z Sanskrytu i znaczy "rydwan". | ˈʧærɪət
+havoc | chaos, zamieszanie, spustoszenie |  |  | ˈhævək
+celestial | niebiański |  |  | səˈlestɪəl
+ancestor | przodek | English and German share a common ancestor. | Angielski i niemiecki mają wspólne pochodzenie. | ˈænsəstə
+transit | tranzyt | I listen to the radio while in transit. | W drodze słucham radia. | ˈtrænzɪt
+wellington | kalosz |  |  | ˈwelɪŋtən
+abide | trwać, stosować się do | You have to abide by the laws. | Musisz przestrzegać praw. | əˈbaɪd
+rim | brzeg, krawędź, obręcz |  |  | rɪm
+decisive | decydujący, zdecydowany, zdeterminowany |  |  | dɪˈsaɪsɪv
+symbolic | symboliczny | It is highly symbolic. | To bardzo symboliczne. | sɪmˈbɒlɪk(əl)
+clink | brzęczeć, brzęk |  |  | klɪŋk
+animation | ożywienie, animacja |  |  | ˌænɪˈmeɪʃən
+furnace | piec |  |  | ˈfɜ:nɪs
+toothpaste | pasta do zębów | I bought some shampoo and toothpaste. | Kupiłem szampon i pastę do zębów. | ˈtu:θpeɪst
+bankruptcy | bankructwo |  |  | ˈbæŋkrʌptsɪ
+lever | dźwignia, uchwyt, rączka |  |  | ˈli:və
+regent | regent |  |  | ˈri:ʤənt
+decoy | przynęta, wabik, wabić |  |  | ˈdi:kɔɪ
+vivid | żywy | The accident is still vivid in his memory. | Ten wypadek nadal tkwi w jego pamięci. | ˈvɪvɪd
+dishonest | nieuczciwy | He seems to be dishonest. | On wydaje się być nieszczery. | dɪsˈɒnɪst
+shaky | roztrzęsiony, chwiejny, niepewny | The legs of the table are shaky. | Nogi stołu są chwiejne. | ˈʃeɪkɪ
+barren | jałowy, bezpłodny |  |  | ˈbærən
+alligator | aligator | An alligator is a very dangerous animal. | Aligator to bardzo groźne zwierzę. | ˈælɪgeɪtə
+moth | ćma, mól |  |  | mɒθ
+uncover | odkrywać |  |  | ʌŋˈkʌvə
+unicorn | jednorożec | Tom is the prettiest unicorn, isn't he? | Tom jest najpiękniejszym jednorożcem, czyż nie? | ˈju:nɪkɔ:n
+goody | fajnie, pysznie, coś pysznego |  |  | ˈgʊdɪ
+noose | pętla |  |  | nu:s
+chic | szykowny, wyrafinowany, szyk |  |  | ʃi:k
+index | indeks, indeksować | He grabbed the butterfly with his thumb and index finger. | Złapał motyla kciukiem i palcem wskazującym. | ˈɪndeks
+blush | rumienić się, rumienić, rumieniec | A letter does not blush. | List się nie czerwieni. | blʌʃ
+fertile | żyzny, płodny | This valley is very fertile. | Ta dolina jest bardzo żyzna. | ˈfɜ:taɪl
+armour | pancerz, zbroja | The knight's armour gleamed in the sun. | Zbroja rycerza lśniła w słońcu. | ˈɑ:mə
+twinkle | mrugać, migotać, migotanie |  |  | ˈtwɪŋkəl
+syndicate | syndykat |  |  | ˈsɪndɪkət
+technician | technik |  |  | tekˈnɪʃən
+baroness | baronowa |  |  | ˈbærənɪs
+malfunction | źle funkcjonować, niesprawność | A major malfunction stopped the car. | Poważna awaria spowodowała zatrzymanie samochodu. | ˌmælˈfʌŋkʃən
+memorable | pamiętny |  |  | ˈmemərəbəl
+middle-aged | w średnim wieku |  |  | ˌmɪdəl ˈeɪʤd
+motorbike | motor, motocykl | Tim's motorbike is far more expensive than mine is. | Motor Tima jest znacznie droższy niż mój. | ˈməʊtəbaɪk
+snoop | myszkować, szpiegować |  |  | snu:p
+evolve | ewoluować, przekształcać się, rozwijać się | Elekid can evolve into Electabuzz. | Elekid może ewoluować w Electabuzza. | ɪˈvɒlv
+sedative | środek uspokajający, uspokajający | I gave Tom a mild sedative. | Dałem Tomowi łagodny środek uspokajający. | ˈsedətɪv
+array | zgromadzenie, wystawa, prezentować |  |  | əˈreɪ
+garland | girlanda |  |  | ˈgɑ:lənd
+beforehand | uprzednio | I already did the assignment beforehand. | Już wcześniej wykonałem zadanie. | bɪˈfɔ:hænd
+continuous | ciągły, nieustanny |  |  | kənˈtɪnjʊəs
+synthetic | syntetyczny, sztuczny | This bodice was made with linen and synthetic whalebone. | Ten gorset został wykonany z użyciem lnu i syntetycznego fiszbinu. | sɪnˈθetɪk
+attendance | uczestnictwo, obecność, uczęszczanie |  |  | əˈtendəns
+maple | klon | There are maple trees in this forest. | W tym lesie są klony. | ˈmeɪpəl
+moan | jęczeć, jęk |  |  | məʊn
+graffiti | graffiti, bazgranina na ścianach |  |  | grəˈfi:tɪ
+linen | len, bielizna, lniany | I want to buy new bed linen. | Chcę kupić nową pościel. | ˈlɪnɪn
+defect | defekt, wada, odłączać się | There's a defect there. | Tam jest defekt. | 
+patriotic | patriotyczny |  |  | ˌpætrɪˈɒtɪk
+ethical | etyczny | This investment fund only invests in ethical companies. | Ten fundusz inwestycyjny inwestuje tylko w te firmy, które prowadzą działalność w sposób etyczny. | ˈeθɪkəl
+pest | szkodnik, zaraza |  |  | pest
+spectrum | widmo, spektrum, gama |  |  | ˈspektrəm
+distinction | rozróżnienie, wyróżnienie |  |  | dɪˈstɪŋkʃən
+decorate | ozdabiać, odnawiać, dekorować | Can you help us decorate for the party? | Możesz nam pomóc przy dekoracjach na imprezę? | ˈdekəreɪt
+bounds | granice | His greed for power knows no bounds. | Jego żądza władzy nie zna granic. | baʊndz
+mandarin | mandarynka | My dream is to study Mandarin in Beijing. | Moim marzeniem jest nauka mandaryńskiego w Pekinie. | ˈmændərɪn
+retain | zachowywać, zatrzymywać | Whoever wants to retain everything lets everything escape. | Kto chce wszystko zachować, wszystkiemu pozwala uciec. | rɪˈteɪn
+educate | kształcić, pouczać, informować | There were few colleges to educate women. | Niewiele było szkół dla kobiet. | ˈedjəkeɪt
+screwdriver | wkrętak, śrubokręt | I brought you the wrong screwdriver. | Dałem ci zły śrubokręt. | ˈskru:draɪvə
+newborn | nowonarodzony |  |  | ˈnju:bɔ:n
+slime | śluz |  |  | slaɪm
+badger | borsuk, dręczyć |  |  | ˈbæʤə
+boundary | granica | The Rhine is the boundary between France and Germany. | Ren stanowi granicę między Francją a Niemcami. | ˈbaʊndərɪ
+hypothesis | hipoteza | The result confirmed my hypothesis. | Wynik potwierdził moje przypuszczenia. | haɪˈpɒθɪsɪs
+drought | susza | She died of thirst during the drought. | Zmarła z pragnienia w trakcie suszy. | draʊt
+executioner | kat |  |  | ˌeksɪˈkju:ʃənə
+lingerie | bielizna damska |  |  | ˈlɒnʒərɪ
+tug | ciągnąć, pociągnięcie |  |  | tʌg
+uptown | od centrum śródmieścia, od centrum, dzielnice poza śródmieściem |  |  | ˌʌpˈtaʊn
+clash | ścierać się, wchodzić w konflikt, szczękać | Our interests clash with theirs. | Nasze interesy kolidują z ich interesami. | klæʃ
+aerial | powietrzny, napowietrzny, lotniczy |  |  | ˈeərɪəl
+relentless | bezlitosny, nieugięty |  |  | rɪˈlentlɪs
+viable | możliwy do wykonania |  |  | ˈvaɪəbəl
+continental | kontynentalny, kontynentalny europejski |  |  | ˌkɒntɪˈnentəl
+bookstore | księgarnia | She is buying books in the bookstore. | Kupuje książki w księgarni. | ˈbʊkstɔ:
+superstitious | przesądny |  |  | ˌsu:pəˈstɪʃəs
+clause | klauzula, zdanie składowe, zdanie |  |  | klɔ:z
+fudge | krówka (cukierek) |  |  | fʌʤ
+slogan | slogan |  |  | ˈsləʊgən
+ivory | kość słoniowa (także kolor) |  |  | ˈaɪvərɪ
+velocity | prędkość |  |  | vəˈlɒsɪtɪ
+composer | kompozytor | J. S. Bach was a famous composer. | Jan Sebastian Bach był sławnym kompozytorem. | kəmˈpəʊzə
+builder | budowlaniec, budowniczy |  |  | ˈbɪldə
+insignificant | nieważny, nie liczący się |  |  | ˌɪnsɪˈgnɪfɪkənt
+dire | skrajny, straszny | Exporters are in dire straights. | Eksporterzy są w opałach. | ˈdaɪə
+comply | podporządkowywać się, ustępować |  |  | kəmˈplaɪ
+applaud | oklaskiwać |  |  | əˈplɔ:d
+trend | trend, tendencja |  |  | trend
+providence | opatrzność |  |  | ˈprɒvɪdəns
+sparkle | skrzyć się, błyszczeć, połysk |  |  | ˈspɑ:kəl
+derrick | dźwig |  |  | ˈderɪk
+howl | wyć, wycie |  |  | haʊl
+deploy | rozmieszczać w gotowości, rozmieszczać |  |  | dɪˈplɔɪ
+handshake | uścisk dłoni |  |  | ˈhændʃeɪk
+neglect | zaniedbywać, zapominać, zaniedbanie | You are not to neglect your duty. | Nie wolno ci zaniedbywać obowiązków. | nɪˈglekt
+overdue | opóźniony, zaległy | This is a friendly reminder about an overdue invoice. | To jest przypomnienie o zaległej zapłacie. | ˌəʊvəˈdju:
+headphones | słuchawki na uszy, słuchawki | Mary put on her headphones. | Mary założyła słuchawki. | ˈhedfəʊnz
+appoint | mianować, wyznaczać |  |  | əˈpɔɪnt
+rotation | obrót, rotacja |  |  | rəʊˈteɪʃən
+solely | jedynie, całkowicie | It all depends solely on you. | Wszystko zależy tylko od ciebie. | ˈsəʊləlɪ
+memorize | zapamiętywać | The boy is able to memorize everything he reads. | Chłopak potrafi zapamiętać wszystko co przeczyta. | ˈmeməraɪz
+freshen | odświeżać się, odświeżać, wzmagać się |  |  | ˈfreʃən
+mango | mango | I want to eat a mango. | Chcę zjeść mango. | ˈmæŋgəʊ
+decay | gnić, niszczeć, podupadać | Fruits decay in the sun. | Owoce gniją w słońcu. | dɪˈkeɪ
+nightfall | zmierzch |  |  | ˈnaɪtfɔ:l
+miniature | miniaturowy, miniatura |  |  | ˈmɪnɪʧə
+omen | omen |  |  | ˈəʊmən
+chum | koleś, chłop |  |  | ʧʌm
+mutiny | bunt, rebelia, buntować się |  |  | ˈmju:tɪnɪ
+toaster | opiekacz do grzanek, opiekacz | She has broken the toaster again. | Znowu popsuła toster. | ˈtəʊstə
+span | okres czasu, okres, zakres | What is the average life span in Japan? | Jaka jest średnia długość życia w Japonii? | spæn
+jumbo | kolosalny, duży odrzutowiec | No pro golfer in Japan is as popular as Jumbo Ozaki. | Żaden japoński profesjonalny golfista nie jest tak popularny jak Jumbo Ozaki. | ˈʤʌmbəʊ
+dung | łajno |  |  | dʌŋ
+waterfall | wodospad | Many tourists come to see the waterfall. | Wielu turystów przychodzi obejrzeć wodospad. | ˈwɔ:təfɔ:l
+windshield | szyba przednia, osłona szklana | There was a bullet hole in the windshield. | W przedniej szybie była dziura po pocisku. | ˈwɪndʃi:ld
+plantation | plantacja |  |  | plɑ:nˈteɪʃən
+edit | edytować, redagować | Welcome to Wikipedia, the free encyclopedia that anyone can edit. | Witaj w Wikipedii, wolnej encyklopedii, którą każdy może redagować. | ˈedɪt
+superficial | powierzchowny | He has only a superficial knowledge of the subject. | On dysponuje jedynie powierzchowną wiedzą na ten temat. | ˌsu:pəˈfɪʃəl
+timber | drewno, belka | The new floorcovering looks like timber but is actually vinyl. | Nowa posadzka wygląda jak drewno ale to jest w rzeczywistości winylowa. | ˈtɪmbə
+supervision | nadzór, opieka |  |  | ˌsu:pəˈvɪʒən
+rust | rdza, rdzewieć | Hey, rust is eating away the metal. | Hej, ten metal rdzewieje. | rʌst
+intensity | intensywność |  |  | ɪnˈtensɪtɪ
+hiccup | czkawka, czkać |  |  | ˈhɪkʌp
+confrontation | konfrontacja, zwada |  |  | ˌkɒnfrənˈteɪʃən
+trustworthy | godny zaufania |  |  | ˈtrʌstwɜ:ðɪ
+paragraph | akapit | Start a new paragraph here. | Zacznij nowy paragraf tutaj. | ˈpærəgrɑ:f
+amuse | rozbawiać, zabawiać się, zabawiać |  |  | əˈmju:z
+lorry | ciężarówka | Tom is a lorry driver. | Tom jest kierowcą ciężarówki. | ˈlɒrɪ
+dominate | zdominowywać, dominować nad, panować |  |  | ˈdɒmɪneɪt
+unreal | nierealny |  |  | ʌnˈrɪəl
+representation | przedstawicielstwo, reprezentacja, przedstawienie |  |  | ˌreprɪzenˈteɪʃən
+gallant | bohaterski, dzielny, szarmancki |  |  | ˈgælənt
+urn | urna, termos na kawę, termos |  |  | ɜ:n
+assign | wyznaczać |  |  | əˈsaɪn
+vine | latorośl, winorośl | Our project will wither on the vine without funding. | Nasz projekt odpadnie w przedbiegach bez dofinansowania. | vaɪn
+auspicious | pomyślny |  |  | ɔ:ˈspɪʃəs
+seafood | frutti di mare | Tom seldom eats seafood. | Tom rzadko jada owoce morza. | ˈsi:fu:d
+mellow | dojrzały, soczysty, pełny |  |  | ˈmeləʊ
+adultery | zdrada, cudzołóstwo |  |  | əˈdʌltərɪ
+scatter | rozrzucać, rozbiegać się, rozpraszać się |  |  | ˈskætə
+lotion | balsam, płyn kosmetyczny | I need some body lotion. | Potrzebuję balsamu do ciała. | ˈləʊʃən
+unpack | rozpakowywać |  |  | ʌnˈpæk
+violate | gwałcić, zakłócać, bezcześcić | I will never violate a law again. | Już nigdy więcej nie złamię prawa. | ˈvaɪəleɪt
+transmit | przesyłać, przenosić, transmitować | We have to transmit our culture to the next generation. | Musimy przekazać naszą kulturę następnemu pokoleniu. | trænzˈmɪt
+well-being | dobre samopoczucie |  |  | ˌwelˈbi:ɪŋ
+porridge | owsianka |  |  | ˈpɒrɪʤ
+strengthen | wzmacniać, umacniać się, dawać siłę |  |  | ˈstreŋθən
+removal | usunięcie, transportowy |  |  | rɪˈmu:vəl
+hive | ul, rojowisko, rozsadnik | Leave this hive alone! | Zostaw ten ul w spokoju! | haɪv
+outdoor | wyjściowy, zewnętrzny, na wolnym powietrzu | In summer, we enjoy outdoor sports. | W lato cieszymy się sportami, które uprawiać można na zewnątrz. | ˌaʊtˈdɔ:
+dew | rosa | Our enemies will vanish like dew in the sun. | Nasi wrogowie znikną jak poranna rosa na słońcu. | dju:
+navigation | żegluga, nawigacja |  |  | ˌnævɪˈgeɪʃən
+harp | harfa, narzekać |  |  | hɑ:p
+margin | margines, przewaga, krawędź | We left a margin for error in our estimates. | W naszych szacunkach założyliśmy margines błędu. | ˈmɑ:ʤɪn
+anthem | hymn | Do you know the national anthem of Greece? | Czy znasz hymn Grecji? | ˈænθəm
+horrific | straszliwy, przerażający |  |  | həˈrɪfɪk
+indictment | oskarżenie |  |  | ɪnˈdaɪtmənt
+superstition | przesąd | Superstition is the religion of fools. | Przesądy to religia głupców. | ˌsu:pəˈstɪʃən
+sincerity | szczerość |  |  | sɪnˈserɪtɪ
+digest | trawić, przetrawiać, przegląd | She read the digest of War and Peace. | Przeczytała streszczenie "Wojny i pokoju". | 
+casualty | ofiara, straty, na ostrym dyżurze |  |  | ˈkæʒʊəltɪ
+thump | walić, uderzać z łoskotem, uderzać |  |  | θʌmp
+proportion | pewna część, część, proporcja | The wages will be paid in proportion to the work done. | Wynagrodzenie będzie wypłacane proporcjonalnie do wykonanej pracy. | prəˈpɔ:ʃən
+quantity | ilość | At this company, we value quality over quantity. | W tej firmie, cenimy jakość ponad ilość. | ˈkwɒntɪtɪ
+gallows | szubienica |  |  | ˈgæləʊz
+budge | odstępować | The octopus's tentacle didn't budge. | Macka ośmiornicy ani drgnęła. | bʌʤ
+fraction | ułamek, odrobina |  |  | ˈfrækʃən
+landlady | gospodyni, właścicielka | Did you talk to the landlady? | Porozmawiałaś z właścicielką? | ˈlændleɪdɪ
+dusk | zmierzch | Why do the winds whisper at dusk? | Dlaczego wiatry szepczą o zmroku? | dʌsk
+indoors | wewnątrz | Get the dog indoors. | Przyprowadź psa do środka. | ˌɪnˈdɔ:z
+saliva | ślina |  |  | səˈlaɪvə
+diver | nurek | Tom is a deep-sea diver. | Tom jest nurkiem głębinowym. | ˈdaɪvə
+eligible | kwalifikujący się, nadający się do małżeństwa | He's eligible for the presidency. | On spełnia warunki na prezydenta. | ˈelɪʤəbəl
+wiggle | podrygiwać, szarpać |  |  | ˈwɪgəl
+awaken | rozbudzać, przebudzać się, przebudzać | This book will awaken your imagination. | Ta książka rozbudzi twoją wyobraźnię. | əˈweɪkən
+transparent | przezroczysty, przejrzysty, oczywisty | This transparent liquid contains a kind of poison. | Ten przeźroczysty płyn zawiera pewien rodzaj trucizny. | trænsˈpærənt
+unclear | niejasny | The reasons are unclear. | Powody są nie jasne. | ʌŋˈklɪə
+aria | aria |  |  | ˈɑ:rɪə
+solidarity | solidarność | We must show solidarity with the earthquake victims. | Musimy okazać solidarność z ofiarami trzęsienia ziemi. | ˌsɒlɪˈdærɪtɪ
+starter | przystawka, rozrusznik |  |  | ˈstɑ:tə
+cling | czepiać się, przywierać, trzymać się |  |  | klɪŋ
+sap | sok, wyczerpywać |  |  | sæp
+refill | napełniać znów, napełniać, dolewka | Tom held his cup out for Mary to refill it. | Tom oddał Mary kubek, żeby go ponownie napełniła. | 
+famine | głód | I'm appealing on behalf of the famine victims. | Apeluję w imieniu ofiar klęski głodu. | ˈfæmɪn
+sneeze | kichać, kichnięcie | For a moment I thought I was going to sneeze. | Przez moment myślałem że kichnę. | sni:z
+syringe | strzykawka |  |  | ˈsɪrɪnʤ
+platinum | platyna, platynowy |  |  | ˈplætɪnəm
+oyster | ostryga | The world is my oyster. | Świat jest moją ostrygą. | ˈɔɪstə
+exhaust | wyczerpywać, rura wydechowa | Tom needs a new exhaust system for his car. | Tom potrzebuje nowego układu wydechowego do swojego auta. | ɪgˈzɔ:st
+consumer | konsument |  |  | kənˈsju:mə
+catastrophic | katastroficzny |  |  | ˌkætəˈstrɒfɪk
+relic | relikt, relikwia |  |  | ˈrelɪk
+merger | fuzja | They caught wind of the merger before it was announced. | Zwietrzyli fuzję zanim została ogłoszona. | ˈmɜ:ʤə
+archbishop | arcybiskup |  |  | ˌɑ:ʧˈbɪʃəp
+smuggle | szmuglować, przemycać |  |  | ˈsmʌgəl
+climax | klimaks, punkt kulminacyjny |  |  | ˈklaɪmæks
+progressive | postępowy, progresywny, stopniowy | Mary returned home from Japan with many new and progressive ideas. | Mary wróciła do domu z Japonii z wieloma nowymi i postępowymi pomysłami. | prəˈgresɪv
+pillar | słup, filar, podpora | A large pillar obstructs the view of the lake. | Potężny słup psuje mi widok na jezioro. | ˈpɪlə
+fearful | straszny | What a fearful waste of money! | Co za straszliwe marnotrawstwo pieniędzy! | ˈfɪəfʊl
+spade | szpadel, pik | Jane calls a spade a spade. | Jane nazywa rzeczy po imieniu. | speɪd
+saucer | spodek |  |  | ˈsɔ:sə
+ratio | stosunek, proporcja | The screen has an aspect ratio of 4:3. | Ekran ma rozdzielczość w proporcji 4:3. | ˈreɪʃɪəʊ
+obscure | mało znany, zawiły, niejasny |  |  | əbˈskjʊə
+troublesome | kłopotliwy |  |  | ˈtrʌbəlsəm
+rubble | gruz, kamień łamany |  |  | ˈrʌbəl
+largely | w większości, głównie | My success is largely due to your help. | Osiągnąłem sukces głównie dzięki twojej pomocy. | ˈlɑ:ʤlɪ
+admiration | podziw |  |  | ˌædmɪˈreɪʃən
+flap | trzepotać, bić, machać |  |  | flæp
+brutality | brutalność |  |  | brʊˈtælɪtɪ
+prevail | panować, przeważać | Common sense should prevail. | Zdrowy rozsądek powinien zwyciężać. | prɪˈveɪl
+anguish | cierpienie, udręka |  |  | ˈæŋgwɪʃ
+whim | kaprys |  |  | wɪm
+colonial | kolonialny |  |  | kəˈləʊnɪəl
+watermelon | arbuz | I like the taste of watermelon. | Lubię smak arbuza. | ˈwɔ:təmelən
+extraction | pochodzenie, wydobywanie |  |  | ɪkˈstrækʃən
+rhino | nosorożec |  |  | ˈraɪnəʊ
+disregard | lekceważyć, lekceważenie |  |  | ˌdɪsrɪˈgɑ:d
+scalp | skóra na głowie, skóra, skalp |  |  | skælp
+watchman | strażnik, stróż |  |  | ˈwɒʧmən
+caress | pieścić, gładzić, pieszczota |  |  | kəˈres
+disciple | uczeń |  |  | dɪˈsaɪpəl
+misty | zamglony |  |  | ˈmɪstɪ
+aura | aura |  |  | ˈɔ:rə
+helm | ster |  |  | helm
+inhale | wdychać | Try not to inhale the fumes. | Staraj się nie wdychać oparów. | ɪnˈheɪl
+hedge | żywopłot, wykręcać się |  |  | heʤ
+viper | żmija |  |  | ˈvaɪpə
+breaker | fala, bałwan |  |  | ˈbreɪkə
+suppress | zdławiać, zduszać, powstrzymywać | She couldn't suppress her emotions. | Nie mogła opanować swoich emocji. | səˈpres
+witty | dowcipny | My father always comes up with something witty to say. | Mój ojciec zawsze wymyśla coś dowcipnego do powiedzenia. | ˈwɪtɪ
+wonderfully | cudownie, wspaniale | You speak French wonderfully. | Mówisz doskonale po francusku. | ˈwʌndəfʊlɪ
+cleanse | oczyszczać | Cleanse me! Release me! Set me free! | Oczyść mnie! Uwolnij mnie! Daj mi wolność! | klenz
+competitor | konkurent, zawodnik, uczestnik |  |  | kəmˈpetɪtə
+abbot | opat |  |  | ˈæbət
+habitat | siedlisko, habitat | The forest is the natural habitat of many wild animals. | Las jest naturalnym środowiskiem życia wielu dzikich zwierząt. | ˈhæbɪtæt
+obnoxious | przykry, nieznośny |  |  | əbˈnɒkʃəs
+sarcasm | sarkazm |  |  | ˈsɑ:kæzəm
+wildly | dziko, szalenie, z energią |  |  | ˈwaɪldlɪ
+refund | zwrot pieniędzy, zwrot, zwracać pieniądze | Can I get a refund? | Mogę otrzymać zwrot pieniędzy? | 
+pulp | miazga, miąższ, pulpa |  |  | pʌlp
+embedded | uwięzły, zakorzeniony |  |  | ɪmˈbedɪd
+resemble | przypominać, być podobnym | Which of your parents do you resemble? | Którego rodzica przypominasz bardziej? | rɪˈzembəl
+sticker | naklejka |  |  | ˈstɪkə
+veal | cielęcina |  |  | vi:l
+isle | wyspa, ostrów |  |  | aɪl
+cold-blooded | zimnokrwisty |  |  | ˌkəʊldˈblʌdɪd
+reaper | żniwiarz, żniwiarka |  |  | ˈri:pə
+mystic | mistyk, mistyczny |  |  | ˈmɪstɪk
+speedy | prędki |  |  | ˈspi:dɪ
+hoax | nabieranie, fałszywy alarm |  |  | həʊks
+intersection | skrzyżowanie, przecięcie, punkt przecięcia | An accident took place at the intersection. | Na skrzyżowaniu miał miejsce wypadek. | ˌɪntəˈsekʃən
+presently | wkrótce, obecnie |  |  | ˈprezəntlɪ
+supplier | dostawca | I'm thinking about changing my supplier. | Myślę nad zmianą mojego dostawcy. | səˈplaɪə
+shuffle | powłóczyć nogami, powłóczyć, kręcić się |  |  | ˈʃʌfəl
+distinctive | wyróżniający się, wyróżniający |  |  | dɪˈstɪŋktɪv
+oracle | wyrocznia |  |  | ˈɔ:rəkəl
+glitter | migotać, pobłyskiwać, migotanie |  |  | ˈglɪtə
+suspend | zawieszać |  |  | səˈspend
+guild | cech, gildia |  |  | gɪld
+convertible | wymienny, kabriolet |  |  | kənˈvɜ:təbəl
+steward | steward, zarządca, intendent |  |  | ˈstju:əd
+gateway | brama, bramka (sieciowa) |  |  | ˈgeɪtweɪ
+pavement | chodnik, jezdnia | I found a coin on the pavement. | Znalazłem monetę na chodniku. | ˈpeɪvmənt
+projector | projektor | Sami works in a big room with a huge projector. | Sami pracuje w dużym pokoju z ogromnym projektorem. | prəˈʤektə
+rugby | rugby | Tom started playing rugby three years ago. | Tom zaczął grać w rugby trzy lata temu. | ˈrʌgbɪ
+fragment | fragment, rozpadać się na kawałki |  |  | 
+obscene | obsceniczny, nieprzyzwoity |  |  | əˈbsi:n
+zebra | zebra |  |  | ˈzebrə
+analyst | analityk, psychoanalityk |  |  | ˈænəlɪst
+earthly | ziemski |  |  | ˈɜ:θlɪ
+modesty | skromność | Modesty doesn't pay in the long run. | Skromność się na dłuższą metę nie opłaca. | ˈmɒdɪstɪ
+assess | oceniać, szacować | We need to assess the risks. | Musimy ocenić ryzyko. | əˈses
+librarian | bibliotekarz |  |  | laɪˈbreərɪən
+suffice | wystarczać |  |  | səˈfaɪs
+slumber | sen, spać |  |  | ˈslʌmbə
+canary | kanarek | The canary is a little yellow bird. | Kanarek to mały żółty ptak. | kəˈneərɪ
+eyesight | wzrok | He was a weak child with poor eyesight. | Był dzieckiem słabym, z marnym wzrokiem. | ˈaɪsaɪt
+jug | dzbanek | She filled the jug with orange juice. | Wypełniła dzbanek sokiem pomarańczowym. | ʤʌg
+duplicate | powielać, duplikować, duplikat | He made a duplicate of that key. | Zrobił kopię tego klucza. | 
+capitalism | kapitalizm | State Capitalism could be democratic or authoritarian. | Kapitalizm państwowy może być demokratyczny lub autorytarny. | ˈkæpɪtəlɪzəm
+chaotic | chaotyczny |  |  | keɪˈɒtɪk
+gram | gram | My wife gave birth prematurely to a 1,500-gram baby girl. | Moja żona urodziła wcześniaka - półtorakilogramową córeczkę. | græm
+tinker | kotlarz, dłubać się |  |  | ˈtɪŋkə
+forecast | przewidywać, prognozować, prognoza | Unexpectedly the weather forecast came true yesterday. | Nieoczekiwanie prognoza pogody się sprawdziła wczoraj. | ˈfɔ:kɑ:st
+plunge | wpadać, zatapiać, pogrążać się |  |  | plʌnʤ
+module | moduł |  |  | ˈmɒdju:l
+firewood | drewno na podpałkę, drewno opałowe | The fireplace, lacking firewood, flames already starting to lose their vigour. | Brakuje drewna w ognisku, płomienie już tracą na sile. | ˈfaɪəwʊd
+retail | detal, detaliczna sprzedaż, detaliczny | Tom creates music playlists for retail shops. | Tom tworzy muzyczne playlisty dla sklepów detalicznych. | ˈri:teɪl
+appalling | zatrważający, okropny |  |  | əˈpɔ:lɪŋ
+mash | tłuc |  |  | mæʃ
+livestock | trzoda |  |  | ˈlaɪvstɒk
+gunman | rewolwerowiec | The gunman was found to be insane. | Uzbrojonego bandytę uznano za niepoczytalnego. | ˈgʌnmən
+dictate | dyktować, nakazywać, nakaz |  |  | 
+platter | półmisek |  |  | ˈplætə
+organism | organizm | That is a unicellular organism. | To jest jednokomórkowy organizm. | ˈɔ:gənɪzəm
+scarecrow | strach na wróble |  |  | ˈskeəkrəʊ
+pup | szczeniak, młode | The pup snapped at my hand. | Szczeniak rzucił się na moją rękę. | pʌp
+interpreter | tłumacz ustny, tłumacz | Can you get an interpreter? | Możesz znaleźć tłumacza? | ɪnˈtɜ:prɪtə
+redeem | ratować, okupywać, dotrzymywać |  |  | rɪˈdi:m
+ledge | półka skalna, półka, parapet |  |  | leʤ
+tyranny | tyrania |  |  | ˈtɪrənɪ
+rosy | różowy, rumiany |  |  | ˈrəʊzɪ
+nomination | nominacja, mianowanie |  |  | ˌnɒmɪˈneɪʃən
+textbook | podręcznik | Tom left his textbook in the car. | Tom zostawił w samochodzie swój podręcznik. | ˈtekstbʊk
+pioneer | pionier, wprowadzać jako pionier | He is a pioneer in this field. | Jest pionierem w tej dziedzinie. | ˌpaɪəˈnɪə
+throttle | dusić, przepustnica |  |  | ˈθrɒtəl
+thrive | prosperować, rozkwitać | First thrive and then take a wife. | Najpierw coś osiągnij, a potem szukaj żony. | θraɪv
+allergy | alergia, uczulenie | Constantly blowing his nose in allergy season. | Ciągłe dmuchanie w nos podczas sezonu alergicznego. | ˈæləʤɪ
+alphabet | alfabet | A is the first letter of the alphabet. | 'A' to pierwsza litera alfabetu. | ˈælfəbet
+accordingly | odpowiednio, wedle zasługi |  |  | əˈkɔ:dɪŋlɪ
+sect | sekta |  |  | sekt
+maternity | macierzyński, położniczy | Mary is on maternity leave. | Mary jest na urlopie macierzyńskim. | məˈtɜ:nɪtɪ
+scarce | rzadki, niewystarczający | Water is scarce in this area. | Wody brakuje w tym rejonie. | skeəs
+unwell | chory, niedysponowany | Does somebody feel unwell? | Czy ktoś czuje się niedobrze? | ʌnˈwel
+import | importować, import | We import a lot of things from Australia. | Sprowadzamy z Australii dużo rzeczy. | 
+temporal | czasowy, doczesny |  |  | ˈtempərəl
+anticipate | przewidywać, wyczekiwać |  |  | ænˈtɪsɪpeɪt
+spree | wyprawa, impreza |  |  | spri:
+futile | jałowy |  |  | ˈfju:taɪl
+dictator | dyktator | I will overthrow the dictator. | Obalę dyktatora. | dɪkˈteɪtə
+stuffy | duszny | This room is very stuffy. | Ten pokój jest bardzo duszny. | stʌfɪ
+giggle | chichotać, chichot | She has a cute giggle. | Ona się uroczo śmieje. | ˈgɪgəl
+grandchild | wnuk |  |  | ˈgrænʧaɪld
+pharmaceutical | farmaceutyczny, środki farmaceutyczne |  |  | ˌfɑ:məˈsju:tɪkəl
+observer | obserwator, komentator polityczny, komentator |  |  | əbˈzɜ:və
+wallpaper | tapeta, tapetować |  |  | ˈwɔ:lpeɪpə
+output | produkcja, wytwórczość, twórczość | The output of this factory has increased by 20%. | Produkcja w tej fabryce wzrosła o 20% | ˈaʊtpʊt
+joyful | radosny, szczęśliwy |  |  | ˈʤɔɪfʊl
+spouse | małżonek, małżonka |  |  | spaʊz
+stale | czerstwy, nieświeży, zardzewiały |  |  | steɪl
+teamwork | praca zespołowa |  |  | ˈti:mwɜ:k
+obedient | posłuszny | She is obedient to her parents. | Ona jest posłuszna swoim rodzicom. | əˈbi:dɪənt
+rating | ocena, zaszeregowanie, klasa |  |  | ˈreɪtɪŋ
+regulation | przepis, regulamin, kontrola | This regulation will take effect next year. | Ten przepis wejdzie w życie w przyszłym roku. | ˌregjʊˈleɪʃən
+implant | wszczepiać, przeszczepiać, przeszczep |  |  | 
+satisfactory | zadowalający | The results of the research were quite satisfactory. | Wyniki badań były całkiem zadowalające. | ˌsætɪsˈfæktərɪ
+sleeper | miejsce sypialne, pociąg z miejscami sypialnymi, podkład kolejowy |  |  | ˈsli:pə
+construct | budować, konstruować, nadawać strukturę | Continents are a social construct. | Kontynenty są konstruktem społecznym. | 
+munch | przeżuwać |  |  | mʌnʧ
+stag | jeleń | Is the Barbary stag doomed to extinction? | Czy jeleń berberyjski jest skazany na wyginięcie? | stæg
+uphold | podtrzymywać, utrzymywać |  |  | ʌpˈhəʊld
+inconvenient | niewygodny, niedogodny |  |  | ˌɪŋkənˈvi:njənt
+reconstruction | odbudowa, rekonstrukcja |  |  | ˌri:kənˈstrʌkʃən
+pipeline | rurociąg |  |  | ˈpaɪplaɪn
+enlightenment | oświecenie |  |  | ɪnˈlaɪtənmənt
+puddle | kałuża | The dragonfly flies over the puddle. | Ważka lata nad kałużą. | ˈpʌdəl
+demonic | demoniczny, złowrogi | Sami thought Layla's black cat was demonic. | Sami myślał, że czarny kot Layli był opętany. | dɪˈmɒnɪk
+demise | zgon |  |  | dɪˈmaɪz
+fungus | grzyb |  |  | ˈfʌŋgəs
+barefoot | bosy, na bosaka | I love walking barefoot on the grass. | Kocham chodzić boso po trawie. | ˈbeəfʊt
+beak | dziób |  |  | bi:k
+fanfare | fanfara |  |  | ˈfænfeə
+mascot | maskotka |  |  | ˈmæskət
+drastic | drastyczny, nagły | Drastic times call for drastic measures. | Trudne czasy wymagają zdecydowanych działań. | ˈdræstɪk
 ` },
 ];

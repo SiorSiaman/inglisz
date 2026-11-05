@@ -200,7 +200,7 @@ Object.assign(GRAMMAR_EXTRA, {
   ['c', '___ it not been for your help, we would have failed.', ['Had', 'If', 'Were'], 0, 'Had it not been for = If it hadn\'t been for.'],
   ['c', 'Not until midnight ___ the system back online.', ['was', 'it was', 'did'], 0, 'Not until … + inwersja z be: was the system.'],
   ['g', 'Never ___ I seen such a fast network.', ['have'], 'Never have I seen.'],
-  ['g', 'Not only ___ she speak French, but also Japanese.', ['does'], 'Not only does she…'],
+  ['g', 'Not only ___ she speak French, but she also speaks Japanese.', ['does'], 'Not only does she…'],
   ['g', 'Rarely ___ we receive complaints.', ['do'], 'Rarely do we…'],
   ['g', '___ I known earlier, I would have helped.', ['Had'], 'Had I known.'],
   ['g', 'Only then ___ I realise my mistake.', ['did'], 'Only then did I…'],

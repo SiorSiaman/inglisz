@@ -109,7 +109,7 @@ Object.assign(GRAMMAR_EXTRA, {
   ['c', 'The thief ___ by the police yesterday.', ['was caught', 'caught', 'has caught'], 0, 'Past Simple passive.'],
   ['c', 'The report must ___ by Friday.', ['be finished', 'finished', 'finish'], 0, 'Modal + be + III forma.'],
   ['c', 'When ___ the internet ___?', ['was / invented', 'did / invented', 'is / invent'], 0, 'Pytanie w Past Simple passive.'],
-  ['c', 'All tickets ___ out.', ['have been sold', 'have sold', 'are sell'], 0, 'Present Perfect passive.'],
+  ['c', 'All the tickets ___. There are none left.', ['have been sold', 'have sold them', 'are sell'], 0, 'Present Perfect passive.'],
   ['c', 'The meeting ___ because the manager was ill.', ['was cancelled', 'cancelled', 'has cancelling'], 0, 'Past Simple passive.'],
   ['g', 'The office ___ (clean) every evening.', ['is cleaned'], 'Present Simple passive.'],
   ['g', 'This song ___ (write) by John Lennon.', ['was written'], 'write – written.'],

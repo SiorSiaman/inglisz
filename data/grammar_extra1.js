@@ -172,7 +172,7 @@ Object.assign(GRAMMAR_EXTRA, {
   ['g', 'Today is ___ (hot) than yesterday.', ['hotter'], 'Podwojenie spółgłoski: hot → hotter.'],
   ['g', 'This is the ___ (good) pizza in town.', ['best'], 'good → the best.'],
   ['g', 'The second test was ___ (difficult) than the first.', ['more difficult'], 'Długi przymiotnik: more.'],
-  ['g', 'Is it ___ (far) to the station or to the airport?', ['further', 'farther'], 'far → further/farther.'],
+  ['g', 'The airport is ___ (far) from here than the station.', ['further', 'farther'], 'far → further/farther.'],
   ['g', 'He is the ___ (old) employee in the company.', ['oldest'], 'old → the oldest.'],
   ['g', 'Please drive ___ (slowly).', ['more slowly'], 'Przysłówek z -ly: more slowly.'],
   ['g', 'My English is ___ (bad) than my German.', ['worse'], 'bad → worse.'],

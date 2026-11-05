@@ -364,3 +364,42 @@ communication | komunikacja, łączność
 polite | uprzejmy, grzeczny
 accent | akcent
 item | pozycja, rzecz, artykuł
+denial | zaprzeczenie, wyparcie, odmowa
+expertise | wiedza specjalistyczna, fachowość
+virtual | wirtualny, faktyczny
+perish | ginąć, przepadać, psuć się
+incompetent | niekompetentny
+standby | rezerwa, (w) gotowości
+predictable | przewidywalny
+mandatory | obowiązkowy
+penthouse | apartament na ostatnim piętrze
+workout | trening
+solicitor | radca prawny, adwokat
+edit | edytować, redagować
+hostel | hostel, schronisko
+muffin | babeczka, muffin
+gender | płeć (społeczno-kulturowa), rodzaj
+tablet | tabletka, tablet
+subtitle | napisy (w filmie), podtytuł
+flyer | ulotka, lotnik
+convenience | wygoda, udogodnienie
+quiz | quiz, wypytywać
+revenue | przychód, dochód
+spacecraft | statek kosmiczny
+override | unieważniać, mieć pierwszeństwo przed
+printer | drukarka
+incidentally | nawiasem mówiąc, przy okazji
+continuous | ciągły, nieustanny
+download | pobierać (z internetu)
+feedback | informacja zwrotna, opinia
+wireless | bezprzewodowy
+gateway | brama, bramka (sieciowa)
+installation | instalacja, montaż
+user | użytkownik
+consultant | konsultant, doradca, lekarz specjalista
+liable | odpowiedzialny (prawnie), skłonny do
+operative | działający, agent
+rep | przedstawiciel (handlowy)
+squash | zgniatać, squash (sport)
+gay | gej, homoseksualny
+homosexual | homoseksualny, homoseksualista

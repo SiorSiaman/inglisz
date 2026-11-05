@@ -590,5 +590,101 @@ cybersecurity | cyberbezpieczeństwo | Cybersecurity is a top priority.
 vulnerability | podatność (luka bezpieczeństwa) | They found a vulnerability in the firmware.
 firmware | oprogramowanie układowe (firmware) | Update the firmware on all routers.
 artificial intelligence | sztuczna inteligencja | We use artificial intelligence to predict faults.
+` },
+{ cat: 'academic', level: 'C1', items: `
+allocate | przydzielać, alokować | We need to allocate more resources to the project.
+coherent | spójny, logiczny | She presented a clear and coherent plan.
+comprise | składać się z, obejmować | The team comprises five engineers and a manager.
+constitute | stanowić | Women constitute half of our workforce.
+derive | wywodzić, czerpać | Many English words are derived from Latin.
+diminish | zmniejszać się, słabnąć | The risk has diminished since the upgrade.
+disclose | ujawniać | The company refused to disclose the details.
+explicit | wyraźny, jednoznaczny | The contract is explicit about the deadlines.
+implicit | domniemany, ukryty | There was an implicit agreement between them.
+facilitate | ułatwiać | The new tool facilitates communication between teams.
+fluctuate | wahać się (o cenach, wartościach) | Prices fluctuate depending on demand.
+incentive | zachęta, bodziec | We offer bonuses as an incentive.
+inherent | nieodłączny, wrodzony | There are risks inherent in any new technology.
+initiative | inicjatywa | She took the initiative and called the client.
+integrity | uczciwość, spójność | Data integrity is our top priority.
+mandate | mandat, upoważnienie; zlecać | The board gave him a mandate to cut costs.
+negligible | znikomy | The difference in price is negligible.
+notion | pojęcie, wyobrażenie | I have no notion of what he meant.
+perceive | postrzegać | How do customers perceive our brand?
+pertinent | trafny, istotny | She asked some very pertinent questions.
+plausible | wiarygodny, prawdopodobny | That's a plausible explanation.
+prerequisite | warunek wstępny | Experience is a prerequisite for this role.
+prospective | przyszły, potencjalny | We met several prospective clients.
+rationale | uzasadnienie | Can you explain the rationale behind this decision?
+reconcile | godzić, uzgadniać | It's hard to reconcile work and family life.
+robust | solidny, odporny | We need a robust network that never fails.
+scrutinise | dokładnie badać | The auditors scrutinised every invoice.
+subsequent | późniejszy, następny | Subsequent tests confirmed the problem.
+sustainable | zrównoważony | We are looking for sustainable solutions.
+tangible | namacalny, konkretny | The project brought tangible results.
+undertake | podejmować się | We undertook a complete review of the system.
+utilise | wykorzystywać | We fully utilise the available bandwidth.
+accountability | odpowiedzialność (rozliczalność) | There must be accountability for these mistakes.
+benchmark | punkt odniesienia; porównywać | Our results set a new benchmark for the industry.
+contingency | ewentualność; plan awaryjny | We have a contingency plan in case of failure.
+cost-effective | opłacalny | Fibre is a cost-effective long-term solution.
+due diligence | należyta staranność, badanie due diligence | We carried out due diligence before the acquisition.
+expenditure | wydatki | Capital expenditure increased by ten percent.
+headcount | liczba pracowników (etatów) | The company plans to reduce its headcount.
+outsource | zlecać na zewnątrz | We outsource our customer support.
+overhead | koszty ogólne; nad głową | We need to reduce our overheads.
+roadmap | plan działania, mapa drogowa | Here is the product roadmap for next year.
+scalability | skalowalność | Scalability is crucial for cloud services.
+shareholder | akcjonariusz, udziałowiec | The shareholders approved the merger.
+turnover | obrót; rotacja pracowników | Staff turnover is very high in call centres.
+underperform | osiągać słabe wyniki | The new product underperformed in the first quarter.
+workforce | siła robocza, pracownicy | Half of our workforce works remotely.
+to some extent | w pewnym stopniu | I agree with you to some extent.
+on the other hand | z drugiej strony | It's expensive. On the other hand, it's very reliable.
+in terms of | pod względem | In terms of speed, 5G is much better.
+with regard to | w odniesieniu do, w sprawie | I'm writing with regard to your last invoice.
+as a result | w rezultacie | The cable was cut. As a result, thousands lost internet.
+in the long term | w dłuższej perspektywie | In the long term, this will save us money.
+take into account | brać pod uwagę | We must take into account the cost of maintenance.
+bear in mind | mieć na uwadze, pamiętać | Bear in mind that the office closes at five.
+put forward | przedstawić (propozycję) | She put forward an interesting proposal.
+draw a conclusion | wyciągnąć wniosek | It's too early to draw a conclusion.
+raise concerns | wyrażać obawy | The clients raised concerns about security.
+address an issue | zająć się problemem | We need to address this issue immediately.
+meet expectations | spełniać oczekiwania | The results did not meet our expectations.
+a wide range of | szeroki wybór, szeroki zakres | We offer a wide range of services.
+play a key role | odgrywać kluczową rolę | Fibre plays a key role in our strategy.
+come to terms with | pogodzić się z | He came to terms with the decision.
+far-reaching | dalekosiężny, daleko idący | The changes will have far-reaching consequences.
+counterintuitive | sprzeczny z intuicją | The results were counterintuitive.
+overwhelming | przytłaczający, ogromny | The response was overwhelming.
+detrimental | szkodliwy | Stress is detrimental to your health.
+beneficial | korzystny | The new policy is beneficial for everyone.
+prevalent | powszechny, rozpowszechniony | This problem is prevalent in rural areas.
+conducive | sprzyjający | A quiet office is conducive to concentration.
+susceptible | podatny | Older devices are susceptible to attacks.
+contentious | sporny, kontrowersyjny | Pricing is a contentious issue.
+elusive | nieuchwytny, trudny do osiągnięcia | A solution remains elusive.
+intricate | zawiły, skomplikowany | The system has an intricate design.
+proficient | biegły | She is proficient in three languages.
+resilient | odporny, prężny | We are building a more resilient network.
+versatile | wszechstronny | It's a versatile tool for many tasks.
+adverse | niekorzystny | The storm had an adverse effect on the network.
+arbitrary | arbitralny, przypadkowy | The decision seemed completely arbitrary.
+concise | zwięzły | Please keep your report concise.
+deem | uważać za | The plan was deemed too risky.
+entail | pociągać za sobą, wiązać się z | The job entails a lot of travelling.
+exacerbate | pogarszać, zaostrzać | The delay exacerbated the problem.
+hinder | utrudniać | Bad weather hindered the repairs.
+impede | utrudniać, hamować | Old equipment impedes our growth.
+underpin | stanowić podstawę | Trust underpins every good relationship.
+warrant | uzasadniać; nakaz | The situation warrants immediate action.
+alleviate | łagodzić | We added capacity to alleviate congestion.
+ascertain | ustalać, upewniać się | We need to ascertain the cause of the failure.
+bolster | wzmacniać | The new contract will bolster our position.
+curtail | ograniczać | We had to curtail our spending.
+encompass | obejmować | The project encompasses all regional offices.
+garner | zdobywać, zyskiwać | The idea garnered a lot of support.
+compelling | przekonujący | She made a compelling case for the investment.
 ` }
 ];

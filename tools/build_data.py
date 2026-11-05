@@ -42,6 +42,9 @@ wept wound withdrew withdrawn men women children feet teeth mice geese people's
 PROFANITY = set("""
 fuck fucking fucked fucker shit shitty damn goddamn bitch bastard ass asshole crap dick cock pussy whore slut piss pissed
 bloody hell nigger fag faggot cunt bullshit motherfucker screw sexy sex
+brothel rapist semen nipple intercourse pornography boob tit prostitution anal orgasm erotic retarded midget imbecile
+sissy gypsy ko woof moo hurrah hurray shush phew scram quack holler chug tart hag puss sod pong boobs horny pervert
+whore hooker stripper suicide
 """.split())
 
 NAMES = set("""

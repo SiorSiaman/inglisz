@@ -233,7 +233,7 @@ addExtra('quantifiers', [
   ['f', 'There are much cars on the road.', ['There are many cars on the road.', 'There are a lot of cars on the road.'], 'cars: policzalne.'],
   ['f', 'We bought two furnitures.', ['We bought two pieces of furniture.'], 'furniture: niepoliczalne.'],
   ['f', 'Every students must register.', ['Every student must register.'], 'every + liczba pojedyncza.'],
-  ['o', 'Ile kosztuje ten bagaż?', 'How much is this luggage?', 'much + niepoliczalne.'],
+  ['o', 'Ile masz bagażu?', 'How much luggage do you have?', 'luggage jest niepoliczalne: much.'],
   ['o', 'Mam kilka pytań.', 'I have a few questions.', 'a few + policzalne.'],
 ]);
 

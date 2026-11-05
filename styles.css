@@ -183,6 +183,15 @@ textarea.area {
 .w-ok { color: var(--good); font-weight: 700; }
 .w-bad { color: var(--bad); font-weight: 700; text-decoration: underline; text-decoration-style: wavy; }
 .gap { display: inline-block; min-width: 3ch; border-bottom: 2px solid var(--accent); color: var(--accent); letter-spacing: .1em; padding: 0 4px; }
+.pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pairs > div { display: grid; gap: 8px; align-content: start; }
+.pair { min-height: 52px; font-weight: 600; font-size: .95rem; padding: 8px; text-align: center; }
+.pair.sel { border-color: var(--accent); background: var(--accent-soft); }
+.pair.done { border-color: var(--good); background: var(--good-soft); opacity: .55; pointer-events: none; }
+.pair.bad { border-color: var(--bad); background: var(--bad-soft); animation: shake .3s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.mixbar { display: grid; gap: 6px; margin-bottom: 12px; font-size: .8rem; font-weight: 700; color: var(--accent); }
+.grades .suggest { box-shadow: 0 0 0 3px var(--accent-soft); transform: translateY(-2px); }
 .divider { width: 60%; height: 1px; background: var(--border); margin: 6px 0; }
 .speak {
   border: 1px solid var(--border); background: var(--surface-2); border-radius: 99px;

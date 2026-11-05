@@ -10,6 +10,7 @@ const CATS = {
   work: 'Praca i biznes',
   telecom: 'Telekomunikacja',
   tech: 'IT i technika',
+  academic: 'Akademickie i biznesowe (C1)',
   travel: 'Podróże',
 };
 
@@ -54,6 +55,7 @@ const DEFAULT_SETTINGS = {
   buildLevel: 'all',
   deck: 'all',
   retention: 0.9,
+  speechEnabled: false,
   learnSteps: '1 10',
   relearnSteps: '10',
   cats: Object.fromEntries(Object.keys(CATS).map(k => [k, true])),
@@ -69,6 +71,11 @@ function normalizeState(s) {
     extraNew: s.extraNew || null,
     suspended: s.suspended || {},
     grammar: s.grammar || {},
+    freezes: s.freezes || 0,
+    freezeDays: s.freezeDays || {},
+    goalDays: s.goalDays || {},
+    onboarded: s.onboarded || (s.cards && Object.keys(s.cards).length > 0) || false,
+    startLevel: s.startLevel || null,
     buried: s.buried || {},
     savedAt: s.savedAt || 0,
     settings: Object.assign({}, DEFAULT_SETTINGS, s.settings || {}, {
@@ -254,6 +261,8 @@ function toast(msg) {
 function logActivity(kind, ok, extra = {}) {
   const t = today();
   const e = state.log[t] || (state.log[t] = { r: 0, n: 0, ok: 0, x: 0 });
+  const before = e.r + e.n + e.x;
+  setTimeout(() => checkGoal(before), 0);
   if (kind === 'new') e.n++;
   else if (kind === 'review') e.r++;
   else e.x++;
@@ -292,6 +301,17 @@ function speak(text, slow = false) {
   speechSynthesis.speak(u);
 }
 function stopSpeech() { if (hasTTS) speechSynthesis.cancel(); }
+
+// Skróty klawiszowe na komputerze (jak w Anki): spacja/Enter – pokaż, 1–4 – ocena, Z – cofnij.
+document.addEventListener('keydown', e => {
+  if (!location.hash.startsWith('#/learn') || !session || !session.cur) return;
+  const typingField = e.target.closest && e.target.closest('input, textarea, select');
+  if (typingField && !(e.target.id === 'typein' && session.revealed)) return;
+  if ((e.key === ' ' || e.key === 'Enter') && !session.revealed) { e.preventDefault(); reveal(); }
+  else if (session.revealed && ['1', '2', '3', '4'].includes(e.key)) { e.preventDefault(); answer(+e.key - 1); }
+  else if ((e.key === 'Enter' || e.key === ' ') && session.revealed && $('.grades .suggest')) { e.preventDefault(); $('.grades .suggest').click(); }
+  else if ((e.key === 'z' || e.key === 'Z') && session.history.length) { e.preventDefault(); undo(); }
+});
 
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-say]');
@@ -485,9 +505,13 @@ function markKnown(id, days = 30) {
 /* ================= Router ================= */
 const ROUTES = {};
 const NAV_OF = { speak: 'practice', gaps: 'practice', dictation: 'practice', pick: 'learn', import: 'words', decks: 'words', deck: 'words', grammar: 'practice', glesson: 'practice', gpractice: 'practice', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
+Object.assign(NAV_OF, { pairs: 'practice', mix: 'practice', welcome: 'home' });
+const MIX_ROUTES = ['gaps', 'build', 'listen', 'dictation', 'pairs', 'gpractice', 'mix'];
 function render() {
   const [r, arg] = (location.hash.replace(/^#\/?/, '') || 'home').split('/');
-  const name = ROUTES[r] ? r : 'home';
+  let name = ROUTES[r] ? r : 'home';
+  if (name === 'home' && !state.onboarded && Object.keys(state.cards).length === 0) name = 'welcome';
+  if (mix && !MIX_ROUTES.includes(name)) mix = null; // wyjście z treningu mieszanego
   stopSpeech();
   ROUTES[name](arg ? decodeURIComponent(arg) : undefined);
   const nav = NAV_OF[name] || name;
@@ -497,29 +521,181 @@ function render() {
 window.addEventListener('hashchange', render);
 
 /* ================= Start ================= */
+/* ---------- Seria, dzienny cel, zamrożenia serii ---------- */
+const activeDay = d => { const e = state.log[d]; return !!e && (e.r + e.n + e.x) > 0; };
+const countDay = d => { const e = state.log[d]; return e ? e.r + e.n + e.x : 0; };
 function streak() {
   const t = today();
+  const fd = state.freezeDays || {};
   let n = 0;
-  let d = state.log[t] ? t : t - 1;
-  while (state.log[d]) { n++; d--; }
+  let d = activeDay(t) ? t : t - 1;
+  while (activeDay(d) || fd[d]) { if (activeDay(d)) n++; d--; }
   return n;
 }
+// Jak w Duolingo: za każde 7 dni serii dostajesz „zamrożenie” (maks. 2), które ratuje serię, gdy opuścisz dzień.
+function applyFreezes() {
+  const t = today();
+  state.freezeDays = state.freezeDays || {};
+  const missing = [];
+  let d = t - 1;
+  while (!activeDay(d) && !state.freezeDays[d] && missing.length < 3) { missing.push(d); d--; }
+  if (!missing.length || (!activeDay(d) && !state.freezeDays[d])) return;
+  if ((state.freezes || 0) >= missing.length) {
+    missing.forEach(m => { state.freezeDays[m] = 1; });
+    state.freezes -= missing.length;
+    save();
+    setTimeout(() => toast(`Zamrożenie serii uratowało Twoją serię (${missing.length} ${missing.length === 1 ? 'dzień' : 'dni'})`), 600);
+  }
+}
+const dailyGoal = () => Math.max(5, state.settings.dailyGoal || 30);
+function checkGoal(before) {
+  const t = today();
+  const now = countDay(t);
+  if (before < dailyGoal() && now >= dailyGoal()) {
+    feedback(true, true);
+    let extra = '';
+    state.goalDays = state.goalDays || {};
+    if (!state.goalDays[t]) {
+      state.goalDays[t] = 1;
+      const s = streak();
+      if (s > 0 && s % 7 === 0 && (state.freezes || 0) < 2) { state.freezes = (state.freezes || 0) + 1; extra = ' Zdobyłeś zamrożenie serii ❄️'; }
+    }
+    setTimeout(() => toast('🎯 Dzienny cel osiągnięty!' + extra), 350);
+  }
+}
+function goalRing(done, goal, size = 64) {
+  const r = size / 2 - 6, c = 2 * Math.PI * r, p = Math.min(1, done / goal);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-label="Cel dzienny ${done} z ${goal}">
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="7"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${p >= 1 ? 'var(--good)' : 'var(--accent)'}" stroke-width="7" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p)}" transform="rotate(-90 ${size / 2} ${size / 2})"/>
+    <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-size="${size / 4.2}" font-weight="800" fill="var(--text)">${p >= 1 ? '✓' : Math.round(p * 100) + '%'}</text></svg>`;
+}
+
+/* ---------- Dźwięki i wibracje ---------- */
+let audioCtx = null;
+function tone(freq, start, dur, vol = 0.08) {
+  const ctx = audioCtx;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, ctx.currentTime + start);
+  g.gain.linearRampToValueAtTime(vol, ctx.currentTime + start + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(ctx.currentTime + start); o.stop(ctx.currentTime + start + dur + 0.02);
+}
+function feedback(ok, big = false) {
+  if (state.settings.sound !== false) {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (big) { tone(523, 0, 0.15); tone(659, 0.12, 0.15); tone(784, 0.24, 0.3); }
+      else if (ok) { tone(660, 0, 0.12); tone(880, 0.09, 0.18); }
+      else { tone(220, 0, 0.25, 0.06); }
+    } catch (e) { /* brak dźwięku */ }
+  }
+  if (state.settings.vibrate !== false && navigator.vibrate) {
+    try { navigator.vibrate(ok ? 25 : [60, 40, 60]); } catch (e) { /* ignore */ }
+  }
+}
+
+/* ---------- Trening mieszany (jak „Practice Hub”) ---------- */
+let mix = null;
+const MIX_TYPES = ['gaps', 'build', 'listen', 'dictation', 'pairs', 'grammar'];
+function goMix() {
+  const types = MIX_TYPES.filter(t => t !== mix.lastType);
+  const t = pick(types);
+  mix.lastType = t;
+  if (t === 'grammar') { startGrammarSingle(); return; }
+  if (location.hash === '#/' + t) ROUTES[t](); else location.hash = '#/' + t;
+}
+// Wywoływane przez każde ćwiczenie po „Dalej”. W treningu mieszanym przechodzi do kolejnego typu zadania.
+function afterExercise(ok, again) {
+  if (!mix) { again(); return; }
+  mix.done++; if (ok) mix.ok++;
+  if (mix.done >= mix.total) { showMixResult(); return; }
+  goMix();
+}
+const mixBar = () => mix ? `<div class="mixbar"><span>Trening mieszany · ${mix.done + 1} / ${mix.total}</span><div class="bar"><div style="width:${(mix.done / mix.total) * 100}%"></div></div></div>` : '';
+ROUTES.mix = () => {
+  if (!mix) {
+    view.innerHTML = `
+      <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Trening mieszany</span></header>
+      <section class="card center">
+        <div class="done-emoji">🎲</div>
+        <h2>Trening mieszany</h2>
+        <p class="muted">10 różnych zadań na zmianę: luki, układanie zdań, słuchanie, dyktando, pary i gramatyka. Najlepiej utrwala to, co już znasz.</p>
+        <div class="grid2"><button class="btn" data-mt="5">5 zadań</button><button class="btn primary" data-mt="10">10 zadań</button></div>
+        <button class="btn block" data-mt="20" style="margin-top:10px">20 zadań</button>
+      </section>`;
+    $$('[data-mt]').forEach(b => b.onclick = () => { mix = { total: +b.dataset.mt, done: 0, ok: 0, start: Date.now() }; goMix(); });
+    return;
+  }
+  goMix();
+};
+function showMixResult() {
+  const m = mix; mix = null;
+  const pct = Math.round((m.ok / m.total) * 100);
+  feedback(true, pct >= 80);
+  if (location.hash !== '#/mix') history.replaceState(null, '', '#/mix');
+  view.innerHTML = `
+    <header class="top">${backLink('#/practice', 'Ćwiczenia')}</header>
+    <section class="card center">
+      <div class="done-emoji">${pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '💪'}</div>
+      <h2>Trening ukończony: ${m.ok} / ${m.total}</h2>
+      <p class="muted">Czas: ${Math.max(1, Math.round((Date.now() - m.start) / 60000))} min. Błędne słowa wrócą szybciej w fiszkach.</p>
+      <div class="grid2"><a class="btn" href="#/practice">Ćwiczenia</a><button class="btn primary" id="mixagain">Jeszcze raz</button></div>
+    </section>`;
+  $('#mixagain').onclick = () => { mix = { total: m.total, done: 0, ok: 0, start: Date.now() }; goMix(); };
+}
+
+/* ---------- Ekran powitalny ---------- */
+ROUTES.welcome = () => {
+  const st = state.settings;
+  let goal = st.dailyGoal || 30, npd = st.newPerDay || 15, lvl = 'B1';
+  const draw = () => {
+    const opt = (key, val, label, cur) => `<button class="filter ${cur === val ? 'on' : ''}" data-w${key}="${val}">${label}</button>`;
+    view.innerHTML = `
+      <header class="top"><div><h1>Witaj w Inglisz 👋</h1><div class="sub">Ustawmy naukę pod Ciebie (zmienisz to później w Ustawieniach)</div></div></header>
+      <section class="card"><h2>Twój poziom angielskiego</h2>
+        <div class="row wrap">${[['A1', 'Początkujący'], ['A2', 'Podstawowy'], ['B1', 'Średni'], ['B2', 'Średnio zaawansowany'], ['C1', 'Zaawansowany']].map(([v, l]) => opt('l', v, `${v} · ${l}`, lvl)).join('')}</div></section>
+      <section class="card"><h2>Dzienny cel</h2>
+        <div class="row wrap">${[[15, 'Luźno · 15'], [30, 'Normalnie · 30'], [50, 'Ambitnie · 50'], [80, 'Intensywnie · 80']].map(([v, l]) => opt('g', v, l, goal)).join('')}</div>
+        <p class="muted small">Liczba odpowiedzi dziennie (fiszki i ćwiczenia). 30 to ok. 10–15 minut.</p></section>
+      <section class="card"><h2>Nowe słowa dziennie</h2>
+        <div class="row wrap">${[5, 10, 15, 25, 40].map(v => opt('n', v, String(v), npd)).join('')}</div></section>
+      <button class="btn primary big block" id="wgo">Zaczynamy</button>`;
+    $$('[data-wl]').forEach(b => b.onclick = () => { lvl = b.dataset.wl; draw(); });
+    $$('[data-wg]').forEach(b => b.onclick = () => { goal = +b.dataset.wg; draw(); });
+    $$('[data-wn]').forEach(b => b.onclick = () => { npd = +b.dataset.wn; draw(); });
+    $('#wgo').onclick = () => {
+      st.dailyGoal = goal; st.newPerDay = npd; state.onboarded = true; state.startLevel = lvl;
+      save();
+      location.hash = ['B1', 'B2', 'C1'].includes(lvl) ? '#/placement' : '#/learn';
+      if (['B1', 'B2', 'C1'].includes(lvl)) setTimeout(() => toast('Zaznacz słowa, które znasz – nie będziesz tracić na nie czasu'), 400);
+    };
+  };
+  draw();
+};
+
 ROUTES.home = () => {
   const due = dueIds().length;
   const { left } = newAvailable();
   const learned = Object.keys(state.cards).length;
   const mastered = Object.keys(state.cards).filter(id => ['mastered', 'known'].includes(status(id))).length;
   const t = today();
-  const todayLog = state.log[t] || { r: 0, n: 0, x: 0 };
-  const doneToday = todayLog.r + todayLog.n + todayLog.x;
+  const doneToday = countDay(t);
+  const s = streak();
   view.innerHTML = `
     <header class="top">
       <div><h1>Inglisz</h1><div class="sub">Angielski od A1 do C1</div></div>
       <a class="icon-btn" href="#/settings" aria-label="Ustawienia">${ICON_GEAR}</a>
     </header>
     <section class="card hero">
-      <div class="row"><div><div class="big-num">${streak()}</div><div class="muted small">${streak() === 1 ? 'dzień' : 'dni'} z rzędu</div></div>
-      <div class="spacer"></div><div class="muted small" style="text-align:right">Dziś: ${doneToday} ćwiczeń</div></div>
+      <div class="row">
+        <div><div class="big-num">🔥 ${s}</div><div class="muted small">${s === 1 ? 'dzień' : 'dni'} z rzędu${state.freezes ? ` · ❄️ ${state.freezes}` : ''}</div></div>
+        <div class="spacer"></div>
+        <div class="row" style="gap:8px">${goalRing(doneToday, dailyGoal())}<div class="muted small" style="text-align:right">Cel dzienny<br><b style="color:var(--text)">${Math.min(doneToday, dailyGoal())} / ${dailyGoal()}</b></div></div>
+      </div>
       <div class="kpis">
         <div class="kpi"><b>${due}</b><span>do powtórki</span></div>
         <div class="kpi"><b>${left}</b><span>nowych dziś</span></div>
@@ -534,12 +710,66 @@ ROUTES.home = () => {
       <a class="btn block" href="#/placement">Przejdź do testu</a>
     </section>` : ''}
     <div class="grid2">
+      <a class="tile" href="#/mix"><span class="ico">🎲</span><b>Trening mieszany</b><span>10 różnych zadań</span></a>
       <a class="tile" href="#/grammar"><span class="ico">📘</span><b>Gramatyka</b><span>Lekcje i ćwiczenia</span></a>
+      <a class="tile" href="#/pairs"><span class="ico">🔗</span><b>Dopasuj pary</b><span>Szybka powtórka słówek</span></a>
       <a class="tile" href="#/build"><span class="ico">🧩</span><b>Ułóż zdanie</b><span>Tłumacz z polskiego z klocków</span></a>
-      <a class="tile" href="#/listen"><span class="ico">🎧</span><b>Ze słuchu</b><span>Usłysz i ułóż zdanie</span></a>
-      <a class="tile" href="#/quiz"><span class="ico">✅</span><b>Quiz</b><span>10 pytań, 4 odpowiedzi</span></a>
-      <a class="tile" href="#/placement"><span class="ico">📋</span><b>Test poziomu</b><span>Oznacz znane słowa</span></a>
     </div>`;
+};
+
+/* ---------- Dopasuj pary ---------- */
+ROUTES.pairs = () => {
+  const seen = enabledWords().filter(w => state.cards[w.id]);
+  const base = seen.length >= 10 ? seen : enabledWords().filter(w => ['A1', 'A2', 'B1'].includes(w.level));
+  // 5 słów o różnych tłumaczeniach, żeby para była jednoznaczna.
+  const chosen = [];
+  for (const w of shuffle(base)) {
+    if (chosen.some(c => c.en.toLowerCase() === w.en.toLowerCase() || plOf(c) === plOf(w))) continue;
+    chosen.push(w);
+    if (chosen.length === 5) break;
+  }
+  const left = shuffle(chosen), right = shuffle(chosen);
+  const short = s => s.length > 34 ? s.slice(0, 32) + '…' : s;
+  view.innerHTML = `
+    <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Dopasuj pary</span></header>
+    ${mixBar()}
+    <section class="card">
+      <div class="muted small" style="margin-bottom:10px">Połącz słowo angielskie z polskim tłumaczeniem</div>
+      <div class="pairs">
+        <div>${left.map(w => `<button class="btn pair" data-side="en" data-id="${esc(w.id)}">${esc(w.en)}</button>`).join('')}</div>
+        <div>${right.map(w => `<button class="btn pair" data-side="pl" data-id="${esc(w.id)}">${esc(short(plOf(w)))}</button>`).join('')}</div>
+      </div>
+      <div id="pfb"></div>
+    </section>`;
+  let sel = null, matched = 0, mistakes = 0;
+  const wrongIds = new Set();
+  $$('.pair').forEach(b => b.onclick = () => {
+    if (b.classList.contains('done')) return;
+    if (b.dataset.side === 'en') speak(BY_ID.get(b.dataset.id).en);
+    if (!sel || sel.dataset.side === b.dataset.side) {
+      $$('.pair.sel').forEach(x => x.classList.remove('sel'));
+      sel = b; b.classList.add('sel'); return;
+    }
+    if (sel.dataset.id === b.dataset.id) {
+      [sel, b].forEach(x => { x.classList.remove('sel'); x.classList.add('done'); });
+      matched++; feedback(true);
+    } else {
+      mistakes++; feedback(false);
+      wrongIds.add(sel.dataset.side === 'en' ? sel.dataset.id : b.dataset.id);
+      const pair = [sel, b];
+      pair.forEach(x => x.classList.add('bad'));
+      setTimeout(() => pair.forEach(x => x.classList.remove('bad', 'sel')), 450);
+    }
+    sel = null;
+    if (matched === chosen.length) {
+      const ok = mistakes === 0;
+      for (const id of wrongIds) if (state.cards[id]) state.cards[id].due = Math.min(state.cards[id].due ?? today(), today());
+      logActivity('ex', ok); save();
+      $('#pfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}"><b>${ok ? 'Bezbłędnie!' : `Gotowe, pomyłki: ${mistakes}`}</b></div>
+        <button class="btn primary block" id="pnext">Dalej</button>`;
+      $('#pnext').onclick = () => afterExercise(ok, () => ROUTES.pairs());
+    }
+  });
 };
 
 /* ================= Fiszki ================= */
@@ -562,7 +792,7 @@ function buildSession(deck = studyKey()) {
     for (let i = 0; i < 3 && due.length; i++) q.push(due.shift());
     if (fresh.length) q.push(fresh.shift());
   }
-  return { deck, queue: q, learn, cur: null, done: 0, revealed: false, dir: null, history: [] };
+  return { deck, queue: q, learn, cur: null, done: 0, revealed: false, dir: null, history: [], stats: { ok: 0, bad: 0, ms: 0, fresh: 0 } };
 }
 const remaining = s => s.queue.length + s.learn.length + (s.cur ? 1 : 0);
 
@@ -595,7 +825,8 @@ function bindDeckBar() {}
 const PRESETS = [
   { label: 'Wszystko', cats: null },
   { label: 'Techniczne', cats: ['telecom', 'tech'] },
-  { label: 'Praca + technika', cats: ['work', 'telecom', 'tech'] },
+  { label: 'Praca + technika', cats: ['work', 'telecom', 'tech', 'academic'] },
+  { label: 'Droga do C1', cats: ['academic', 'colloc', 'phrasal', 'core'] },
   { label: 'Podróże + zwroty', cats: ['travel', 'phrasal', 'colloc'] },
   { label: 'Moje talie', cats: 'custom' },
 ];
@@ -678,14 +909,21 @@ function showCard(force = false) {
       <section class="card center">
         <div class="done-emoji">${doneAny ? '🎉' : '☕'}</div>
         <h2>${doneAny ? 'Sesja ukończona!' : 'Brak słówek na teraz'}</h2>
-        <p class="muted">${doneAny ? `Przerobione karty: ${s.done}.` : 'W tej talii wszystkie powtórki są zrobione, a dzienny limit nowych słów wyczerpany.'}
-        Wybierz inną talię powyżej, poćwicz zdania albo zwiększ limit nowych słów w ustawieniach.</p>
+        ${doneAny ? (() => {
+          const st = s.stats, tot = st.ok + st.bad;
+          return `<div class="kpis" style="margin:8px 0 14px">
+            <div class="kpi"><b>${s.done}</b><span>odpowiedzi</span></div>
+            <div class="kpi"><b>${tot ? Math.round((st.ok / tot) * 100) : 100}%</b><span>pamiętane</span></div>
+            <div class="kpi"><b>${Math.max(1, Math.round(st.ms / 60000))} min</b><span>czas</span></div></div>
+            ${st.fresh ? `<p class="muted small">Nowe słowa w tej sesji: ${st.fresh}</p>` : ''}`;
+        })() : ''}
+        <p class="muted">${doneAny ? '' : 'W wybranych fiszkach wszystkie powtórki są zrobione, a dzienny limit nowych słów wyczerpany. '}Możesz dobrać nowe słowa, wybrać inne fiszki albo poćwiczyć w treningu mieszanym.</p>
         <div class="row wrap" style="justify-content:center;margin-bottom:12px">
           ${[10, 20, 50].map(n => `<button class="btn primary" data-more="${n}">+${n} nowych</button>`).join('')}
         </div>
         <div class="grid2">
-          <a class="btn" href="#/build">Ułóż zdanie</a>
-          <a class="btn" href="#/quiz">Quiz</a>
+          <a class="btn" href="#/mix">Trening mieszany</a>
+          <a class="btn" href="#/pairs">Dopasuj pary</a>
         </div>
         <p><a href="#/settings">Ustawienia limitu</a></p>
       </section>`;
@@ -703,9 +941,11 @@ function showCard(force = false) {
   s.shownAt = Date.now();
   const pct = Math.round((s.done / Math.max(1, s.done + remaining(s))) * 100);
   const stateTag = item.isNew ? 'NOWE · ' : card && (card.s === 'learning' || card.s === 'relearning') ? 'W NAUCE · ' : '';
+  s.typing = s.dir === 'pl-en' && !!state.settings.typeAnswer;
   const front = s.dir === 'en-pl'
     ? `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}${speakBtn(w.en)}`
-    : `<div class="word">${esc(plOf(w))}</div><div class="muted small">Jak to powiesz po angielsku?</div>`;
+    : `<div class="word">${esc(plOf(w))}</div><div class="muted small">Jak to powiesz po angielsku?</div>
+       ${s.typing ? `<input class="input" id="typein" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Wpisz po angielsku" style="max-width:320px;text-align:center">` : ''}`;
   view.innerHTML = `
     <header class="top"><h1>Fiszki</h1><span class="muted small">Zostało: ${remaining(s)}${s.learn.length ? ` (w nauce: ${s.learn.length})` : ''}</span></header>
     ${deckBar()}
@@ -720,9 +960,13 @@ function showCard(force = false) {
       ${item.isNew
         ? `<div class="grid2"><button class="btn big g2" id="known">Znam, pomiń</button><button class="btn primary big" id="reveal">Pokaż</button></div>
            <p class="muted small center" style="margin:8px 0 0">„Znam” usuwa słowo z nauki. Wróci za kilka miesięcy jako kontrola.</p>`
-        : `<button class="btn primary big block" id="reveal">Pokaż odpowiedź</button>`}
+        : `<button class="btn primary big block" id="reveal">${s.typing ? 'Sprawdź' : 'Pokaż odpowiedź'}</button>`}
     </div>`;
   if (s.dir === 'en-pl' && state.settings.autoSpeak) speak(w.en);
+  if ($('#typein')) {
+    $('#typein').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); reveal(); } };
+    setTimeout(() => $('#typein') && $('#typein').focus(), 50);
+  }
   bindDeckBar();
   if ($('#undo')) $('#undo').onclick = undo;
   if ($('#known')) $('#known').onclick = answerKnown;
@@ -734,16 +978,30 @@ function reveal() {
   const s = session;
   const item = s.cur;
   const w = BY_ID.get(item.id);
+  if (s.revealed) return;
   s.revealed = true;
+  // Tryb pisania: sprawdzamy wpisaną odpowiedź (z tolerancją jednej literówki) i podpowiadamy ocenę.
+  let typed = null;
+  if (s.typing && $('#typein')) {
+    const v = $('#typein').value.trim();
+    $('#typein').disabled = true;
+    const exact = !!v && normAns(v) === normAns(w.en);
+    const typo = !!v && !exact && levenshtein(v.toLowerCase(), w.en.toLowerCase()) <= (w.en.length > 6 ? 2 : 1);
+    typed = { v, exact, typo };
+    feedback(exact || typo);
+  }
   const back = $('#back');
   back.hidden = false;
   back.innerHTML = `
+    ${typed ? `<div class="feedback ${typed.exact ? 'ok' : typed.typo ? 'ok' : 'ko'}" style="margin:6px 0">
+      <b>${typed.exact ? 'Dobrze!' : typed.typo ? 'Prawie – drobna literówka' : typed.v ? 'Niestety nie' : 'Bez odpowiedzi'}</b>
+      ${typed.v && !typed.exact ? `<div class="small">Wpisałeś: ${esc(typed.v)}</div>` : ''}</div>` : ''}
     <div class="divider"></div>
     ${s.dir === 'en-pl'
       ? `<div class="trans">${esc(plOf(w))}</div>`
       : `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}<div class="row" style="justify-content:center">${speakBtn(w.en)}${slowBtn(w.en)}</div>`}
     ${w.ex ? `<div class="example">${esc(w.ex)}</div>${w.exPl ? `<div class="example-pl">${esc(w.exPl)}</div>` : ''}${speakBtn(w.ex, 'Zdanie')}` : ''}
-    ${SR ? `<button class="speak" id="fmic" aria-label="Sprawdź wymowę">🎤 Powiedz</button><div id="fmicfb" class="small"></div>` : ''}
+    ${speechOn() ? `<button class="speak" id="fmic" aria-label="Sprawdź wymowę">🎤 Powiedz</button><div id="fmicfb" class="small"></div>` : ''}
     <button class="link-btn" id="edit">Popraw tłumaczenie</button>`;
   if ($('#fmic')) $('#fmic').onclick = async () => {
     stopSpeech();
@@ -772,6 +1030,10 @@ function reveal() {
     </div>
     <p class="muted small center" style="margin:6px 0 0">Znam: wróci za kilka miesięcy · Jutro: odłóż do jutra · Zawieś: nie pokazuj, dopóki nie wznowisz (w Słówkach)</p>`;
   $$('#actions [data-g]').forEach(b => b.onclick = () => answer(+b.dataset.g));
+  if (typed) {
+    const sug = typed.exact ? 2 : typed.typo ? 1 : 0;
+    const b = $(`#actions [data-g="${sug}"]`); if (b) b.classList.add('suggest');
+  }
   $('#known').onclick = answerKnown;
   $('#bury').onclick = () => setAside('bury');
   $('#suspend').onclick = () => setAside('suspend');
@@ -827,7 +1089,11 @@ function answer(g) {
   const s = session;
   snapshot();
   const item = s.cur;
-  const c = grade(item.id, g, elapsedMs(s));
+  const ms = elapsedMs(s);
+  s.stats.ms += ms;
+  if (g === 0) s.stats.bad++; else s.stats.ok++;
+  if (item.isNew) s.stats.fresh++;
+  const c = grade(item.id, g, ms);
   s.cur = null;
   if (c.dueAt) s.learn.push({ id: item.id, dueAt: c.dueAt });
   s.done++;
@@ -873,11 +1139,14 @@ function setAside(kind) {
 ROUTES.practice = () => {
   view.innerHTML = `
     <header class="top"><h1>Ćwiczenia</h1></header>
+    <a class="card" href="#/mix" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit">
+      <span style="font-size:2rem">🎲</span><div><h2 style="margin:0">Trening mieszany</h2><div class="muted small">Różne typy zadań na zmianę – najlepszy sposób na utrwalenie</div></div></a>
     <div class="grid2">
+      <a class="tile" href="#/pairs"><span class="ico">🔗</span><b>Dopasuj pary</b><span>Połącz słowa z tłumaczeniami</span></a>
       <a class="tile" href="#/grammar"><span class="ico">📘</span><b>Gramatyka</b><span>${LESSONS.length} lekcji z ćwiczeniami, A2–C1</span></a>
       <a class="tile" href="#/build"><span class="ico">🧩</span><b>Ułóż zdanie</b><span>Przetłumacz zdanie z polskiego, układając klocki</span></a>
       <a class="tile" href="#/listen"><span class="ico">🎧</span><b>Ze słuchu</b><span>Posłuchaj zdania i ułóż je z klocków</span></a>
-      <a class="tile" href="#/speak"><span class="ico">🎤</span><b>Wymowa</b><span>Powiedz słowo lub zdanie do mikrofonu</span></a>
+      ${speechOn() ? `<a class="tile" href="#/speak"><span class="ico">🎤</span><b>Wymowa</b><span>Powiedz słowo lub zdanie do mikrofonu</span></a>` : ''}
       <a class="tile" href="#/gaps"><span class="ico">✏️</span><b>Uzupełnij lukę</b><span>Wpisz brakujące słowo w zdaniu</span></a>
       <a class="tile" href="#/dictation"><span class="ico">📝</span><b>Dyktando</b><span>Posłuchaj i zapisz całe zdanie</span></a>
       <a class="tile" href="#/quiz"><span class="ico">✅</span><b>Quiz</b><span>Wybierz poprawne tłumaczenie</span></a>
@@ -900,7 +1169,7 @@ function builderScreen({ title, mode, promptHtml, target, extra, toolbar = '' })
   const placed = [];
   view.innerHTML = `
     <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">${title}</span></header>
-    ${toolbar}
+    ${mix ? mixBar() : toolbar}
     <section class="card">
       ${promptHtml}
       <div class="answer-area" id="ans" aria-label="Twoja odpowiedź"></div>
@@ -923,13 +1192,16 @@ function builderScreen({ title, mode, promptHtml, target, extra, toolbar = '' })
     const i = +c.dataset.p; placed.splice(placed.indexOf(i), 1);
     $(`#bank [data-i="${i}"]`).classList.remove('used'); drawAns();
   };
-  const next = () => ROUTES[mode]();
+  let lastOk = false;
+  const next = () => afterExercise(lastOk, () => ROUTES[mode]());
   $('#skip').onclick = next;
   $('#check').onclick = () => {
     if (checked) { next(); return; }
     checked = true;
     const given = placed.map(i => normTok(bank.find(b => b.i === i).t)).join(' ');
     const ok = given === tokens.map(normTok).join(' ');
+    lastOk = ok;
+    feedback(ok);
     logActivity('ex', ok); save();
     $('#fb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
       <b>${ok ? 'Świetnie!' : 'Prawie. Poprawna odpowiedź:'}</b>
@@ -1018,6 +1290,7 @@ function quizQuestion() {
     answered = true;
     const ok = b.dataset.id === w.id;
     if (ok) q.score++;
+    feedback(ok);
     b.classList.add(ok ? 'right' : 'wrong');
     $$('.option').find(x => x.dataset.id === w.id).classList.add('right');
     // Błąd w quizie = słowo wraca do powtórki dziś.
@@ -1089,6 +1362,8 @@ function practicePool(minW, maxW) {
 
 /* ================= Wymowa ================= */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+// Ćwiczenia wymowy są ukryte domyślnie (eksperymentalne); włącza się je w Ustawieniach.
+const speechOn = () => !!SR && !!state.settings.speechEnabled;
 let speakState = { mode: 'word' };
 function listenOnce(lang) {
   return new Promise((resolve, reject) => {
@@ -1188,6 +1463,7 @@ ROUTES.gaps = () => {
   const hintLen = g.answer.replace(/[^ ]/g, '•');
   view.innerHTML = `
     <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Uzupełnij lukę</span></header>
+    ${mixBar()}
     <section class="card">
       <div class="muted small">Wpisz brakujące słowo · ${w.level} · ${esc(CATS[w.cat])}</div>
       <div class="prompt">${esc(g.before)}<span class="gap">${hintLen}</span>${esc(g.after)}</div>
@@ -1198,20 +1474,22 @@ ROUTES.gaps = () => {
       <div class="row" style="margin-top:12px"><button class="btn" id="ghint">Podpowiedź</button><div class="spacer"></div><button class="btn primary" id="gok">Sprawdź</button></div>
     </section>`;
   const inp = $('#gapin'); inp.focus();
-  let hints = 0, checked = false;
+  let hints = 0, checked = false, gapOk = false;
   $('#ghint').onclick = () => {
     hints = Math.min(g.answer.length, hints + 1);
     inp.value = g.answer.slice(0, hints); inp.focus();
   };
   inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#gok').click(); } };
   $('#gok').onclick = () => {
-    if (checked) { ROUTES.gaps(); return; }
+    if (checked) { afterExercise(gapOk, () => ROUTES.gaps()); return; }
     const v = inp.value.trim();
     if (!v) { toast('Wpisz słowo'); return; }
     checked = true;
     const ok = normAns(v) === normAns(g.answer);
     const close = !ok && levenshtein(v.toLowerCase(), g.answer.toLowerCase()) <= 1;
     const good = ok && hints === 0;
+    gapOk = good;
+    feedback(ok);
     if (!good && state.cards[w.id]) state.cards[w.id].due = Math.min(state.cards[w.id].due ?? today(), today());
     logActivity('ex', good); save();
     $('#gapfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
@@ -1232,7 +1510,7 @@ ROUTES.dictation = () => {
   const chip = (v, l) => `<button class="filter ${dictLevel === v ? 'on' : ''}" data-dl="${v}">${l}</button>`;
   view.innerHTML = `
     <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Dyktando</span></header>
-    <div class="chips">${chip('all', 'Wszystkie')}${LEVELS.map(l => chip(l, l)).join('')}</div>
+    ${mix ? mixBar() : `<div class="chips">${chip('all', 'Wszystkie')}${LEVELS.map(l => chip(l, l)).join('')}</div>`}
     <section class="card">
       <div class="muted small">Posłuchaj i zapisz całe zdanie po angielsku</div>
       <div class="row" style="margin:12px 0">${speakBtn(s.en, 'Odtwórz')}${slowBtn(s.en)}<span class="muted small">Możesz słuchać ile razy chcesz</span></div>
@@ -1242,12 +1520,14 @@ ROUTES.dictation = () => {
     </section>`;
   $$('[data-dl]').forEach(b => b.onclick = () => { dictLevel = b.dataset.dl; ROUTES.dictation(); });
   setTimeout(() => speak(s.en), 300);
-  let checked = false;
+  let checked = false, dictOk = false;
   const show = (given) => {
     checked = true;
     const d = diffWords(s.en, given || '');
     const ok = d.score >= 90;
-    logActivity('ex', ok); save();
+    dictOk = !!given && ok;
+    if (given) feedback(ok);
+    logActivity('ex', dictOk); save();
     $('#dfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
       <b>${given ? (ok ? 'Świetnie!' : 'Sprawdź błędy') : 'Poprawne zdanie'}${given ? ` (${d.score}%)` : ''}</b>
       ${given ? `<div style="margin:4px 0">${diffHtml(d)}</div>` : ''}
@@ -1257,7 +1537,7 @@ ROUTES.dictation = () => {
   };
   $('#dskip').onclick = () => show('');
   $('#dok').onclick = () => {
-    if (checked) { ROUTES.dictation(); return; }
+    if (checked) { afterExercise(dictOk, () => ROUTES.dictation()); return; }
     const v = $('#din').value.trim();
     if (!v) { toast('Wpisz zdanie albo naciśnij Pokaż'); return; }
     show(v);
@@ -1556,10 +1836,15 @@ function fillBlanks(q, parts) {
   return q.replace(/___(\s*\([^)]*\))?/g, () => parts[i++] ?? '___');
 }
 // Pełne poprawne zdanie (do wyświetlenia i odsłuchu), jeśli da się je zbudować.
+// Porządkuje zdanie po wstawieniu odpowiedzi: „—” (brak przedimka) znika, „I 'll” → „I'll”, wielka litera na początku.
+function tidySentence(s) {
+  let t = s.replace(/(^|\s)—(?=\s)/g, '$1').replace(/\s+/g, ' ').replace(/ (?='(ll|re|m|s|ve|d)\b)/g, '').replace(/ ([.,!?])/g, '$1').trim();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
 function correctSentence(ex) {
   const [type, q] = ex;
-  if (type === 'c') return fillBlanks(q, ex[2][ex[3]].split(' / '));
-  if (type === 'g') return blankCount(q) === 1 ? fillBlanks(q, [ex[2][0]]) : null;
+  if (type === 'c') return tidySentence(fillBlanks(q, ex[2][ex[3]].split(' / ')));
+  if (type === 'g') return blankCount(q) === 1 ? tidySentence(fillBlanks(q, [ex[2][0]])) : null;
   if (type === 'f') return ex[2][0];
   if (type === 'o') return ex[2];
   return null;
@@ -1616,6 +1901,17 @@ function startGrammarRun(lessonId, all = false) {
   if (location.hash === '#/gpractice') showGrammarItem(); else location.hash = '#/gpractice';
 }
 ROUTES.gpractice = () => { if (!grun) { location.hash = '#/grammar'; return; } showGrammarItem(); };
+// Jedno zadanie gramatyczne do treningu mieszanego: z lekcji na poziomie użytkownika, preferując błędy.
+function startGrammarSingle() {
+  const lv = state.startLevel || 'B1';
+  const maxI = Math.max(1, LEVELS.indexOf(lv));
+  const lessons = LESSONS.filter(l => LEVELS.indexOf(l.level) <= maxI + 1);
+  const wrong = lessons.flatMap(l => ((state.grammar[l.id] || {}).wrong || []).map(i => ({ lid: l.id, i })));
+  const l = pick(lessons);
+  const item = wrong.length && Math.random() < 0.5 ? pick(wrong) : { lid: l.id, i: Math.floor(Math.random() * l.ex.length) };
+  grun = { lessonId: null, items: [item], pos: 0, score: 0, wrong: [], mix: true };
+  if (location.hash === '#/gpractice') showGrammarItem(); else location.hash = '#/gpractice';
+}
 
 function showGrammarItem() {
   const r = grun;
@@ -1624,8 +1920,8 @@ function showGrammarItem() {
   const ex = LESSON_BY_ID.get(lid).ex[i];
   const [type, q] = ex;
   const head = `
-    <header class="top">${backLink(r.lessonId ? '#/glesson/' + r.lessonId : '#/grammar', r.lessonId ? 'Lekcja' : 'Gramatyka')}<span class="muted small">${r.pos + 1} / ${r.items.length}</span></header>
-    <div class="bar"><div style="width:${(r.pos / r.items.length) * 100}%"></div></div>`;
+    <header class="top">${backLink(r.lessonId ? '#/glesson/' + r.lessonId : r.mix ? '#/practice' : '#/grammar', r.lessonId ? 'Lekcja' : r.mix ? 'Ćwiczenia' : 'Gramatyka')}<span class="muted small">${r.mix ? 'Gramatyka · ' + esc(LESSON_BY_ID.get(lid).title) : `${r.pos + 1} / ${r.items.length}`}</span></header>
+    ${r.mix ? mixBar() : `<div class="bar"><div style="width:${(r.pos / r.items.length) * 100}%"></div></div>`}`;
   const label = { c: 'Wybierz poprawną odpowiedź', g: 'Uzupełnij lukę', f: 'Popraw błąd w zdaniu', o: 'Ułóż zdanie po angielsku' }[type];
   let body = '';
   let order = null;
@@ -1652,6 +1948,7 @@ function showGrammarItem() {
   const finish = (ok, givenText) => {
     checked = true;
     if (ok) r.score++; else r.wrong.push({ lid, i });
+    feedback(ok);
     const gs = gstate(lid);
     if (!gs.seen.includes(i)) gs.seen.push(i);
     if (ok) gs.wrong = gs.wrong.filter(x => x !== i);
@@ -1666,7 +1963,7 @@ function showGrammarItem() {
       ${!ok && givenText ? `<div class="small">Twoja odpowiedź: ${esc(givenText)}</div>` : ''}
       ${correct ? `<div class="row wrap" style="margin-top:4px">${esc(correct)} ${speakBtn(correct)}</div>` : `<div>Poprawnie: ${answers.map(esc).join(' / ')}</div>`}
       ${why ? `<div class="small" style="margin-top:6px">${esc(why)}</div>` : ''}</div>`;
-    $('#gcheck').textContent = r.pos + 1 < r.items.length ? 'Dalej' : 'Wynik';
+    $('#gcheck').textContent = r.pos + 1 < r.items.length || r.mix ? 'Dalej' : 'Wynik';
     $('#gcheck').disabled = false;
     if (correct && state.settings.autoSpeak) speak(correct);
   };
@@ -1718,6 +2015,7 @@ function showGrammarItem() {
 
 function showGrammarResult() {
   const r = grun;
+  if (r.mix) { grun = null; afterExercise(r.score > 0, () => {}); return; }
   const pct = Math.round((r.score / r.items.length) * 100);
   if (r.lessonId) {
     const gs = gstate(r.lessonId);
@@ -2117,6 +2415,15 @@ ROUTES.settings = () => {
         </select></div>
     </section>
     <section class="card">
+      <h2>Motywacja i wygoda</h2>
+      <div class="field"><label for="goal">Dzienny cel (odpowiedzi)</label>
+        <input id="goal" class="num" type="number" inputmode="numeric" min="5" step="5" value="${dailyGoal()}"></div>
+      <label class="field"><span>Wpisuj odpowiedź na fiszkach polsko-angielskich<br><span class="muted small">aktywne przypominanie – skuteczniejsze niż samo odsłanianie</span></span><input class="switch" type="checkbox" id="typeans" ${st.typeAnswer ? 'checked' : ''}></label>
+      <label class="field"><span>Dźwięki</span><input class="switch" type="checkbox" id="sound" ${st.sound !== false ? 'checked' : ''}></label>
+      <label class="field"><span>Wibracje</span><input class="switch" type="checkbox" id="vibr" ${st.vibrate !== false ? 'checked' : ''}></label>
+      <p class="muted small">Zamrożenia serii: ${state.freezes || 0} / 2 – dostajesz jedno za każde 7 dni serii, ratuje serię po opuszczonym dniu.</p>
+    </section>
+    <section class="card">
       <h2>Algorytm powtórek (FSRS)</h2>
       <div class="field"><label for="ret">Docelowa skuteczność<br><span class="muted small">wyżej = częstsze powtórki</span></label>
         <select id="ret">${[0.8, 0.85, 0.9, 0.93, 0.95].map(r => `<option value="${r}" ${Math.abs((st.retention || 0.9) - r) < 0.001 ? 'selected' : ''}>${Math.round(r * 100)}%</option>`).join('')}</select></div>
@@ -2137,6 +2444,7 @@ ROUTES.settings = () => {
       <div class="field"><label for="rate">Tempo: <span id="rv">${st.rate.toFixed(2)}</span></label>
         <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="${st.rate}"></div>
       <label class="field"><span>Czytaj słowa automatycznie</span><input class="switch" type="checkbox" id="auto" ${st.autoSpeak ? 'checked' : ''}></label>
+      <label class="field"><span>Ćwiczenia wymowy z mikrofonem<br><span class="muted small">eksperymentalne, wymaga Chrome i internetu</span></span><input class="switch" type="checkbox" id="speechon" ${st.speechEnabled ? 'checked' : ''}></label>
       <button class="btn block" data-say="Hello! This is how I sound.">${ICON_SPEAK} Test głosu</button>
     </section>
     <section class="card">
@@ -2165,6 +2473,11 @@ ROUTES.settings = () => {
   $('#acc').onchange = e => { st.accent = e.target.value; upd(); };
   $('#rate').oninput = e => { st.rate = +e.target.value; $('#rv').textContent = st.rate.toFixed(2); upd(); };
   $('#auto').onchange = e => { st.autoSpeak = e.target.checked; upd(); };
+  $('#speechon').onchange = e => { st.speechEnabled = e.target.checked; upd(); };
+  $('#goal').onchange = e => { st.dailyGoal = Math.max(5, Math.floor(+e.target.value || 30)); e.target.value = st.dailyGoal; upd(); };
+  $('#typeans').onchange = e => { st.typeAnswer = e.target.checked; session = null; upd(); };
+  $('#sound').onchange = e => { st.sound = e.target.checked; upd(); if (st.sound) feedback(true); };
+  $('#vibr').onchange = e => { st.vibrate = e.target.checked; upd(); };
   $('#exp').onclick = () => {
     const blob = new Blob([JSON.stringify(Object.assign({}, state, { custom }))], { type: 'application/json' });
     const a = document.createElement('a');
@@ -2201,6 +2514,7 @@ ROUTES.settings = () => {
 /* ================= Start aplikacji ================= */
 // Jednorazowa migracja kart ze starego algorytmu (SM-2) do FSRS.
 for (const id of Object.keys(state.cards)) state.cards[id] = migrateCard(state.cards[id]);
+applyFreezes();
 render();
 requestPersistence();
 restoreCustomFromIdb().then(r => { if (r) render(); });
