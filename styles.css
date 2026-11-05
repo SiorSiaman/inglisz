@@ -48,6 +48,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
   background: var(--bg);
@@ -173,6 +174,15 @@ textarea.area {
 .lesson i { color: var(--text); }
 .lesson s { color: var(--bad); }
 .lesson .tip { background: var(--warn-soft); border-radius: 10px; padding: 10px 12px; }
+.mic-btn {
+  width: 84px; height: 84px; border-radius: 50%; border: 0; background: var(--accent); color: var(--on-accent);
+  font-size: 2rem; cursor: pointer; margin: 6px auto 8px; display: grid; place-items: center; box-shadow: var(--shadow);
+}
+.mic-btn.rec, .speak.rec { background: var(--bad); color: #fff; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, .5); } 100% { box-shadow: 0 0 0 18px rgba(220, 38, 38, 0); } }
+.w-ok { color: var(--good); font-weight: 700; }
+.w-bad { color: var(--bad); font-weight: 700; text-decoration: underline; text-decoration-style: wavy; }
+.gap { display: inline-block; min-width: 3ch; border-bottom: 2px solid var(--accent); color: var(--accent); letter-spacing: .1em; padding: 0 4px; }
 .divider { width: 60%; height: 1px; background: var(--border); margin: 6px 0; }
 .speak {
   border: 1px solid var(--border); background: var(--surface-2); border-radius: 99px;

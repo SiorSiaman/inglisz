@@ -484,7 +484,7 @@ function markKnown(id, days = 30) {
 
 /* ================= Router ================= */
 const ROUTES = {};
-const NAV_OF = { pick: 'learn', import: 'words', decks: 'words', deck: 'words', grammar: 'practice', glesson: 'practice', gpractice: 'practice', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
+const NAV_OF = { speak: 'practice', gaps: 'practice', dictation: 'practice', pick: 'learn', import: 'words', decks: 'words', deck: 'words', grammar: 'practice', glesson: 'practice', gpractice: 'practice', build: 'practice', listen: 'practice', quiz: 'practice', placement: 'practice', settings: 'home' };
 function render() {
   const [r, arg] = (location.hash.replace(/^#\/?/, '') || 'home').split('/');
   const name = ROUTES[r] ? r : 'home';
@@ -743,7 +743,20 @@ function reveal() {
       ? `<div class="trans">${esc(plOf(w))}</div>`
       : `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}<div class="row" style="justify-content:center">${speakBtn(w.en)}${slowBtn(w.en)}</div>`}
     ${w.ex ? `<div class="example">${esc(w.ex)}</div>${w.exPl ? `<div class="example-pl">${esc(w.exPl)}</div>` : ''}${speakBtn(w.ex, 'Zdanie')}` : ''}
+    ${SR ? `<button class="speak" id="fmic" aria-label="Sprawdź wymowę">🎤 Powiedz</button><div id="fmicfb" class="small"></div>` : ''}
     <button class="link-btn" id="edit">Popraw tłumaczenie</button>`;
+  if ($('#fmic')) $('#fmic').onclick = async () => {
+    stopSpeech();
+    const b = $('#fmic'); b.classList.add('rec'); $('#fmicfb').textContent = 'Słucham…';
+    try {
+      const alts = await listenOnce(state.settings.accent);
+      b.classList.remove('rec');
+      const m = bestMatch(w.en, alts);
+      $('#fmicfb').innerHTML = !alts.length ? 'Nic nie usłyszałem.'
+        : m.score >= 100 ? `<span class="w-ok">Dobrze!</span> Usłyszałem: „${esc(m.text)}”`
+        : `<span class="w-bad">Spróbuj jeszcze raz.</span> Usłyszałem: „${esc(m.text)}”`;
+    } catch (err) { b.classList.remove('rec'); $('#fmicfb').textContent = srErrorText(err); }
+  };
   $('#edit').onclick = () => editTranslation(w, () => {
     const tr = $('#back .trans'); if (tr) tr.textContent = plOf(w);
   });
@@ -864,15 +877,14 @@ ROUTES.practice = () => {
       <a class="tile" href="#/grammar"><span class="ico">📘</span><b>Gramatyka</b><span>${LESSONS.length} lekcji z ćwiczeniami, A2–C1</span></a>
       <a class="tile" href="#/build"><span class="ico">🧩</span><b>Ułóż zdanie</b><span>Przetłumacz zdanie z polskiego, układając klocki</span></a>
       <a class="tile" href="#/listen"><span class="ico">🎧</span><b>Ze słuchu</b><span>Posłuchaj zdania i ułóż je z klocków</span></a>
+      <a class="tile" href="#/speak"><span class="ico">🎤</span><b>Wymowa</b><span>Powiedz słowo lub zdanie do mikrofonu</span></a>
+      <a class="tile" href="#/gaps"><span class="ico">✏️</span><b>Uzupełnij lukę</b><span>Wpisz brakujące słowo w zdaniu</span></a>
+      <a class="tile" href="#/dictation"><span class="ico">📝</span><b>Dyktando</b><span>Posłuchaj i zapisz całe zdanie</span></a>
       <a class="tile" href="#/quiz"><span class="ico">✅</span><b>Quiz</b><span>Wybierz poprawne tłumaczenie</span></a>
       <a class="tile" href="#/placement"><span class="ico">📋</span><b>Test poziomu</b><span>Oznacz słowa, które znasz</span></a>
       <a class="tile" href="#/import"><span class="ico">📥</span><b>Import fiszek</b><span>Talie Anki, CSV albo własna lista</span></a>
       <a class="tile" href="#/pick"><span class="ico">🗂️</span><b>Wybór fiszek</b><span>Połącz kategorie i poziomy</span></a>
-    </div>
-    <section class="card" style="margin-top:14px">
-      <h2>Wkrótce</h2>
-      <p class="muted small">Wymowa z mikrofonem, uzupełnianie luk w zdaniach i dyktando to kolejne etapy.</p>
-    </section>`;
+    </div>`;
 };
 
 /* ================= Układanie zdań ================= */
@@ -1016,6 +1028,241 @@ function quizQuestion() {
     $('#next').onclick = () => { q.i++; quizQuestion(); };
   });
 }
+
+/* ================= Porównywanie tekstu (wymowa, dyktando) ================= */
+const wordsOf = s => String(s).toLowerCase().replace(/[’‘`]/g, "'").replace(/[^a-z0-9' -]+/g, ' ').replace(/-/g, ' ').split(/\s+/).filter(Boolean);
+// Liczby z rozpoznawania mowy („5”) traktujemy jak słowa („five”).
+const NUM_WORDS = { 0: 'zero', 1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five', 6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten', 11: 'eleven', 12: 'twelve', 20: 'twenty', 100: 'hundred' };
+const normWord = w => NUM_WORDS[w] || w.replace(/'/g, '');
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+// Dopasowanie słów (LCS z tolerancją literówek): które słowa wzorca trafione, które nie.
+function diffWords(target, given, tolerant = false) {
+  const T = wordsOf(target);
+  let G = wordsOf(given);
+  if (tolerant) {
+    // Rozpoznawanie mowy czasem rozdziela słowa złożone: „band with” → „bandwidth”.
+    const tset = new Set(T.map(normWord));
+    const merged = [];
+    for (let k = 0; k < G.length; k++) {
+      if (k + 1 < G.length && !tset.has(normWord(G[k])) && tset.has(normWord(G[k] + G[k + 1]))) { merged.push(G[k] + G[k + 1]); k++; }
+      else merged.push(G[k]);
+    }
+    G = merged;
+  }
+  const same = (a, b) => {
+    const x = normWord(a), y = normWord(b);
+    if (x === y) return true;
+    return tolerant && x.length > 4 && levenshtein(x, y) <= 1;
+  };
+  const dp = Array.from({ length: T.length + 1 }, () => Array(G.length + 1).fill(0));
+  for (let i = T.length - 1; i >= 0; i--) for (let j = G.length - 1; j >= 0; j--)
+    dp[i][j] = same(T[i], G[j]) ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const res = []; let i = 0, j = 0;
+  while (i < T.length) {
+    if (j < G.length && same(T[i], G[j])) { res.push({ w: T[i], ok: true }); i++; j++; }
+    else if (j < G.length && dp[i][j + 1] >= dp[i + 1][j]) j++;
+    else { res.push({ w: T[i], ok: false, got: null }); i++; }
+  }
+  const okN = res.filter(r => r.ok).length;
+  const extra = Math.max(0, G.length - okN);
+  const score = T.length ? Math.max(0, Math.round((okN / (T.length + extra * 0.5)) * 100)) : 0;
+  return { words: res, score };
+}
+const diffHtml = d => d.words.map(x => `<span class="${x.ok ? 'w-ok' : 'w-bad'}">${esc(x.w)}</span>`).join(' ');
+
+function practicePool(minW, maxW) {
+  // Słowa z przykładami: najpierw te, które już się uczysz, potem z wybranych kategorii.
+  const fits = w => w.ex && (n => n >= minW && n <= maxW)(wordsOf(w.ex).length);
+  const learned = enabledWords().filter(w => state.cards[w.id] && fits(w));
+  return learned.length >= 15 ? learned : enabledWords().filter(fits);
+}
+
+/* ================= Wymowa ================= */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let speakState = { mode: 'word' };
+function listenOnce(lang) {
+  return new Promise((resolve, reject) => {
+    if (!SR) { reject(new Error('no-sr')); return; }
+    const rec = new SR();
+    rec.lang = lang; rec.interimResults = false; rec.maxAlternatives = 5; rec.continuous = false;
+    let done = false;
+    rec.onresult = e => {
+      done = true;
+      const alts = [...e.results[0]].map(a => a.transcript);
+      resolve(alts);
+    };
+    rec.onerror = e => { if (!done) { done = true; reject(new Error(e.error || 'error')); } };
+    rec.onend = () => { if (!done) { done = true; resolve([]); } };
+    try { rec.start(); } catch (err) { reject(err); }
+    speakState.rec = rec;
+  });
+}
+function srErrorText(err) {
+  const m = err && err.message;
+  if (m === 'no-sr') return 'Ta przeglądarka nie obsługuje rozpoznawania mowy. Na Androidzie użyj Chrome.';
+  if (m === 'not-allowed' || m === 'service-not-allowed') return 'Brak dostępu do mikrofonu. Zezwól na mikrofon w ustawieniach przeglądarki.';
+  if (m === 'network') return 'Rozpoznawanie mowy potrzebuje internetu.';
+  if (m === 'no-speech') return 'Nic nie usłyszałem. Spróbuj jeszcze raz, mów wyraźnie.';
+  return 'Nie udało się rozpoznać mowy (' + (m || 'błąd') + ').';
+}
+// Najlepsza z alternatyw rozpoznawania.
+function bestMatch(target, alts) {
+  let best = { score: -1, text: '' };
+  for (const a of alts) { const d = diffWords(target, a, true); if (d.score > best.score) best = { score: d.score, text: a, d }; }
+  return best;
+}
+ROUTES.speak = () => {
+  const mode = speakState.mode;
+  const pool = mode === 'word' ? enabledWords().filter(w => state.cards[w.id]) : practicePool(4, 10);
+  const words = mode === 'word' ? (pool.length >= 10 ? pool : enabledWords().filter(w => ['A2', 'B1', 'B2'].includes(w.level))) : pool;
+  const w = pick(words);
+  const target = mode === 'word' ? w.en : w.ex;
+  const tab = (m, l) => `<button class="filter ${mode === m ? 'on' : ''}" data-sm="${m}">${l}</button>`;
+  view.innerHTML = `
+    <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Wymowa</span></header>
+    <div class="chips">${tab('word', 'Słowa')}${tab('sentence', 'Zdania')}</div>
+    <section class="card center">
+      <div class="muted small">Powiedz na głos:</div>
+      <div class="${mode === 'word' ? 'word' : 'prompt'}" style="margin:8px 0">${esc(target)}</div>
+      ${mode === 'word' && w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}
+      <div class="muted small">${esc(mode === 'word' ? plOf(w) : (w.exPl || plOf(w)))}</div>
+      <div class="row" style="justify-content:center;margin:12px 0">${speakBtn(target, 'Posłuchaj')}${slowBtn(target)}</div>
+      <button class="mic-btn" id="mic" aria-label="Nagraj">🎤</button>
+      <div class="muted small" id="micst">Dotknij mikrofonu i powiedz ${mode === 'word' ? 'słowo' : 'zdanie'}</div>
+      <div id="sfb"></div>
+      <div class="row" style="margin-top:12px"><div class="spacer"></div><button class="btn" id="snext">Następne</button></div>
+    </section>
+    <p class="muted small">Rozpoznawanie mowy sprawdza, czy zostałeś zrozumiany – to nie jest analiza każdej głoski. Działa najlepiej w Chrome na Androidzie, wymaga internetu i zgody na mikrofon.</p>`;
+  $$('[data-sm]').forEach(b => b.onclick = () => { speakState.mode = b.dataset.sm; ROUTES.speak(); });
+  $('#snext').onclick = () => ROUTES.speak();
+  let tries = 0;
+  $('#mic').onclick = async () => {
+    stopSpeech();
+    const btn = $('#mic');
+    btn.classList.add('rec'); $('#micst').textContent = 'Słucham…';
+    try {
+      const alts = await listenOnce(state.settings.accent);
+      btn.classList.remove('rec');
+      tries++;
+      if (!alts.length) { $('#micst').textContent = 'Nic nie usłyszałem. Spróbuj jeszcze raz.'; return; }
+      const b = bestMatch(target, alts);
+      const ok = b.score >= (mode === 'word' ? 100 : 80);
+      if (tries === 1) logActivity('ex', ok);
+      save();
+      $('#micst').textContent = 'Dotknij, żeby spróbować jeszcze raz';
+      $('#sfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}" style="text-align:left">
+        <b>${ok ? 'Świetnie, zrozumiałem!' : b.score >= 50 ? 'Prawie. Spróbuj jeszcze raz.' : 'Nie zrozumiałem. Posłuchaj i powtórz.'} (${b.score}%)</b>
+        <div class="small">Usłyszałem: „${esc(b.text)}”</div>
+        ${mode === 'sentence' ? `<div style="margin-top:6px">${diffHtml(b.d)}</div>` : ''}</div>`;
+      if (!ok) setTimeout(() => speak(target, true), 400);
+    } catch (err) {
+      btn.classList.remove('rec');
+      $('#micst').textContent = srErrorText(err);
+    }
+  };
+};
+
+/* ================= Uzupełnij lukę ================= */
+function gapFor(w) {
+  // Zdanie przykładowe z wyciętym słowem (dokładne dopasowanie, także wieloczłonowe).
+  const escaped = w.en.replace(/[.*+?^$()|[\]\\{}]/g, '\\$&');
+  const re = new RegExp('\\b' + escaped + '\\b', 'i');
+  const m = w.ex && w.ex.match(re);
+  if (!m) return null;
+  return { before: w.ex.slice(0, m.index), answer: m[0], after: w.ex.slice(m.index + m[0].length) };
+}
+ROUTES.gaps = () => {
+  const pool = practicePool(3, 14).filter(gapFor);
+  const w = pick(pool);
+  const g = gapFor(w);
+  const hintLen = g.answer.replace(/[^ ]/g, '•');
+  view.innerHTML = `
+    <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Uzupełnij lukę</span></header>
+    <section class="card">
+      <div class="muted small">Wpisz brakujące słowo · ${w.level} · ${esc(CATS[w.cat])}</div>
+      <div class="prompt">${esc(g.before)}<span class="gap">${hintLen}</span>${esc(g.after)}</div>
+      ${w.exPl ? `<div class="muted small" style="margin-bottom:8px">${esc(w.exPl)}</div>` : ''}
+      <div class="small" style="margin-bottom:8px">Znaczenie: <b>${esc(plOf(w))}</b></div>
+      <input class="input" id="gapin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${g.answer.length} liter">
+      <div id="gapfb"></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="ghint">Podpowiedź</button><div class="spacer"></div><button class="btn primary" id="gok">Sprawdź</button></div>
+    </section>`;
+  const inp = $('#gapin'); inp.focus();
+  let hints = 0, checked = false;
+  $('#ghint').onclick = () => {
+    hints = Math.min(g.answer.length, hints + 1);
+    inp.value = g.answer.slice(0, hints); inp.focus();
+  };
+  inp.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#gok').click(); } };
+  $('#gok').onclick = () => {
+    if (checked) { ROUTES.gaps(); return; }
+    const v = inp.value.trim();
+    if (!v) { toast('Wpisz słowo'); return; }
+    checked = true;
+    const ok = normAns(v) === normAns(g.answer);
+    const close = !ok && levenshtein(v.toLowerCase(), g.answer.toLowerCase()) <= 1;
+    const good = ok && hints === 0;
+    if (!good && state.cards[w.id]) state.cards[w.id].due = Math.min(state.cards[w.id].due ?? today(), today());
+    logActivity('ex', good); save();
+    $('#gapfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
+      <b>${ok ? (hints ? 'Dobrze (z podpowiedzią)' : 'Świetnie!') : close ? 'Prawie – literówka.' : 'Niestety nie.'}</b>
+      <div class="row wrap">${esc(w.ex)} ${speakBtn(w.ex)}</div></div>`;
+    $('#gok').textContent = 'Dalej'; $('#ghint').hidden = true;
+    speak(w.ex);
+  };
+};
+
+/* ================= Dyktando ================= */
+let dictLevel = 'all';
+ROUTES.dictation = () => {
+  const fromTatoeba = SENTENCES.filter(s => s.cat === 'core' && (dictLevel === 'all' || s.level === dictLevel));
+  const fromWords = practicePool(4, 11).filter(w => dictLevel === 'all' || w.level === dictLevel).map(w => ({ en: w.ex, pl: w.exPl, level: w.level }));
+  const pool = [...fromWords, ...fromTatoeba];
+  const s = pick(pool.length ? pool : SENTENCES);
+  const chip = (v, l) => `<button class="filter ${dictLevel === v ? 'on' : ''}" data-dl="${v}">${l}</button>`;
+  view.innerHTML = `
+    <header class="top">${backLink('#/practice', 'Ćwiczenia')}<span class="muted small">Dyktando</span></header>
+    <div class="chips">${chip('all', 'Wszystkie')}${LEVELS.map(l => chip(l, l)).join('')}</div>
+    <section class="card">
+      <div class="muted small">Posłuchaj i zapisz całe zdanie po angielsku</div>
+      <div class="row" style="margin:12px 0">${speakBtn(s.en, 'Odtwórz')}${slowBtn(s.en)}<span class="muted small">Możesz słuchać ile razy chcesz</span></div>
+      <textarea class="area" id="din" style="min-height:90px" autocapitalize="sentences" spellcheck="false" placeholder="Wpisz, co słyszysz…"></textarea>
+      <div id="dfb"></div>
+      <div class="row" style="margin-top:12px"><button class="btn" id="dskip">Pokaż</button><div class="spacer"></div><button class="btn primary" id="dok">Sprawdź</button></div>
+    </section>`;
+  $$('[data-dl]').forEach(b => b.onclick = () => { dictLevel = b.dataset.dl; ROUTES.dictation(); });
+  setTimeout(() => speak(s.en), 300);
+  let checked = false;
+  const show = (given) => {
+    checked = true;
+    const d = diffWords(s.en, given || '');
+    const ok = d.score >= 90;
+    logActivity('ex', ok); save();
+    $('#dfb').innerHTML = `<div class="feedback ${ok ? 'ok' : 'ko'}">
+      <b>${given ? (ok ? 'Świetnie!' : 'Sprawdź błędy') : 'Poprawne zdanie'}${given ? ` (${d.score}%)` : ''}</b>
+      ${given ? `<div style="margin:4px 0">${diffHtml(d)}</div>` : ''}
+      <div class="row wrap">${esc(s.en)} ${speakBtn(s.en)}</div>
+      ${s.pl ? `<div class="small muted">${esc(s.pl)}</div>` : ''}</div>`;
+    $('#dok').textContent = 'Dalej'; $('#dskip').hidden = true;
+  };
+  $('#dskip').onclick = () => show('');
+  $('#dok').onclick = () => {
+    if (checked) { ROUTES.dictation(); return; }
+    const v = $('#din').value.trim();
+    if (!v) { toast('Wpisz zdanie albo naciśnij Pokaż'); return; }
+    show(v);
+  };
+};
 
 /* ================= Test poziomu ================= */
 ROUTES.placement = level => {
