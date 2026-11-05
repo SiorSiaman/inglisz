@@ -1265,9 +1265,31 @@ function exportDeckTsv(id) {
 }
 
 /* ================= Gramatyka ================= */
-const LESSONS = typeof GRAMMAR !== 'undefined' ? GRAMMAR : [];
+// Lekcje = podstawowe ćwiczenia z grammar.js + dodatkowe z grammar_extra*.js (kolejność stała, bo postęp zapisuje indeksy).
+const LESSONS = (typeof GRAMMAR !== 'undefined' ? GRAMMAR : []).map(l => Object.assign({}, l, {
+  ex: l.ex.concat((typeof GRAMMAR_EXTRA !== 'undefined' && GRAMMAR_EXTRA[l.id]) || []),
+}));
+const SESSION_SIZE = 12;
 const LESSON_BY_ID = new Map(LESSONS.map(l => [l.id, l]));
-const gstate = id => state.grammar[id] || (state.grammar[id] = { best: 0, last: 0, done: 0, wrong: [] });
+const gstate = id => {
+  const g = state.grammar[id] || (state.grammar[id] = { best: 0, last: 0, done: 0, wrong: [] });
+  g.seen = g.seen || [];
+  return g;
+};
+// Sesja lekcji: najpierw zadania z błędami, potem niewidziane, a na końcu losowe już przerobione.
+function pickLessonItems(id, all) {
+  const l = LESSON_BY_ID.get(id);
+  const idx = l.ex.map((_, i) => i);
+  if (all) return shuffle(idx);
+  const g = gstate(id);
+  const seen = new Set(g.seen);
+  const wrong = shuffle(g.wrong.filter(i => i < l.ex.length));
+  const unseen = shuffle(idx.filter(i => !seen.has(i) && !wrong.includes(i)));
+  const rest = shuffle(idx.filter(i => seen.has(i) && !wrong.includes(i)));
+  // Zostaw miejsce na nowe zadania: maks. połowa sesji to powtórka błędów.
+  const w = wrong.slice(0, Math.ceil(SESSION_SIZE / 2));
+  return shuffle([...w, ...unseen, ...rest].slice(0, SESSION_SIZE));
+}
 
 function normAns(s) {
   let t = String(s).toLowerCase().replace(/[’‘`]/g, "'").replace(/[.!?]+$/g, '').replace(/,/g, ' ');
@@ -1328,18 +1350,22 @@ ROUTES.glesson = id => {
     <header class="top">${backLink('#/grammar', 'Gramatyka')}<span class="muted small">${l.level}</span></header>
     <h1 style="margin-bottom:12px">${esc(l.title)}</h1>
     <section class="card lesson">${l.intro}</section>
-    ${g && g.done ? `<p class="muted small">Najlepszy wynik: ${g.best}% · podejść: ${g.done}</p>` : ''}
-    <div class="sticky-cta"><button class="btn primary big block" id="gstart">Ćwicz (${l.ex.length} zadań)</button></div>`;
+    ${g && g.done ? `<p class="muted small">Najlepszy wynik: ${g.best}% · podejść: ${g.done} · przerobione zadania: ${(g.seen || []).length} / ${l.ex.length}${g.wrong.length ? ` · błędy do powtórki: ${g.wrong.length}` : ''}</p>` : `<p class="muted small">W tej lekcji jest ${l.ex.length} zadań. Jedna sesja to ${SESSION_SIZE} zadań: najpierw nowe i te z błędami.</p>`}
+    <div class="sticky-cta">
+      <button class="btn primary big block" id="gstart">Ćwicz (${Math.min(SESSION_SIZE, l.ex.length)} zadań)</button>
+      <button class="btn block" id="gall">Wszystkie zadania (${l.ex.length})</button>
+    </div>`;
   $('#gstart').onclick = () => startGrammarRun(id);
+  $('#gall').onclick = () => startGrammarRun(id, true);
 };
 
 let grun = null;
-function startGrammarRun(lessonId) {
+function startGrammarRun(lessonId, all = false) {
   let items;
-  if (lessonId) items = shuffle(LESSON_BY_ID.get(lessonId).ex.map((_, i) => ({ lid: lessonId, i })));
+  if (lessonId) items = pickLessonItems(lessonId, all).map(i => ({ lid: lessonId, i }));
   else items = shuffle(LESSONS.flatMap(l => ((state.grammar[l.id] || {}).wrong || []).map(i => ({ lid: l.id, i })))).slice(0, 20);
   if (!items.length) { toast('Brak zadań'); return; }
-  grun = { lessonId, items, pos: 0, score: 0, wrong: [] };
+  grun = { lessonId, items, pos: 0, score: 0, wrong: [], all };
   if (location.hash === '#/gpractice') showGrammarItem(); else location.hash = '#/gpractice';
 }
 ROUTES.gpractice = () => { if (!grun) { location.hash = '#/grammar'; return; } showGrammarItem(); };
@@ -1380,6 +1406,7 @@ function showGrammarItem() {
     checked = true;
     if (ok) r.score++; else r.wrong.push({ lid, i });
     const gs = gstate(lid);
+    if (!gs.seen.includes(i)) gs.seen.push(i);
     if (ok) gs.wrong = gs.wrong.filter(x => x !== i);
     else if (!gs.wrong.includes(i)) gs.wrong.push(i);
     logActivity('ex', ok);
@@ -1458,8 +1485,9 @@ function showGrammarResult() {
       <p class="muted">${pct >= 80 ? 'Temat opanowany. Wróć do niego za jakiś czas, żeby utrwalić.' : 'Przeczytaj jeszcze raz wyjaśnienie i spróbuj ponownie. Błędne zadania trafiły do „Powtórz błędy”.'}</p>
       <div class="grid2">
         ${r.lessonId ? `<a class="btn" href="#/glesson/${r.lessonId}">Wyjaśnienie</a>` : `<a class="btn" href="#/grammar">Lekcje</a>`}
-        <button class="btn primary" id="gagain">${r.lessonId ? 'Jeszcze raz' : 'Powtórz błędy'}</button>
+        <button class="btn primary" id="gagain">${r.lessonId ? 'Kolejne zadania' : 'Powtórz błędy'}</button>
       </div>
+      ${r.lessonId ? `<p class="muted small">Przerobione zadania w tej lekcji: ${gstate(r.lessonId).seen.length} / ${LESSON_BY_ID.get(r.lessonId).ex.length}</p>` : ''}
     </section>`;
   $('#gagain').onclick = () => startGrammarRun(r.lessonId);
 }

@@ -1,7 +1,7 @@
 // Tryb offline: pliki aplikacji trafiają do pamięci podręcznej.
 // Strategia "stale-while-revalidate": od razu pokazujemy wersję z pamięci,
 // a w tle pobieramy nowszą. Przy większych zmianach podbij CACHE.
-const CACHE = 'inglisz-v9';
+const CACHE = 'inglisz-v10';
 const FILES = [
   './',
   './index.html',
@@ -12,6 +12,12 @@ const FILES = [
   './data/dict.js',
   './data/tatoeba.js',
   './data/grammar.js',
+  './data/grammar_extra1.js',
+  './data/grammar_extra2.js',
+  './data/grammar_extra3.js',
+  './data/grammar_extra4.js',
+  './data/grammar_extra5.js',
+  './data/grammar_extra6.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
