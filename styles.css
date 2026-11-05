@@ -121,7 +121,7 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 /* Flashcard */
 .flash {
   background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow);
-  padding: 24px 18px; min-height: 300px; display: flex; flex-direction: column; align-items: center;
+  padding: 52px 18px 24px; min-height: 300px; display: flex; flex-direction: column; align-items: center;
   justify-content: center; text-align: center; gap: 10px; margin: 14px 0;
 }
 .tag { font-size: .75rem; font-weight: 700; letter-spacing: .02em; color: var(--accent); background: var(--accent-soft); padding: 4px 10px; border-radius: 99px; }
@@ -132,6 +132,11 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 .ipa { color: var(--muted); font-family: "Segoe UI", "Noto Sans", "DejaVu Sans", sans-serif; }
 .example-pl { color: var(--muted); font-size: .9rem; margin-top: -4px; }
 .link-btn { background: none; border: 0; color: var(--accent); font-size: .85rem; padding: 8px; cursor: pointer; text-decoration: underline; }
+.flash { position: relative; }
+.undo-corner {
+  position: absolute; top: 10px; left: 10px; border: 1px solid var(--border); background: var(--surface-2);
+  border-radius: 99px; padding: 6px 12px; font-size: .85rem; font-weight: 600; cursor: pointer; min-height: 36px;
+}
 .divider { width: 60%; height: 1px; background: var(--border); margin: 6px 0; }
 .speak {
   border: 1px solid var(--border); background: var(--surface-2); border-radius: 99px;
@@ -212,6 +217,7 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 .field:first-of-type { border-top: 0; }
 select, input[type="range"] { font: inherit; }
 select { min-height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0 10px; }
+.num { width: 96px; min-height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0 10px; font: inherit; text-align: right; }
 .switch { width: 24px; height: 24px; accent-color: var(--accent); }
 
 /* Tab bar */

@@ -63,6 +63,7 @@ function normalizeState(s) {
     placed: s.placed || {},
     log: s.log || {},
     edits: s.edits || {},
+    extraNew: s.extraNew || null,
     savedAt: s.savedAt || 0,
     settings: Object.assign({}, DEFAULT_SETTINGS, s.settings || {}, {
       cats: Object.assign({}, DEFAULT_SETTINGS.cats, (s.settings && s.settings.cats) || {}),
@@ -260,7 +261,8 @@ function newIntroducedToday(deck = 'all') {
   return Object.entries(state.cards).filter(([id, c]) => c.first === t && c.s !== 'known' && BY_ID.has(id) && inDeck(BY_ID.get(id), deck)).length;
 }
 function newAvailable(deck = 'all') {
-  const left = Math.max(0, state.settings.newPerDay - newIntroducedToday(deck));
+  const extra = state.extraNew && state.extraNew.day === today() ? state.extraNew.n : 0;
+  const left = Math.max(0, state.settings.newPerDay + extra - newIntroducedToday(deck));
   const pool = WORDS.filter(w => inDeck(w, deck) && !state.cards[w.id]);
   return { left: Math.min(left, pool.length), pool };
 }
@@ -430,12 +432,16 @@ function showCard() {
         <h2>${doneAny ? 'Sesja ukończona!' : 'Brak słówek na teraz'}</h2>
         <p class="muted">${doneAny ? `Przerobione karty: ${s.done}.` : 'W tej talii wszystkie powtórki są zrobione, a dzienny limit nowych słów wyczerpany.'}
         Wybierz inną talię powyżej, poćwicz zdania albo zwiększ limit nowych słów w ustawieniach.</p>
+        <div class="row wrap" style="justify-content:center;margin-bottom:12px">
+          ${[10, 20, 50].map(n => `<button class="btn primary" data-more="${n}">+${n} nowych</button>`).join('')}
+        </div>
         <div class="grid2">
           <a class="btn" href="#/build">Ułóż zdanie</a>
           <a class="btn" href="#/quiz">Quiz</a>
         </div>
         <p><a href="#/settings">Ustawienia limitu</a></p>
       </section>`;
+    $$('[data-more]').forEach(b => b.onclick = () => addMoreNew(+b.dataset.more));
     bindDeckBar();
     if ($('#undo')) $('#undo').onclick = undo;
     return;
@@ -450,10 +456,11 @@ function showCard() {
     ? `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}${speakBtn(w.en)}`
     : `<div class="word">${esc(plOf(w))}</div><div class="muted small">Jak to powiesz po angielsku?</div>`;
   view.innerHTML = `
-    <header class="top"><h1>Fiszki</h1><div class="row">${undoBtn()}<span class="muted small">Zostało: ${s.queue.length}</span></div></header>
+    <header class="top"><h1>Fiszki</h1><span class="muted small">Zostało: ${s.queue.length}</span></header>
     ${deckBar()}
     <div class="bar"><div style="width:${pct}%"></div></div>
     <div class="flash" id="flash">
+      ${s.history.length ? `<button class="undo-corner" id="undo" aria-label="Cofnij do poprzedniego słowa">↶ Cofnij</button>` : ''}
       <span class="tag ${item.isNew ? 'new' : ''}">${item.isNew ? 'NOWE · ' : ''}${w.level} · ${esc(CATS[w.cat])}</span>
       ${front}
       <div id="back" hidden></div>
@@ -497,6 +504,17 @@ function reveal() {
     <button class="btn block" id="known" style="margin-top:8px">Znam to dobrze, nie pokazuj przez kilka miesięcy</button>`;
   $$('#actions [data-g]').forEach(b => b.onclick = () => answer(+b.dataset.g));
   $('#known').onclick = answerKnown;
+}
+
+function addMoreNew(n) {
+  // Jednorazowo zwiększa dzisiejszy limit nowych słów, bez zmiany ustawień.
+  const t = today();
+  if (!state.extraNew || state.extraNew.day !== t) state.extraNew = { day: t, n: 0 };
+  state.extraNew.n += n;
+  save();
+  session = null;
+  ROUTES.learn();
+  if (session.queue.length === 0) toast('W tej talii nie ma już nowych słów');
 }
 
 function snapshot() {
@@ -874,8 +892,9 @@ ROUTES.settings = () => {
     <header class="top">${backLink('#/home', 'Start')}<span class="muted small">Ustawienia</span></header>
     <section class="card">
       <h2>Nauka</h2>
-      <div class="field"><label for="npd">Nowe słowa dziennie</label>
-        <select id="npd">${[5, 10, 15, 20, 30, 50].map(n => `<option ${n === st.newPerDay ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      <div class="field"><label for="npd">Nowe słowa dziennie<br><span class="muted small">wpisz dowolną liczbę</span></label>
+        <input id="npd" class="num" type="number" inputmode="numeric" min="0" step="1" value="${st.newPerDay}"></div>
+      <div class="chips" style="margin-top:4px">${[10, 20, 50, 100, 200].map(n => `<button class="filter ${n === st.newPerDay ? 'on' : ''}" data-npd="${n}">${n}</button>`).join('')}</div>
       <div class="field"><label for="dir">Kierunek fiszek</label>
         <select id="dir">
           <option value="mix" ${st.direction === 'mix' ? 'selected' : ''}>Mieszany</option>
@@ -907,7 +926,14 @@ ROUTES.settings = () => {
     </section>
     <p class="muted small center">Słówek w bazie: ${WORDS.length} · zdań: ${SENTENCES.length}</p>`;
   const upd = () => { save(); };
-  $('#npd').onchange = e => { st.newPerDay = +e.target.value; upd(); };
+  const setNpd = v => {
+    const n = Math.max(0, Math.floor(Number(v) || 0));
+    st.newPerDay = n; session = null; upd();
+    $('#npd').value = n;
+    $$('[data-npd]').forEach(b => b.classList.toggle('on', +b.dataset.npd === n));
+  };
+  $('#npd').onchange = e => setNpd(e.target.value);
+  $$('[data-npd]').forEach(b => b.onclick = () => { setNpd(b.dataset.npd); toast(`Nowe słowa dziennie: ${b.dataset.npd}`); });
   $('#dir').onchange = e => { st.direction = e.target.value; upd(); };
   $('#acc').onchange = e => { st.accent = e.target.value; upd(); };
   $('#rate').oninput = e => { st.rate = +e.target.value; $('#rv').textContent = st.rate.toFixed(2); upd(); };
