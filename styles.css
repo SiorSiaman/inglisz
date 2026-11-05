@@ -158,6 +158,16 @@ textarea.area {
 .preview { width: 100%; border-collapse: collapse; font-size: .85rem; margin: 8px 0; }
 .preview td, .preview th { border-top: 1px solid var(--border); padding: 6px 4px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
 .preview th { color: var(--muted); font-weight: 600; }
+.card-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.card-tools .btn { min-height: 40px; font-size: .9rem; }
+.heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, auto); grid-auto-columns: minmax(0, 1fr); gap: 2px; padding-bottom: 4px; }
+.heatmap i { width: 100%; aspect-ratio: 1; border-radius: 2px; background: var(--surface-2); display: block; }
+.heatmap i.l1 { background: color-mix(in srgb, var(--accent) 30%, var(--surface-2)); }
+.heatmap i.l2 { background: color-mix(in srgb, var(--accent) 55%, var(--surface-2)); }
+.heatmap i.l3 { background: color-mix(in srgb, var(--accent) 80%, var(--surface-2)); }
+.heatmap i.l4 { background: var(--accent); }
+.heatmap i.today { outline: 2px solid var(--text); outline-offset: -1px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .divider { width: 60%; height: 1px; background: var(--border); margin: 6px 0; }
 .speak {
   border: 1px solid var(--border); background: var(--surface-2); border-radius: 99px;

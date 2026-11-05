@@ -53,6 +53,9 @@ const DEFAULT_SETTINGS = {
   direction: 'mix',
   buildLevel: 'all',
   deck: 'all',
+  retention: 0.9,
+  learnSteps: '1 10',
+  relearnSteps: '10',
   cats: Object.fromEntries(Object.keys(CATS).map(k => [k, true])),
 };
 
@@ -64,6 +67,8 @@ function normalizeState(s) {
     log: s.log || {},
     edits: s.edits || {},
     extraNew: s.extraNew || null,
+    suspended: s.suspended || {},
+    buried: s.buried || {},
     savedAt: s.savedAt || 0,
     settings: Object.assign({}, DEFAULT_SETTINGS, s.settings || {}, {
       cats: Object.assign({}, DEFAULT_SETTINGS.cats, (s.settings && s.settings.cats) || {}),
@@ -244,13 +249,16 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
-function logActivity(kind, ok) {
+// kind: 'new' | 'review' | 'ex'; ok: czy poprawnie; extra: { ms, rv (ocena karty w stanie review), rvOk }
+function logActivity(kind, ok, extra = {}) {
   const t = today();
   const e = state.log[t] || (state.log[t] = { r: 0, n: 0, ok: 0, x: 0 });
   if (kind === 'new') e.n++;
   else if (kind === 'review') e.r++;
   else e.x++;
   if (ok) e.ok++;
+  if (extra.ms) e.t = (e.t || 0) + extra.ms;
+  if (extra.rv) { e.rv = (e.rv || 0) + 1; if (extra.rvOk) e.rvOk = (e.rvOk || 0) + 1; }
 }
 
 const ICON_SPEAK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
@@ -289,16 +297,107 @@ document.addEventListener('click', e => {
   if (b) { e.stopPropagation(); speak(b.dataset.say, !!b.dataset.slow); }
 });
 
-/* ================= Powtórki (algorytm SM-2, uproszczony) ================= */
+/* ================= Powtórki: algorytm FSRS-4.5 + kroki nauki w minutach ================= */
+const FSRS_W = [0.4872, 1.4003, 3.7145, 13.8206, 5.1618, 1.2298, 0.8975, 0.031, 1.6474, 0.1367, 1.0461, 2.1072, 0.0793, 0.3246, 1.587, 0.2272, 2.8755];
+const DECAY = -0.5;
+const FACTOR = 19 / 81;
+const clampD = d => Math.min(10, Math.max(1, d));
+const initS = G => Math.max(0.1, FSRS_W[G - 1]);
+const initD = G => clampD(FSRS_W[4] - (G - 3) * FSRS_W[5]);
+const nextD = (D, G) => clampD(FSRS_W[7] * initD(4) + (1 - FSRS_W[7]) * (D - FSRS_W[6] * (G - 3)));
+const retrievability = (t, S) => Math.pow(1 + FACTOR * t / S, DECAY);
+const recallS = (D, S, R, G) => S * (1 + Math.exp(FSRS_W[8]) * (11 - D) * Math.pow(S, -FSRS_W[9]) *
+  (Math.exp(FSRS_W[10] * (1 - R)) - 1) * (G === 2 ? FSRS_W[15] : 1) * (G === 4 ? FSRS_W[16] : 1));
+const forgetS = (D, S, R) => Math.min(S, FSRS_W[11] * Math.pow(D, -FSRS_W[12]) * (Math.pow(S + 1, FSRS_W[13]) - 1) * Math.exp(FSRS_W[14] * (1 - R)));
+function ivFromS(S) {
+  const r = state.settings.retention || 0.9;
+  return Math.min(36500, Math.max(1, Math.round(S / FACTOR * (Math.pow(r, 1 / DECAY) - 1))));
+}
+function parseSteps(str, def) {
+  const a = String(str || '').split(/[\s,;]+/).map(Number).filter(n => n > 0 && n < 1440);
+  return a.length ? a : def;
+}
+const learnSteps = () => parseSteps(state.settings.learnSteps, [1, 10]);
+const relearnSteps = () => parseSteps(state.settings.relearnSteps, [10]);
+
+// Zamiana starych kart (SM-2) na format FSRS.
+function migrateCard(c) {
+  if (!c || c.S != null) return c;
+  const t = today();
+  if (c.s === 'known') return { s: 'review', known: true, S: Math.max(1, c.iv || 60), D: 3, iv: c.iv || 60, due: c.due, last: c.first ?? t, reps: c.reps || 3, lapses: 0, first: c.first ?? t };
+  if (!c.reps || c.s === 'learning') return { s: 'relearning', S: 1, D: 6, step: 0, iv: 0, due: Math.min(c.due ?? t, t), dueAt: 1, last: t, reps: c.reps || 1, lapses: c.lapses || 0, first: c.first ?? t };
+  const D = clampD(11 - ((c.ef || 2.5) - 1.3) / 1.9 * 9);
+  return { s: 'review', S: Math.max(1, c.iv || 1), D, iv: c.iv || 1, due: c.due, last: (c.due ?? t) - (c.iv || 1), reps: c.reps, lapses: c.lapses || 0, first: c.first ?? t };
+}
+
+// Czysta funkcja: zwraca nową kartę po ocenie G (1 = Nie wiem, 2 = Trudne, 3 = Dobrze, 4 = Łatwe).
+function schedule(c0, G, now = Date.now()) {
+  const t = today();
+  const MIN = 60000;
+  const c = c0 ? Object.assign({}, migrateCard(c0)) : { s: 'new', reps: 0, lapses: 0, first: t };
+  const toStep = (steps, idx, minutes) => {
+    c.step = idx; c.dueAt = now + (minutes ?? steps[idx]) * MIN; c.due = t; c.iv = 0;
+  };
+  const graduate = days => {
+    c.s = 'review'; c.iv = days; c.due = t + days; c.dueAt = 0; c.step = 0; c.last = t;
+  };
+  c.reps = (c.reps || 0) + 1;
+  if (c.s === 'new') {
+    c.S = initS(G); c.D = initD(G); c.last = t;
+    const st = learnSteps();
+    if (G === 1) { c.s = 'learning'; toStep(st, 0); }
+    else if (G === 2) { c.s = 'learning'; toStep(st, 0, st.length > 1 ? (st[0] + st[1]) / 2 : st[0] * 1.5); }
+    else if (G === 3) { if (st.length > 1) { c.s = 'learning'; toStep(st, 1); } else graduate(ivFromS(c.S)); }
+    else graduate(ivFromS(c.S));
+    return c;
+  }
+  if (c.s === 'learning' || c.s === 'relearning') {
+    const st = c.s === 'learning' ? learnSteps() : relearnSteps();
+    const i = Math.min(c.step || 0, st.length - 1);
+    if (G === 1) toStep(st, 0);
+    else if (G === 2) toStep(st, i, i === 0 && st.length > 1 ? (st[0] + st[1]) / 2 : st[i] * 1.5);
+    else if (G === 3) { if (i + 1 < st.length) toStep(st, i + 1); else graduate(ivFromS(c.S)); }
+    else graduate(Math.max(ivFromS(c.S) + 1, c.s === 'learning' ? 4 : 2));
+    return c;
+  }
+  // Karta w powtórkach
+  const elapsed = Math.max(0, t - (c.last ?? t));
+  const R = retrievability(elapsed, c.S);
+  if (G === 1) {
+    c.lapses = (c.lapses || 0) + 1; c.known = false;
+    c.S = forgetS(c.D, c.S, R); c.D = nextD(c.D, 1); c.s = 'relearning'; c.last = t;
+    toStep(relearnSteps(), 0);
+    return c;
+  }
+  const sH = recallS(c.D, c.S, R, 2), sG = recallS(c.D, c.S, R, 3), sE = recallS(c.D, c.S, R, 4);
+  let iH = ivFromS(sH), iG = ivFromS(sG), iE = ivFromS(sE);
+  iH = Math.min(iH, iG); iG = Math.max(iG, iH + 1); iE = Math.max(iE, iG + 1);
+  c.S = G === 2 ? sH : G === 3 ? sG : sE;
+  c.D = nextD(c.D, G);
+  graduate(G === 2 ? iH : G === 3 ? iG : iE);
+  return c;
+}
+function previewLabels(c) {
+  const now = Date.now();
+  return [1, 2, 3, 4].map(G => {
+    const n = schedule(c, G, now);
+    if (n.dueAt) { const m = Math.round((n.dueAt - now) / 60000); return m < 60 ? `${m} min` : `${Math.round(m / 60)} godz.`; }
+    return ivLabel(n.iv);
+  });
+}
+
 function status(id) {
+  if (state.suspended[id]) return 'suspended';
   const c = state.cards[id];
   if (!c) return 'new';
-  if (c.s === 'known') return 'known';
-  if (c.iv >= 21) return 'mastered';
-  if (c.reps === 0) return 'learning';
+  if (c.known || c.s === 'known') return 'known';
+  if (c.s === 'learning' || c.s === 'relearning' || !c.reps) return 'learning';
+  if ((c.iv || 0) >= 21) return 'mastered';
   return 'review';
 }
-const STATUS_PL = { new: 'nowe', learning: 'w nauce', review: 'powtarzane', mastered: 'opanowane', known: 'znane' };
+const STATUS_PL = { new: 'nowe', learning: 'w nauce', review: 'powtarzane', mastered: 'opanowane', known: 'znane', suspended: 'zawieszone' };
+const isBuried = id => (state.buried[id] || 0) > today();
+const isBlocked = id => !!state.suspended[id] || isBuried(id);
 
 /* Wybór fiszek do nauki: dowolne połączenie kategorii (także własnych talii) i poziomów. */
 function study() {
@@ -325,16 +424,16 @@ function studySummary() {
 }
 function dueIds(deck = 'study') {
   const t = today();
-  return Object.keys(state.cards).filter(id => BY_ID.has(id) && state.cards[id].due <= t && inDeck(BY_ID.get(id), deck));
+  return Object.keys(state.cards).filter(id => BY_ID.has(id) && state.cards[id].due <= t && !isBlocked(id) && inDeck(BY_ID.get(id), deck));
 }
 function newIntroducedToday(deck = 'study') {
   const t = today();
-  return Object.entries(state.cards).filter(([id, c]) => c.first === t && c.s !== 'known' && BY_ID.has(id) && inDeck(BY_ID.get(id), deck)).length;
+  return Object.entries(state.cards).filter(([id, c]) => c.first === t && !c.known && c.s !== 'known' && BY_ID.has(id) && inDeck(BY_ID.get(id), deck)).length;
 }
 function newAvailable(deck = 'study') {
   const extra = state.extraNew && state.extraNew.day === today() ? state.extraNew.n : 0;
   const left = Math.max(0, state.settings.newPerDay + extra - newIntroducedToday(deck));
-  const pool = WORDS.filter(w => inDeck(w, deck) && !state.cards[w.id]);
+  const pool = WORDS.filter(w => inDeck(w, deck) && !state.cards[w.id] && !isBlocked(w.id));
   return { left: Math.min(left, pool.length), pool };
 }
 function orderNew(pool) {
@@ -362,37 +461,24 @@ function orderNew(pool) {
   return out;
 }
 
-function nextIntervals(c) {
-  if (!c || c.reps === 0) return [0, 1, 1, 4];
-  if (c.reps === 1) return [0, 3, 4, 7];
-  const ef = c.ef;
-  return [0, Math.max(c.iv + 1, Math.round(c.iv * 1.2)), Math.max(c.iv + 1, Math.round(c.iv * ef)), Math.max(c.iv + 2, Math.round(c.iv * ef * 1.3))];
-}
 const ivLabel = d => d === 0 ? 'teraz' : d < 30 ? d + ' d' : d < 365 ? Math.round(d / 30) + ' mies.' : (d / 365).toFixed(1) + ' r.';
 
-function grade(id, g) {
-  const t = today();
-  const existed = !!state.cards[id];
-  const c = state.cards[id] || { iv: 0, ef: 2.5, reps: 0, lapses: 0, first: t, s: 'learning' };
-  const ivs = nextIntervals(c);
-  if (g === 0) {
-    if (c.reps > 0) c.lapses++;
-    c.reps = 0; c.iv = 0; c.ef = Math.max(1.3, c.ef - 0.2); c.due = t; c.s = 'learning';
-  } else {
-    c.iv = ivs[g];
-    if (g === 1) c.ef = Math.max(1.3, c.ef - 0.15);
-    if (g === 3) c.ef = Math.min(3.2, c.ef + 0.15);
-    c.reps++; c.due = t + c.iv; c.s = 'review';
-  }
+// g: 0..3 z przycisków (Nie wiem..Łatwe). Zwraca nową kartę.
+function grade(id, g, ms = 0) {
+  const prev = state.cards[id] ? migrateCard(state.cards[id]) : null;
+  const wasReview = prev && prev.s === 'review';
+  const c = schedule(prev, g + 1);
   state.cards[id] = c;
-  logActivity(existed ? 'review' : 'new', g >= 2);
+  logActivity(prev ? 'review' : 'new', g >= 1, { ms, rv: wasReview, rvOk: g >= 1 });
   save();
+  return c;
 }
 
 function markKnown(id, days = 30) {
   // Znane słowo wraca dopiero po kilku miesiącach jako kontrola.
   const t = today();
-  state.cards[id] = { s: 'known', iv: days * 2, ef: 2.7, reps: 3, lapses: 0, first: t, due: t + days + Math.floor(Math.random() * days * 2) };
+  const iv = days + Math.floor(Math.random() * days * 2);
+  state.cards[id] = { s: 'review', known: true, S: iv, D: 3, iv, reps: 1, lapses: 0, first: t, last: t, due: t + iv };
 }
 
 /* ================= Router ================= */
@@ -431,7 +517,7 @@ ROUTES.home = () => {
       <a class="icon-btn" href="#/settings" aria-label="Ustawienia">${ICON_GEAR}</a>
     </header>
     <section class="card hero">
-      <div class="row"><div><div class="big-num">${streak()}</div><div class="muted small">dni z rzędu</div></div>
+      <div class="row"><div><div class="big-num">${streak()}</div><div class="muted small">${streak() === 1 ? 'dzień' : 'dni'} z rzędu</div></div>
       <div class="spacer"></div><div class="muted small" style="text-align:right">Dziś: ${doneToday} ćwiczeń</div></div>
       <div class="kpis">
         <div class="kpi"><b>${due}</b><span>do powtórki</span></div>
@@ -456,8 +542,16 @@ ROUTES.home = () => {
 
 /* ================= Fiszki ================= */
 let session = null;
+const LEARN_AHEAD_MS = 20 * 60000; // jak w Anki: karty w nauce można pokazać do 20 min wcześniej
 function buildSession(deck = studyKey()) {
-  const due = shuffle(dueIds()).map(id => ({ id, isNew: false }));
+  const ids = dueIds();
+  const learn = [];
+  const due = [];
+  for (const id of shuffle(ids)) {
+    const c = state.cards[id];
+    if (c.s === 'learning' || c.s === 'relearning') learn.push({ id, dueAt: c.dueAt || 0 });
+    else due.push({ id, isNew: false });
+  }
   const { left, pool } = newAvailable();
   const fresh = orderNew(pool).slice(0, left).map(w => ({ id: w.id, isNew: true }));
   // Przeplatamy: co 3 powtórki jedno nowe słowo.
@@ -466,12 +560,27 @@ function buildSession(deck = studyKey()) {
     for (let i = 0; i < 3 && due.length; i++) q.push(due.shift());
     if (fresh.length) q.push(fresh.shift());
   }
-  return { deck, queue: q, total: q.length, done: 0, revealed: false, dir: null, again: 0, history: [] };
+  return { deck, queue: q, learn, cur: null, done: 0, revealed: false, dir: null, history: [] };
+}
+const remaining = s => s.queue.length + s.learn.length + (s.cur ? 1 : 0);
+
+// Wybiera następną kartę: najpierw karty w nauce, których czas minął, potem kolejka.
+function pickNext(s, force = false) {
+  if (s.cur) return 'card';
+  const now = Date.now();
+  s.learn.sort((a, b) => a.dueAt - b.dueAt);
+  if (s.learn.length && s.learn[0].dueAt <= now) { s.cur = { id: s.learn.shift().id, isNew: false }; return 'card'; }
+  if (s.queue.length) { s.cur = s.queue.shift(); return 'card'; }
+  if (s.learn.length) {
+    if (force || s.learn[0].dueAt - now <= LEARN_AHEAD_MS) { s.cur = { id: s.learn.shift().id, isNew: false }; return 'card'; }
+    return 'wait';
+  }
+  return 'done';
 }
 
 ROUTES.learn = () => {
   const deck = studyKey();
-  if (!session || session.deck !== deck || (session.queue.length === 0 && !session.history.length)) session = buildSession(deck);
+  if (!session || session.deck !== deck || (remaining(session) === 0 && !session.history.length)) session = buildSession(deck);
   showCard();
 };
 
@@ -537,10 +646,29 @@ ROUTES.pick = () => {
 const undoBtn = () => session && session.history.length
   ? `<button class="btn" id="undo" style="min-height:38px;padding:6px 12px">↶ Cofnij</button>` : '';
 
-function showCard() {
+let waitTimer = null;
+function showCard(force = false) {
   const s = session;
-  if (s.queue.length === 0) {
-    const doneAny = s.total > 0;
+  clearTimeout(waitTimer);
+  const st = pickNext(s, force);
+  if (st === 'wait') {
+    const mins = Math.max(1, Math.ceil((s.learn[0].dueAt - Date.now()) / 60000));
+    view.innerHTML = `
+      <header class="top"><h1>Fiszki</h1>${undoBtn()}</header>
+      ${deckBar()}
+      <section class="card center">
+        <div class="done-emoji">⏳</div>
+        <h2>Następna karta za ${mins} min</h2>
+        <p class="muted">Słowa, których nie pamiętałeś, wracają po kilku minutach (kroki nauki). Możesz poczekać albo powtórzyć je od razu.</p>
+        <button class="btn primary block" id="now">Pokaż teraz</button>
+      </section>`;
+    $('#now').onclick = () => showCard(true);
+    if ($('#undo')) $('#undo').onclick = undo;
+    waitTimer = setTimeout(() => { if (location.hash.startsWith('#/learn') && session === s) showCard(); }, Math.min(60000, s.learn[0].dueAt - Date.now() + 500));
+    return;
+  }
+  if (st === 'done') {
+    const doneAny = s.done > 0;
     view.innerHTML = `
       <header class="top"><h1>Fiszki</h1>${undoBtn()}</header>
       ${deckBar()}
@@ -563,22 +691,25 @@ function showCard() {
     if ($('#undo')) $('#undo').onclick = undo;
     return;
   }
-  const item = s.queue[0];
+  const item = s.cur;
   const w = BY_ID.get(item.id);
+  const card = state.cards[item.id];
   const dirSetting = state.settings.direction;
   s.dir = dirSetting === 'mix' ? (item.isNew ? 'en-pl' : (Math.random() < 0.5 ? 'en-pl' : 'pl-en')) : dirSetting;
   s.revealed = false;
-  const pct = s.total ? Math.round((s.done / (s.total + s.again)) * 100) : 0;
+  s.shownAt = Date.now();
+  const pct = Math.round((s.done / Math.max(1, s.done + remaining(s))) * 100);
+  const stateTag = item.isNew ? 'NOWE · ' : card && (card.s === 'learning' || card.s === 'relearning') ? 'W NAUCE · ' : '';
   const front = s.dir === 'en-pl'
     ? `<div class="word">${esc(w.en)}</div>${w.ipa ? `<div class="ipa">/${esc(w.ipa)}/</div>` : ''}${speakBtn(w.en)}`
     : `<div class="word">${esc(plOf(w))}</div><div class="muted small">Jak to powiesz po angielsku?</div>`;
   view.innerHTML = `
-    <header class="top"><h1>Fiszki</h1><span class="muted small">Zostało: ${s.queue.length}</span></header>
+    <header class="top"><h1>Fiszki</h1><span class="muted small">Zostało: ${remaining(s)}${s.learn.length ? ` (w nauce: ${s.learn.length})` : ''}</span></header>
     ${deckBar()}
     <div class="bar"><div style="width:${pct}%"></div></div>
     <div class="flash" id="flash">
       ${s.history.length ? `<button class="undo-corner" id="undo" aria-label="Cofnij do poprzedniego słowa">↶ Cofnij</button>` : ''}
-      <span class="tag ${item.isNew ? 'new' : ''}">${item.isNew ? 'NOWE · ' : ''}${w.level} · ${esc(CATS[w.cat])}</span>
+      <span class="tag ${stateTag ? 'new' : ''}">${stateTag}${w.level} · ${esc(CATS[w.cat])}</span>
       ${front}
       <div id="back" hidden></div>
     </div>
@@ -598,7 +729,7 @@ function showCard() {
 
 function reveal() {
   const s = session;
-  const item = s.queue[0];
+  const item = s.cur;
   const w = BY_ID.get(item.id);
   s.revealed = true;
   const back = $('#back');
@@ -614,13 +745,20 @@ function reveal() {
     const tr = $('#back .trans'); if (tr) tr.textContent = plOf(w);
   });
   if (s.dir === 'pl-en' && state.settings.autoSpeak) speak(w.en);
-  const ivs = nextIntervals(state.cards[w.id]);
+  const ivs = previewLabels(state.cards[w.id]);
   const labels = ['Nie wiem', 'Trudne', 'Dobrze', 'Łatwe'];
   $('#actions').innerHTML = `<div class="grades">${labels.map((l, g) =>
-    `<button class="btn g${g}" data-g="${g}">${l}<small>${ivLabel(ivs[g])}</small></button>`).join('')}</div>
-    <button class="btn block" id="known" style="margin-top:8px">Znam to dobrze, nie pokazuj przez kilka miesięcy</button>`;
+    `<button class="btn g${g}" data-g="${g}">${l}<small>${ivs[g]}</small></button>`).join('')}</div>
+    <div class="card-tools">
+      <button class="btn" id="known">Znam</button>
+      <button class="btn" id="bury">Jutro</button>
+      <button class="btn" id="suspend">Zawieś</button>
+    </div>
+    <p class="muted small center" style="margin:6px 0 0">Znam: wróci za kilka miesięcy · Jutro: odłóż do jutra · Zawieś: nie pokazuj, dopóki nie wznowisz (w Słówkach)</p>`;
   $$('#actions [data-g]').forEach(b => b.onclick = () => answer(+b.dataset.g));
   $('#known').onclick = answerKnown;
+  $('#bury').onclick = () => setAside('bury');
+  $('#suspend').onclick = () => setAside('suspend');
 }
 
 function addMoreNew(n) {
@@ -631,21 +769,23 @@ function addMoreNew(n) {
   save();
   session = null;
   ROUTES.learn();
-  if (session.queue.length === 0) toast('W tej talii nie ma już nowych słów');
+  if (remaining(session) === 0) toast('W tej talii nie ma już nowych słów');
 }
 
 function snapshot() {
   const s = session;
-  const id = s.queue[0].id;
+  const id = s.cur.id;
   const t = today();
   s.history.push({
     id,
     card: state.cards[id] ? JSON.stringify(state.cards[id]) : null,
     log: state.log[t] ? JSON.stringify(state.log[t]) : null,
+    buried: state.buried[id], suspended: state.suspended[id],
     day: t,
+    cur: Object.assign({}, s.cur),
     queue: s.queue.slice(),
+    learn: s.learn.map(x => Object.assign({}, x)),
     done: s.done,
-    again: s.again,
   });
   if (s.history.length > 30) s.history.shift();
 }
@@ -656,42 +796,60 @@ function undo() {
   if (!h) return;
   if (h.card) state.cards[h.id] = JSON.parse(h.card); else delete state.cards[h.id];
   if (h.log) state.log[h.day] = JSON.parse(h.log); else delete state.log[h.day];
-  s.queue = h.queue; s.done = h.done; s.again = h.again;
+  if (h.buried) state.buried[h.id] = h.buried; else delete state.buried[h.id];
+  if (h.suspended) state.suspended[h.id] = h.suspended; else delete state.suspended[h.id];
+  s.queue = h.queue; s.learn = h.learn; s.cur = h.cur; s.done = h.done;
   save();
   stopSpeech();
   showCard();
   toast('Cofnięto: ' + BY_ID.get(h.id).en);
 }
 
+const elapsedMs = s => Math.min(60000, Math.max(0, Date.now() - (s.shownAt || Date.now())));
+
 function answer(g) {
   const s = session;
   snapshot();
-  const item = s.queue.shift();
-  grade(item.id, g);
-  if (g === 0) {
-    s.queue.splice(Math.min(3, s.queue.length), 0, { id: item.id, isNew: false });
-    s.again++;
-  }
+  const item = s.cur;
+  const c = grade(item.id, g, elapsedMs(s));
+  s.cur = null;
+  if (c.dueAt) s.learn.push({ id: item.id, dueAt: c.dueAt });
   s.done++;
   showCard();
+}
+
+// Dokłada kolejne nowe słowo, gdy pominięte nie powinno zabierać miejsca w limicie.
+function topUpNew(s) {
+  const inQueue = new Set([...s.queue.map(q => q.id), ...s.learn.map(q => q.id)]);
+  const next = orderNew(newAvailable().pool).find(w => !inQueue.has(w.id));
+  if (next) s.queue.push({ id: next.id, isNew: true });
 }
 
 function answerKnown() {
   const s = session;
   snapshot();
-  const item = s.queue.shift();
+  const item = s.cur;
   markKnown(item.id, 60);
-  // Usuń ewentualne powtórzenia tego słowa z kolejki.
-  s.queue = s.queue.filter(q => q.id !== item.id);
-  // Pominięte znane słowo nie zabiera miejsca: dokładamy kolejne nowe z tej samej talii.
-  if (item.isNew) {
-    const inQueue = new Set(s.queue.map(q => q.id));
-    const next = orderNew(newAvailable().pool).find(w => !inQueue.has(w.id));
-    if (next) { s.queue.push({ id: next.id, isNew: true }); s.total++; }
-  }
-  logActivity(item.isNew ? 'new' : 'review', true);
+  s.cur = null;
+  s.learn = s.learn.filter(q => q.id !== item.id);
+  if (item.isNew) topUpNew(s);
+  logActivity(item.isNew ? 'new' : 'review', true, { ms: elapsedMs(s) });
   save();
   s.done++;
+  showCard();
+}
+
+function setAside(kind) {
+  const s = session;
+  snapshot();
+  const item = s.cur;
+  if (kind === 'bury') state.buried[item.id] = today() + 1;
+  else state.suspended[item.id] = true;
+  s.cur = null;
+  s.learn = s.learn.filter(q => q.id !== item.id);
+  if (item.isNew) topUpNew(s);
+  save();
+  toast(kind === 'bury' ? 'Odłożono do jutra' : 'Karta zawieszona. Wznowisz ją w zakładce Słówka.');
   showCard();
 }
 
@@ -916,7 +1074,7 @@ ROUTES.words = () => {
     <input class="search" id="q" type="search" placeholder="Szukaj po angielsku lub polsku…" value="${esc(wordsFilter.q)}">
     <div class="chips">${chip('level', 'all', 'Wszystkie poziomy')}${LEVELS.map(l => chip('level', l, l)).join('')}</div>
     <div class="chips">${chip('cat', 'all', 'Wszystkie kategorie')}${Object.entries(CATS).map(([k, v]) => chip('cat', k, v)).join('')}</div>
-    <div class="chips">${chip('st', 'all', 'Każdy status')}${chip('st', 'new', 'Nowe')}${chip('st', 'learn', 'W nauce')}${chip('st', 'done', 'Opanowane / znane')}</div>
+    <div class="chips">${chip('st', 'all', 'Każdy status')}${chip('st', 'new', 'Nowe')}${chip('st', 'learn', 'W nauce')}${chip('st', 'done', 'Opanowane / znane')}${chip('st', 'susp', 'Zawieszone')}</div>
     <div class="muted small" id="count" style="margin:4px 0 8px"></div>
     <div class="list" id="wlist"></div>`;
   $$('.filter').forEach(b => b.onclick = () => { wordsFilter[b.dataset.g] = b.dataset.v; ROUTES.words(); });
@@ -934,6 +1092,7 @@ function drawWordList() {
     if (wordsFilter.st === 'new' && st !== 'new') return false;
     if (wordsFilter.st === 'learn' && !['learning', 'review'].includes(st)) return false;
     if (wordsFilter.st === 'done' && !['mastered', 'known'].includes(st)) return false;
+    if (wordsFilter.st === 'susp' && st !== 'suspended') return false;
     return !q || w.en.toLowerCase().includes(q) || plOf(w).toLowerCase().includes(q);
   });
   if (q) list.sort((a, b) => (b.en.toLowerCase() === q) - (a.en.toLowerCase() === q) || (b.en.toLowerCase().startsWith(q)) - (a.en.toLowerCase().startsWith(q)));
@@ -943,7 +1102,8 @@ function drawWordList() {
     const st = status(w.id);
     return `<div class="item" data-id="${esc(w.id)}"><span class="dot ${st}" title="${STATUS_PL[st]}"></span>
       <div class="txt"><div class="en">${esc(w.en)} <span class="muted small">· ${w.level}${w.ipa ? ' · /' + esc(w.ipa) + '/' : ''}</span></div><div class="pl">${esc(plOf(w))}</div>
-      <div class="ex">${w.ex ? `${esc(w.ex)}${w.exPl ? `<br>${esc(w.exPl)}` : ''}<br>` : ''}<button class="link-btn" data-edit="${esc(w.id)}">Popraw tłumaczenie</button></div></div>${speakBtn(w.en)}</div>`;
+      <div class="ex">${w.ex ? `${esc(w.ex)}${w.exPl ? `<br>${esc(w.exPl)}` : ''}<br>` : ''}<button class="link-btn" data-edit="${esc(w.id)}">Popraw tłumaczenie</button>
+      <button class="link-btn" data-susp="${esc(w.id)}">${st === 'suspended' ? 'Wznów kartę' : 'Zawieś kartę'}</button></div></div>${speakBtn(w.en)}</div>`;
   }).join('') + (list.length > wordsLimit ? `<button class="btn block" id="more" style="border:0;border-top:1px solid var(--border);border-radius:0">Pokaż więcej (${list.length - wordsLimit})</button>` : '')
     : '<div class="item muted">Brak wyników</div>';
   const more = $('#more');
@@ -951,6 +1111,13 @@ function drawWordList() {
   $('#wlist').onclick = e => {
     const ed = e.target.closest('[data-edit]');
     if (ed) { editTranslation(BY_ID.get(ed.dataset.edit), drawWordList); return; }
+    const su = e.target.closest('[data-susp]');
+    if (su) {
+      const id = su.dataset.susp;
+      if (state.suspended[id]) { delete state.suspended[id]; toast('Karta wznowiona'); }
+      else { state.suspended[id] = true; toast('Karta zawieszona'); }
+      save(); session = null; drawWordList(); return;
+    }
     const it = e.target.closest('.item');
     if (it && !e.target.closest('button')) it.classList.toggle('open');
   };
@@ -1016,6 +1183,22 @@ async function parseApkg(file) {
   return r[0].values.map(v => String(v[0]).split('\x1f').map(cleanField)).filter(f => f.length >= 2 && f[0] && f[1]);
 }
 const hasPolish = s => /[ąćęłńóśźż]/i.test(s);
+
+// Duplikaty: to samo angielskie słowo z co najmniej jednym wspólnym polskim znaczeniem
+// w dowolnej talii (wbudowanej albo własnej).
+const meaningSet = s => new Set(String(s).toLowerCase().replace(/\([^)]*\)/g, ' ').split(/[,;\/]| lub | albo /)
+  .map(x => x.replace(/[.!?"']/g, '').replace(/\s+/g, ' ').trim()).filter(Boolean));
+function findDuplicate(en, pl, extra = []) {
+  const key = String(en).toLowerCase().trim();
+  const mine = meaningSet(pl);
+  const pool = [...WORDS.filter(w => w.en.toLowerCase() === key), ...extra.filter(x => x.en.toLowerCase() === key)];
+  for (const w of pool) {
+    const theirs = meaningSet(w.custom || w.cat ? plOf(w) : w.pl);
+    for (const m of mine) if (theirs.has(m)) return w;
+  }
+  return null;
+}
+const deckNameOf = w => w.cat ? (CATS[w.cat] || 'talia') : 'ten import';
 function startDraft(rows, name) {
   if (!rows.length) { toast('Nie znalazłem fiszek w tym pliku'); return; }
   // Zgadnij, która kolumna jest polska.
@@ -1046,12 +1229,19 @@ function commitImport() {
   }
   const deck = custom.decks[id];
   const have = new Set(deck.words.map(x => x.en.toLowerCase()));
-  let added = 0;
-  for (const x of words) if (!have.has(x.en.toLowerCase())) { deck.words.push(x); have.add(x.en.toLowerCase()); added++; }
+  let added = 0, dups = 0;
+  const accepted = [];
+  for (const x of words) {
+    if (have.has(x.en.toLowerCase())) { dups++; continue; }
+    if (d.skipDup !== false && findDuplicate(x.en, x.pl, accepted)) { dups++; continue; }
+    deck.words.push(x); accepted.push(x); have.add(x.en.toLowerCase()); added++;
+  }
+  if (!deck.words.length) delete custom.decks[id];
   saveCustom(); applyCustom();
-  study().cats[id] = true; save(); session = null;
+  if (custom.decks[id]) study().cats[id] = true;
+  save(); session = null;
   importDraft = null;
-  toast(`Dodano ${nFiszek(added)} do talii „${deck.name}”`);
+  toast(`Dodano ${nFiszek(added)} do talii „${deck.name}”${dups ? `, pominięto duplikaty: ${dups}` : ''}`);
   ROUTES.import();
 }
 
@@ -1081,7 +1271,17 @@ ROUTES.import = () => {
       <table class="preview"><tr><th>Angielski</th><th>Polski</th>${d.colEx >= 0 ? '<th>Przykład</th>' : ''}</tr>
         ${d.rows.slice(0, 6).map(r => `<tr><td>${esc(r[d.colEn] || '')}</td><td>${esc(r[d.colPl] || '')}</td>${d.colEx >= 0 ? `<td>${esc(r[d.colEx] || '')}</td>` : ''}</tr>`).join('')}
       </table>
-      <div class="row"><button class="btn" id="dcancel">Anuluj</button><div class="spacer"></div><button class="btn primary" id="dok">Importuj ${nFiszek(d.rows.length)}</button></div>
+      ${(() => {
+        const dl = d.rows.map(r => [r, findDuplicate(r[d.colEn] || '', r[d.colPl] || '')]).filter(x => x[1]);
+        if (!dl.length) return '<p class="muted small">Nie znaleziono duplikatów w Twoich taliach.</p>';
+        return `<div class="feedback ko" style="margin:8px 0">
+          <b>Duplikaty: ${dl.length}</b>
+          <div class="small">To samo słowo z tym samym znaczeniem jest już w innej talii, np.:
+          ${dl.slice(0, 4).map(([r, w]) => `<br>• ${esc(r[d.colEn])}: ${esc(r[d.colPl])} (jest w: ${esc(deckNameOf(w))})`).join('')}</div>
+          <label class="row small" style="margin-top:8px"><input type="checkbox" id="dskip" class="switch" ${d.skipDup !== false ? 'checked' : ''}> Pomiń duplikaty przy imporcie</label>
+        </div>`;
+      })()}
+      <div class="row"><button class="btn" id="dcancel">Anuluj</button><div class="spacer"></div><button class="btn primary" id="dok">Importuj</button></div>
     </section>`;
   }
   view.innerHTML = `
@@ -1139,6 +1339,8 @@ ROUTES.import = () => {
   $('#madd').onclick = () => {
     const en = $('#men').value.trim(), pl = $('#mpl').value.trim();
     if (!en || !pl) { toast('Wpisz słowo i tłumaczenie'); return; }
+    const dup = findDuplicate(en, pl);
+    if (dup) { toast(`„${en}” z tym znaczeniem już jest w talii „${deckNameOf(dup)}”`); return; }
     let id = $('#mdeck').value;
     if (id === 'new' || !custom.decks[id]) {
       id = Object.keys(custom.decks).find(k => custom.decks[k].name === 'Moje słówka') || deckId('Moje słówka');
@@ -1172,7 +1374,8 @@ ROUTES.import = () => {
       d.colEn = +$('#den').value; d.colPl = +$('#dpl').value; d.colEx = +$('#dex').value; d.level = $('#dlvl').value;
     };
     ['#dtarget', '#den', '#dpl', '#dex', '#dlvl'].forEach(s => $(s).onchange = () => { reread(); ROUTES.import(); });
-    $('#dname').oninput = () => { d.name = $('#dname').value; };
+    if ($('#dname')) $('#dname').oninput = () => { d.name = $('#dname').value; };
+    if ($('#dskip')) $('#dskip').onchange = e => { d.skipDup = e.target.checked; };
     $('#dcancel').onclick = () => { importDraft = null; ROUTES.import(); };
     $('#dok').onclick = () => { reread(); commitImport(); };
   }
@@ -1181,39 +1384,93 @@ ROUTES.import = () => {
 /* ================= Postępy ================= */
 ROUTES.stats = () => {
   const t = today();
-  const counts = { new: 0, learning: 0, review: 0, mastered: 0, known: 0 };
+  const counts = { new: 0, learning: 0, review: 0, mastered: 0, known: 0, suspended: 0 };
   WORDS.forEach(w => counts[status(w.id)]++);
-  const days = [];
-  for (let d = t - 13; d <= t; d++) { const e = state.log[d]; days.push({ d, v: e ? e.r + e.n + e.x : 0 }); }
-  const max = Math.max(1, ...days.map(x => x.v));
-  const tomorrow = Object.values(state.cards).filter(c => c.due === t + 1).length;
-  const totalReviews = Object.values(state.log).reduce((a, e) => a + e.r + e.n, 0);
-  const totalOk = Object.values(state.log).reduce((a, e) => a + e.ok, 0);
-  const totalAll = Object.values(state.log).reduce((a, e) => a + e.r + e.n + e.x, 0);
+  const logs = state.log;
+  const cnt = e => e ? e.r + e.n + e.x : 0;
+  const fmtMin = ms => { const m = Math.round(ms / 60000); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} godz. ${m % 60} min`; };
+
+  // Mapa aktywności: 26 tygodni, kolumny = tygodnie (pon–niedz).
+  const dow = d => (new Date(d * 86400000).getUTCDay() + 6) % 7; // 0 = poniedziałek
+  const start = t - dow(t) - 7 * 25;
+  const maxDay = Math.max(1, ...Object.keys(logs).filter(d => +d >= start).map(d => cnt(logs[d])));
+  let cells = '';
+  for (let d = start; d <= t; d++) {
+    const v = cnt(logs[d]);
+    const lvl = v === 0 ? 0 : Math.min(4, Math.ceil((v / maxDay) * 4));
+    cells += `<i class="${lvl ? 'l' + lvl : ''} ${d === t ? 'today' : ''}" title="${dayLabel(d)}: ${v}"></i>`;
+  }
+  const activeDays = Object.keys(logs).filter(d => +d >= start && cnt(logs[d]) > 0).length;
+
+  // Prognoza powtórek na 30 dni (zaległe liczone na dziś).
+  const fc = Array(30).fill(0);
+  for (const [id, c] of Object.entries(state.cards)) {
+    if (isBlocked(id) || !BY_ID.has(id)) continue;
+    const off = Math.max(0, (c.due ?? t) - t);
+    if (off < 30) fc[off]++;
+  }
+  const fcMax = Math.max(1, ...fc);
+  const fcWeek = fc.slice(0, 7).reduce((a, b) => a + b, 0);
+
+  // Czas i skuteczność.
+  const sumRange = (from, f) => Object.entries(logs).filter(([d]) => +d >= from).reduce((a, [, e]) => a + (f(e) || 0), 0);
+  const timeToday = (logs[t] && logs[t].t) || 0;
+  const time30 = sumRange(t - 29, e => e.t);
+  const timeAll = sumRange(-Infinity, e => e.t);
+  const rv30 = sumRange(t - 29, e => e.rv), rvOk30 = sumRange(t - 29, e => e.rvOk);
+  const retention = rv30 ? Math.round((rvOk30 / rv30) * 100) : null;
+  const totalReviews = sumRange(-Infinity, e => e.r + e.n);
+  const days30 = Object.keys(logs).filter(d => +d >= t - 29 && cnt(logs[d]) > 0).length;
+
+  // Rozkład odstępów (karty w powtórkach).
+  const buckets = [['≤ 1 d', 0, 1], ['2–7 d', 2, 7], ['8–21 d', 8, 21], ['22 d – 3 mies.', 22, 90], ['> 3 mies.', 91, Infinity]];
+  const ivCounts = buckets.map(([, a, b]) => Object.values(state.cards).filter(c => c.s === 'review' && (c.iv || 0) >= a && (c.iv || 0) <= b).length);
+  const ivMax = Math.max(1, ...ivCounts);
+
   view.innerHTML = `
     <header class="top"><h1>Postępy</h1></header>
     <section class="card">
       <div class="kpis" style="margin-top:0">
-        <div class="kpi"><b>${streak()}</b><span>dni z rzędu</span></div>
-        <div class="kpi"><b>${counts.mastered + counts.known}</b><span>opanowane</span></div>
-        <div class="kpi"><b>${totalAll ? Math.round((totalOk / totalAll) * 100) : 0}%</b><span>trafność</span></div>
+        <div class="kpi"><b>${streak()}</b><span>${streak() === 1 ? 'dzień' : 'dni'} z rzędu</span></div>
+        <div class="kpi"><b>${fmtMin(timeToday)}</b><span>nauki dziś</span></div>
+        <div class="kpi"><b>${retention === null ? '–' : retention + '%'}</b><span>zapamiętane (30 dni)</span></div>
       </div>
-      <h2>Ostatnie 14 dni</h2>
-      <div class="chart">${days.map(x => `<div class="col"><div style="height:${(x.v / max) * 100}%" title="${x.v}"></div><span>${dayLabel(x.d).split('.')[0]}</span></div>`).join('')}</div>
-      <p class="muted small">Powtórek fiszek łącznie: ${totalReviews} · jutro do powtórki: ${tomorrow}</p>
+      <h2>Aktywność (26 tygodni)</h2>
+      <div class="heatmap">${cells}</div>
+      <p class="muted small">Aktywne dni: ${activeDays} z ${t - start + 1} · ${days30} w ostatnich 30 dniach</p>
+    </section>
+    <section class="card">
+      <h2>Prognoza powtórek (30 dni)</h2>
+      <div class="chart">${fc.map((v, i) => `<div class="col"><div style="height:${(v / fcMax) * 100}%" title="${dayLabel(t + i)}: ${v}"></div><span>${i % 5 === 0 ? (i === 0 ? 'dziś' : '+' + i) : ''}</span></div>`).join('')}</div>
+      <p class="muted small">Dziś: ${fc[0]} · jutro: ${fc[1]} · w tym tygodniu: ${fcWeek}</p>
+    </section>
+    <section class="card">
+      <h2>Czas i skuteczność</h2>
+      <div class="stat-grid">
+        <div class="kpi"><b>${fmtMin(time30)}</b><span>w ostatnich 30 dniach</span></div>
+        <div class="kpi"><b>${days30 ? fmtMin(time30 / days30) : '–'}</b><span>średnio na dzień nauki</span></div>
+        <div class="kpi"><b>${fmtMin(timeAll)}</b><span>łącznie</span></div>
+        <div class="kpi"><b>${totalReviews}</b><span>odpowiedzi na fiszkach</span></div>
+      </div>
+      <p class="muted small">„Zapamiętane” to odsetek powtórek, w których nie wybrałeś „Nie wiem”. Cel ustawiony w algorytmie: ${Math.round((state.settings.retention || 0.9) * 100)}%.</p>
     </section>
     <section class="card">
       <h2>Słówka według statusu</h2>
       <div class="bar" style="display:flex;height:14px">
-        ${[['known', 'var(--good)'], ['mastered', 'var(--good)'], ['review', 'var(--accent)'], ['learning', 'var(--warn)']].map(([k, c]) =>
+        ${[['known', 'var(--good)'], ['mastered', 'var(--good)'], ['review', 'var(--accent)'], ['learning', 'var(--warn)'], ['suspended', 'var(--muted)']].map(([k, c]) =>
           `<div style="width:${(counts[k] / WORDS.length) * 100}%;background:${c};border-radius:0"></div>`).join('')}
       </div>
       <div class="legend">
         <span><i style="background:var(--good)"></i>opanowane / znane ${counts.mastered + counts.known}</span>
         <span><i style="background:var(--accent)"></i>powtarzane ${counts.review}</span>
         <span><i style="background:var(--warn)"></i>w nauce ${counts.learning}</span>
+        <span><i style="background:var(--muted)"></i>zawieszone ${counts.suspended}</span>
         <span><i style="background:var(--border)"></i>nowe ${counts.new}</span>
       </div>
+    </section>
+    <section class="card">
+      <h2>Odstępy między powtórkami</h2>
+      ${buckets.map(([label], i) => `<div class="lvl" style="grid-template-columns:110px 1fr 44px"><span class="small">${label}</span><div class="bar"><div style="width:${(ivCounts[i] / ivMax) * 100}%"></div></div><span class="muted small">${ivCounts[i]}</span></div>`).join('')}
     </section>
     <section class="card">
       <h2>Poziomy</h2>
@@ -1242,6 +1499,15 @@ ROUTES.settings = () => {
           <option value="en-pl" ${st.direction === 'en-pl' ? 'selected' : ''}>Angielski → polski</option>
           <option value="pl-en" ${st.direction === 'pl-en' ? 'selected' : ''}>Polski → angielski</option>
         </select></div>
+    </section>
+    <section class="card">
+      <h2>Algorytm powtórek (FSRS)</h2>
+      <div class="field"><label for="ret">Docelowa skuteczność<br><span class="muted small">wyżej = częstsze powtórki</span></label>
+        <select id="ret">${[0.8, 0.85, 0.9, 0.93, 0.95].map(r => `<option value="${r}" ${Math.abs((st.retention || 0.9) - r) < 0.001 ? 'selected' : ''}>${Math.round(r * 100)}%</option>`).join('')}</select></div>
+      <div class="field"><label for="lsteps">Kroki nauki (minuty)<br><span class="muted small">nowe słowa, np. „1 10”</span></label>
+        <input id="lsteps" class="num" style="width:110px" value="${esc(st.learnSteps)}"></div>
+      <div class="field"><label for="rsteps">Kroki po pomyłce (minuty)<br><span class="muted small">zapomniane słowa, np. „10”</span></label>
+        <input id="rsteps" class="num" style="width:110px" value="${esc(st.relearnSteps)}"></div>
     </section>
     <section class="card">
       <h2>Fiszki</h2>
@@ -1277,6 +1543,9 @@ ROUTES.settings = () => {
   $('#npd').onchange = e => setNpd(e.target.value);
   $$('[data-npd]').forEach(b => b.onclick = () => { setNpd(b.dataset.npd); toast(`Nowe słowa dziennie: ${b.dataset.npd}`); });
   $('#dir').onchange = e => { st.direction = e.target.value; upd(); };
+  $('#ret').onchange = e => { st.retention = +e.target.value; upd(); toast('Zmieniono docelową skuteczność'); };
+  $('#lsteps').onchange = e => { st.learnSteps = parseSteps(e.target.value, [1, 10]).join(' '); e.target.value = st.learnSteps; upd(); };
+  $('#rsteps').onchange = e => { st.relearnSteps = parseSteps(e.target.value, [10]).join(' '); e.target.value = st.relearnSteps; upd(); };
   $('#acc').onchange = e => { st.accent = e.target.value; upd(); };
   $('#rate').oninput = e => { st.rate = +e.target.value; $('#rv').textContent = st.rate.toFixed(2); upd(); };
   $('#auto').onchange = e => { st.autoSpeak = e.target.checked; upd(); };
@@ -1314,6 +1583,8 @@ ROUTES.settings = () => {
 };
 
 /* ================= Start aplikacji ================= */
+// Jednorazowa migracja kart ze starego algorytmu (SM-2) do FSRS.
+for (const id of Object.keys(state.cards)) state.cards[id] = migrateCard(state.cards[id]);
 render();
 requestPersistence();
 restoreCustomFromIdb().then(r => { if (r) render(); });

@@ -1,7 +1,7 @@
 // Tryb offline: pliki aplikacji trafiają do pamięci podręcznej.
 // Strategia "stale-while-revalidate": od razu pokazujemy wersję z pamięci,
 // a w tle pobieramy nowszą. Przy większych zmianach podbij CACHE.
-const CACHE = 'inglisz-v5';
+const CACHE = 'inglisz-v7';
 const FILES = [
   './',
   './index.html',
@@ -17,7 +17,8 @@ const FILES = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
+  // cache: 'reload' omija pamięć HTTP przeglądarki, żeby nowa wersja nie dostała starych plików.
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES.map(f => new Request(f, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {
@@ -33,7 +34,7 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.open(CACHE).then(async cache => {
       const cached = await cache.match(e.request, { ignoreSearch: true });
-      const network = fetch(e.request)
+      const network = fetch(e.request, { cache: 'no-cache' })
         .then(res => { if (res.ok) cache.put(e.request, res.clone()); return res; })
         .catch(() => cached);
       return cached || network;
