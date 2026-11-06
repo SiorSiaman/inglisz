@@ -334,6 +334,26 @@
     assert(view.textContent.includes('93%'), 'skuteczność 13/14');
   });
 
+  await test('Eksport kopii zapisuje plik JSON z całym postępem', async () => {
+    state.cards.house = { s: 'review', S: 5, D: 5, iv: 5, reps: 2, lapses: 0, first: today(), last: today(), due: today() + 5 };
+    const clicks = [];
+    const origClick = HTMLAnchorElement.prototype.click;
+    HTMLAnchorElement.prototype.click = function () { clicks.push({ name: this.download, href: this.href }); };
+    try {
+      await go('#/settings');
+      $('#exp').click(); await sleep(50);
+    } finally { HTMLAnchorElement.prototype.click = origClick; }
+    eq(clicks.length, 1, 'jedno pobranie');
+    assert(/^inglisz-kopia-\d{4}-\d{2}-\d{2}\.json$/.test(clicks[0].name), 'nazwa pliku ' + clicks[0].name);
+    const data = JSON.parse(await (await fetch(clicks[0].href)).text());
+    assert(data.cards.house && data.custom, 'karty i talie w kopii');
+  });
+  await test('Platforma: wykrywanie iOS i trybu aplikacji nie psuje ekranu Start', async () => {
+    assert(typeof IS_IOS === 'boolean' && typeof IS_STANDALONE === 'boolean');
+    await go('#/home');
+    assert(!!$('#ioshint') === (IS_IOS && !IS_STANDALONE), 'podpowiedź tylko na iPhonie w Safari');
+  });
+
   /* ---------- Zapis ---------- */
   await test('Eksport/import stanu zachowuje dane', () => {
     state.cards.know = schedule(null, 4); state.edits.know = 'xx';

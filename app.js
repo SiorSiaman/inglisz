@@ -294,11 +294,37 @@ const speakBtn = (text, label = '') => `<button class="speak" data-say="${esc(te
 const slowBtn = text => `<button class="speak" data-say="${esc(text)}" data-slow="1" aria-label="Odsłuchaj wolno">${ICON_SLOW}</button>`;
 const backLink = (href, label = 'Wróć') => `<a class="back" href="${href}">‹ ${label}</a>`;
 
+/* ================= Platforma ================= */
+// iPadOS udaje komputer Mac, więc sprawdzamy też ekran dotykowy.
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_STANDALONE = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+const IS_TOUCH = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+
 /* ================= Synteza mowy ================= */
 let voices = [];
 const hasTTS = 'speechSynthesis' in window;
 function loadVoices() { voices = speechSynthesis.getVoices(); }
-if (hasTTS) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+if (hasTTS) {
+  loadVoices();
+  if (speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', loadVoices);
+  else speechSynthesis.onvoiceschanged = loadVoices;
+}
+// iOS (i część Androidów) pozwala mówić i grać dźwięki dopiero po pierwszym dotknięciu ekranu.
+// Przy pierwszym dotknięciu „odblokowujemy” lektora i dźwięki, żeby później działało też automatyczne czytanie.
+function unlockMedia() {
+  document.removeEventListener('touchend', unlockMedia, true);
+  document.removeEventListener('click', unlockMedia, true);
+  try {
+    if (hasTTS && !speechSynthesis.speaking) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); }
+  } catch (e) { /* ignore */ }
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch (e) { /* ignore */ }
+  if (hasTTS) loadVoices();
+}
+document.addEventListener('touchend', unlockMedia, true);
+document.addEventListener('click', unlockMedia, true);
 function pickVoice() {
   const acc = state.settings.accent;
   const norm = v => v.lang.replace('_', '-');
@@ -308,7 +334,9 @@ function pickVoice() {
 }
 function speak(text, slow = false) {
   if (!hasTTS) { toast('Ta przeglądarka nie obsługuje czytania na głos'); return; }
-  speechSynthesis.cancel();
+  // Safari potrafi zgubić wypowiedź, gdy cancel() pada tuż przed speak(), więc przerywamy tylko, gdy coś gra.
+  if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
+  if (!voices.length) loadVoices();
   const u = new SpeechSynthesisUtterance(text);
   const v = pickVoice();
   if (v) u.voice = v;
@@ -316,7 +344,7 @@ function speak(text, slow = false) {
   u.rate = slow ? 0.65 : state.settings.rate;
   speechSynthesis.speak(u);
 }
-function stopSpeech() { if (hasTTS) speechSynthesis.cancel(); }
+function stopSpeech() { if (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); }
 
 // Skróty klawiszowe na komputerze (jak w Anki): spacja/Enter – pokaż, 1–4 – ocena, Z – cofnij.
 document.addEventListener('keydown', e => {
@@ -605,6 +633,7 @@ function feedback(ok, big = false) {
   if (state.settings.sound !== false) {
     try {
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       if (big) { tone(523, 0, 0.15); tone(659, 0.12, 0.15); tone(784, 0.24, 0.3); }
       else if (ok) { tone(660, 0, 0.12); tone(880, 0.09, 0.18); }
       else { tone(220, 0, 0.25, 0.06); }
@@ -720,6 +749,13 @@ ROUTES.home = () => {
       </div>
       <a class="btn primary big block" href="#/learn">${due + left > 0 ? 'Ucz się słówek' : 'Na dziś wszystko zrobione'}</a>
     </section>
+    ${IS_IOS && !IS_STANDALONE && !state.settings.iosHintOff ? `
+    <section class="card ios-hint">
+      <h2>Zainstaluj na iPhonie</h2>
+      <p class="muted small">W Safari stuknij <svg class="share-ico" viewBox="0 0 24 24" aria-label="Udostępnij"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v9h14v-9"/></svg> <b>Udostępnij</b>, potem <b>Do ekranu początkowego</b>.
+      Aplikacja otworzy się na pełnym ekranie i będzie działać offline. Ważne: bez instalacji Safari może usunąć postęp po 7 dniach nieużywania strony.</p>
+      <button class="btn block" id="ioshint">Rozumiem</button>
+    </section>` : ''}
     ${learned === 0 ? `
     <section class="card">
       <h2>Zacznij od testu poziomu</h2>
@@ -732,6 +768,7 @@ ROUTES.home = () => {
       <a class="tile" href="#/pairs"><span class="ico">🔗</span><b>Dopasuj pary</b><span>Szybka powtórka słówek</span></a>
       <a class="tile" href="#/build"><span class="ico">🧩</span><b>Ułóż zdanie</b><span>Tłumacz z polskiego z klocków</span></a>
     </div>`;
+  if ($('#ioshint')) $('#ioshint').onclick = () => { state.settings.iosHintOff = true; save(); ROUTES.home(); };
 };
 
 /* ---------- Dopasuj pary ---------- */
@@ -1798,13 +1835,28 @@ ROUTES.deck = id => {
   }
   draw();
 };
+// Zapis pliku. Na telefonie (zwłaszcza iPhonie) otwiera menu „Udostępnij”: Zapisz w Plikach, Dysk Google, Mail…
+// Gdy się nie da (komputer, nieobsługiwany typ pliku), zwykłe pobieranie.
+async function saveFile(name, text, type) {
+  if (IS_TOUCH && navigator.canShare && window.File) {
+    try {
+      const file = new File([text], name, { type });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); return; }
+    } catch (e) {
+      if (e && e.name === 'AbortError') return; // zamknięte menu udostępniania
+    }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const deckFileName = dd => (dd.name.replace(/[\/:*?"<>|\t\n]+/g, '').trim() || 'talia') + '.txt';
+const deckTsv = dd => '#separator:tab\n#html:false\n' + dd.words.map(x => [x.en, x.pl, x.ex || ''].map(v => v.replace(/[\t\n]/g, ' ')).join('\t')).join('\n');
 function exportDeckTsv(id) {
   const dd = custom.decks[id];
-  const tsv = '#separator:tab\n#html:false\n' + dd.words.map(x => [x.en, x.pl, x.ex || ''].map(v => v.replace(/[\t\n]/g, ' ')).join('\t')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([tsv], { type: 'text/tab-separated-values' }));
-  a.download = dd.name.replace(/[^\w\-ąćęłńóśźż ]+/gi, '') + '.txt';
-  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  saveFile(deckFileName(dd), deckTsv(dd), 'text/plain');
 }
 
 /* ================= Gramatyka ================= */
@@ -2221,7 +2273,7 @@ ROUTES.import = () => {
       <h2>Z pliku</h2>
       <p class="muted small">Obsługiwane: <b>talie Anki .apkg</b>, eksport Anki „Notatki jako zwykły tekst” (.txt),
       pliki CSV/TSV z Excela lub Arkuszy Google. Kolumny: angielski, polski i opcjonalnie przykład.</p>
-      <input type="file" id="ifile" accept=".apkg,.colpkg,.txt,.csv,.tsv,text/plain,text/csv" hidden>
+      <input type="file" id="ifile" ${IS_IOS ? '' : 'accept=".apkg,.colpkg,.txt,.csv,.tsv,text/plain,text/csv"'} hidden>
       <button class="btn primary block" id="ipick">Wybierz plik</button>
       <p class="muted small" style="margin-bottom:0">Pliki .apkg wymagają internetu przy imporcie (pobieram czytnik formatu Anki).</p>
     </section>
@@ -2291,12 +2343,7 @@ ROUTES.import = () => {
     saveCustom(); applyCustom(); save(); session = null; ROUTES.import();
   });
   $$('[data-dexp]').forEach(b => b.onclick = () => {
-    const dd = custom.decks[b.dataset.dexp];
-    const tsv = '#separator:tab\n#html:false\n' + dd.words.map(x => [x.en, x.pl, x.ex || ''].map(v => v.replace(/[\t\n]/g, ' ')).join('\t')).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([tsv], { type: 'text/tab-separated-values' }));
-    a.download = dd.name.replace(/[^\w\-ąćęłńóśźż ]+/gi, '') + '.txt';
-    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    exportDeckTsv(b.dataset.dexp);
   });
   if (d) {
     const reread = () => {
@@ -2475,7 +2522,7 @@ ROUTES.settings = () => {
         <input id="goal" class="num" type="number" inputmode="numeric" min="5" step="5" value="${dailyGoal()}"></div>
       <label class="field"><span>Wpisuj odpowiedź na fiszkach polsko-angielskich<br><span class="muted small">aktywne przypominanie – skuteczniejsze niż samo odsłanianie</span></span><input class="switch" type="checkbox" id="typeans" ${st.typeAnswer ? 'checked' : ''}></label>
       <label class="field"><span>Dźwięki</span><input class="switch" type="checkbox" id="sound" ${st.sound !== false ? 'checked' : ''}></label>
-      <label class="field"><span>Wibracje</span><input class="switch" type="checkbox" id="vibr" ${st.vibrate !== false ? 'checked' : ''}></label>
+      ${navigator.vibrate ? `<label class="field"><span>Wibracje</span><input class="switch" type="checkbox" id="vibr" ${st.vibrate !== false ? 'checked' : ''}></label>` : ''}
       <p class="muted small">Zamrożenia serii: ${state.freezes || 0} / 2 – dostajesz jedno za każde 7 dni serii, ratuje serię po opuszczonym dniu.</p>
     </section>
     <section class="card">
@@ -2499,7 +2546,7 @@ ROUTES.settings = () => {
       <div class="field"><label for="rate">Tempo: <span id="rv">${st.rate.toFixed(2)}</span></label>
         <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="${st.rate}"></div>
       <label class="field"><span>Czytaj słowa automatycznie</span><input class="switch" type="checkbox" id="auto" ${st.autoSpeak ? 'checked' : ''}></label>
-      <label class="field"><span>Ćwiczenia wymowy z mikrofonem<br><span class="muted small">eksperymentalne, wymaga Chrome i internetu</span></span><input class="switch" type="checkbox" id="speechon" ${st.speechEnabled ? 'checked' : ''}></label>
+      <label class="field"><span>Ćwiczenia wymowy z mikrofonem<br><span class="muted small">eksperymentalne, wymaga internetu (Chrome na Androidzie, Safari na iPhonie)</span></span><input class="switch" type="checkbox" id="speechon" ${st.speechEnabled ? 'checked' : ''}></label>
       <button class="btn block" data-say="Hello! This is how I sound.">${ICON_SPEAK} Test głosu</button>
     </section>
     <section class="card">
@@ -2508,7 +2555,7 @@ ROUTES.settings = () => {
       Trwałe przechowywanie: <b>${storagePersisted === true ? 'włączone' : storagePersisted === false ? 'nie przyznane przez przeglądarkę' : 'nieznane'}</b>.
       Przed zmianą telefonu zrób eksport do pliku.</p>
       <div class="grid2"><button class="btn" id="exp">Eksportuj</button><button class="btn" id="imp">Importuj</button></div>
-      <input type="file" id="file" accept="application/json,.json" hidden>
+      <input type="file" id="file" ${IS_IOS ? '' : 'accept="application/json,.json"'} hidden>
       <button class="btn block" id="reset" style="margin-top:12px;color:var(--bad)">Wyzeruj postęp</button>
     </section>
     <p class="muted small center">Słówek w bazie: ${WORDS.length} · zdań: ${SENTENCES.length}</p>`;
@@ -2532,15 +2579,11 @@ ROUTES.settings = () => {
   $('#goal').onchange = e => { st.dailyGoal = Math.max(5, Math.floor(+e.target.value || 30)); e.target.value = st.dailyGoal; upd(); };
   $('#typeans').onchange = e => { st.typeAnswer = e.target.checked; session = null; upd(); };
   $('#sound').onchange = e => { st.sound = e.target.checked; upd(); if (st.sound) feedback(true); };
-  $('#vibr').onchange = e => { st.vibrate = e.target.checked; upd(); };
+  if ($('#vibr')) $('#vibr').onchange = e => { st.vibrate = e.target.checked; upd(); };
   $('#exp').onclick = () => {
-    const blob = new Blob([JSON.stringify(Object.assign({}, state, { custom }))], { type: 'application/json' });
-    const a = document.createElement('a');
     const d = new Date();
-    a.href = URL.createObjectURL(blob);
-    a.download = `inglisz-kopia-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    const name = `inglisz-kopia-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
+    saveFile(name, JSON.stringify(Object.assign({}, state, { custom })), 'application/json');
   };
   $('#imp').onclick = () => $('#file').click();
   $('#file').onchange = e => {

@@ -1,7 +1,7 @@
 // Tryb offline: pliki aplikacji trafiają do pamięci podręcznej.
 // Strategia "stale-while-revalidate": od razu pokazujemy wersję z pamięci,
 // a w tle pobieramy nowszą. Przy większych zmianach podbij CACHE.
-const CACHE = 'inglisz-v14';
+const CACHE = 'inglisz-v15';
 const FILES = [
   './',
   './index.html',
@@ -21,6 +21,7 @@ const FILES = [
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', e => {
