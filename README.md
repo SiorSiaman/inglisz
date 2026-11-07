@@ -28,7 +28,7 @@ python -m http.server 8123
 Potem otwórz http://localhost:8123
 
 ## Testy
-Otwórz http://localhost:8123/tests/tests.html. Testy (58) sprawdzają dane, algorytm, sesje, import, wszystkie ekrany
+Otwórz http://localhost:8123/tests/tests.html. Testy (60) sprawdzają dane, algorytm, sesje, import, wszystkie ekrany
 i ćwiczenia. Twój postęp jest zapisywany przed testami i przywracany po nich.
 
 ## Źródła danych i licencje

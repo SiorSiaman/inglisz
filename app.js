@@ -74,6 +74,7 @@ function normalizeState(s) {
     freezes: s.freezes || 0,
     freezeDays: s.freezeDays || {},
     goalDays: s.goalDays || {},
+    freezeEarned: s.freezeEarned || 0,
     onboarded: s.onboarded || (s.cards && Object.keys(s.cards).length > 0) || false,
     startLevel: s.startLevel || null,
     buried: s.buried || {},
@@ -268,7 +269,7 @@ function logActivity(kind, ok, extra = {}) {
   const t = today();
   const e = state.log[t] || (state.log[t] = { r: 0, n: 0, ok: 0, x: 0 });
   const before = e.r + e.n + e.x;
-  setTimeout(() => checkGoal(before), 0);
+  if (before === 0) setTimeout(awardFreeze, 0);
   if (kind === 'new') e.n++;
   else if (kind === 'review') e.r++;
   else e.x++;
@@ -535,6 +536,14 @@ function grade(id, g, ms = 0) {
   const c = schedule(prev, g + 1);
   state.cards[id] = c;
   logActivity(prev ? 'review' : 'new', g >= 1, { ms, rv: wasReview, rvOk: g >= 1 });
+  // Nowe słowo jest „nauczone”, gdy pierwszy raz przejdzie kroki nauki i trafi do powtórek (jak w Anki).
+  const t = today();
+  if ((!prev || prev.s === 'new' || prev.s === 'learning') && c.s === 'review' && c.first === t && !c.known) {
+    const e = state.log[t];
+    const before = e.lw || 0;
+    e.lw = before + 1;
+    setTimeout(() => checkGoal(before), 0);
+  }
   save();
   return c;
 }
@@ -592,22 +601,38 @@ function applyFreezes() {
     setTimeout(() => toast(`Zamrożenie serii uratowało Twoją serię (${missing.length} ${missing.length === 1 ? 'dzień' : 'dni'})`), 600);
   }
 }
-const dailyGoal = () => Math.max(5, state.settings.dailyGoal || 30);
-function checkGoal(before) {
+// Za każde 7 dni serii jedno zamrożenie (maks. 2). Przyznawane przy pierwszej nauce dnia.
+function awardFreeze() {
   const t = today();
-  const now = countDay(t);
-  if (before < dailyGoal() && now >= dailyGoal()) {
-    feedback(true, true);
-    let extra = '';
-    state.goalDays = state.goalDays || {};
-    if (!state.goalDays[t]) {
-      state.goalDays[t] = 1;
-      const s = streak();
-      if (s > 0 && s % 7 === 0 && (state.freezes || 0) < 2) { state.freezes = (state.freezes || 0) + 1; extra = ' Zdobyłeś zamrożenie serii ❄️'; }
-    }
-    setTimeout(() => toast('🎯 Dzienny cel osiągnięty!' + extra), 350);
+  const s = streak();
+  if (s > 0 && s % 7 === 0 && (state.freezes || 0) < 2 && state.freezeEarned !== t) {
+    state.freezes = (state.freezes || 0) + 1; state.freezeEarned = t; save();
+    toast(`🔥 ${s} dni z rzędu! Zdobyłeś zamrożenie serii ❄️`);
   }
 }
+// Dzienny cel = dzisiejsza partia nowych słów (limit z ustawień + dobrane partie).
+// Liczą się tylko słowa nauczone, czyli takie, które przeszły kroki nauki. „Znam” i ćwiczenia nie zaliczają celu.
+const learnedToday = () => { const e = state.log[today()]; return (e && e.lw) || 0; };
+function goalTarget() {
+  const t = today();
+  const extra = state.extraNew && state.extraNew.day === t ? state.extraNew.n : 0;
+  const want = Math.max(0, state.settings.newPerDay + extra);
+  // Gdy w wybranych fiszkach zabraknie nowych słów, cel nie może być większy niż to, co da się dziś nauczyć.
+  const inLearning = Object.values(state.cards).filter(c => c.first === t && !c.known && (c.s === 'learning' || c.s === 'new')).length;
+  return Math.min(want, learnedToday() + inLearning + newAvailable().pool.length);
+}
+const goalDone = () => { const g = goalTarget(); return g > 0 && learnedToday() >= g; };
+function checkGoal(before) {
+  const t = today();
+  const goal = goalTarget(), now = learnedToday();
+  if (goal <= 0 || before >= goal || now < goal) return;
+  const reached = state.goalDays[t] || 0;
+  if (reached >= goal) return; // ten cel był już ogłoszony (np. po cofnięciu i ponownej odpowiedzi)
+  state.goalDays[t] = goal; save();
+  feedback(true, true);
+  setTimeout(() => toast(reached ? `✅ Kolejna partia nauczona! Nauczone dziś: ${now}` : `🎯 Dzienny cel osiągnięty! Nauczone nowe słowa: ${now}`), 350);
+}
+const nNewWords = n => plural(n, 'nowe słowo', 'nowe słowa', 'nowych słów');
 function goalRing(done, goal, size = 64) {
   const r = size / 2 - 6, c = 2 * Math.PI * r, p = Math.min(1, done / goal);
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-label="Cel dzienny ${done} z ${goal}">
@@ -697,24 +722,21 @@ function showMixResult() {
 /* ---------- Ekran powitalny ---------- */
 ROUTES.welcome = () => {
   const st = state.settings;
-  let goal = st.dailyGoal || 30, npd = st.newPerDay || 15, lvl = 'B1';
+  let npd = st.newPerDay || 15, lvl = 'B1';
   const draw = () => {
     const opt = (key, val, label, cur) => `<button class="filter ${cur === val ? 'on' : ''}" data-w${key}="${val}">${label}</button>`;
     view.innerHTML = `
       <header class="top"><div><h1>Witaj w Inglisz 👋</h1><div class="sub">Ustawmy naukę pod Ciebie (zmienisz to później w Ustawieniach)</div></div></header>
       <section class="card"><h2>Twój poziom angielskiego</h2>
         <div class="row wrap">${[['A1', 'Początkujący'], ['A2', 'Podstawowy'], ['B1', 'Średni'], ['B2', 'Średnio zaawansowany'], ['C1', 'Zaawansowany']].map(([v, l]) => opt('l', v, `${v} · ${l}`, lvl)).join('')}</div></section>
-      <section class="card"><h2>Dzienny cel</h2>
-        <div class="row wrap">${[[15, 'Luźno · 15'], [30, 'Normalnie · 30'], [50, 'Ambitnie · 50'], [80, 'Intensywnie · 80']].map(([v, l]) => opt('g', v, l, goal)).join('')}</div>
-        <p class="muted small">Liczba odpowiedzi dziennie (fiszki i ćwiczenia). 30 to ok. 10–15 minut.</p></section>
-      <section class="card"><h2>Nowe słowa dziennie</h2>
-        <div class="row wrap">${[5, 10, 15, 25, 40].map(v => opt('n', v, String(v), npd)).join('')}</div></section>
+      <section class="card"><h2>Dzienny cel: nowe słowa</h2>
+        <div class="row wrap">${[5, 10, 15, 20, 30, 40, 50].map(v => opt('n', v, String(v), npd)).join('')}</div>
+        <p class="muted small">Tyle nowych słów nauczysz się każdego dnia. Cel jest osiągnięty dopiero, gdy wszystkie przejdą naukę, a nie gdy się tylko pojawią. Po nim możesz dobrać kolejną partię.</p></section>
       <button class="btn primary big block" id="wgo">Zaczynamy</button>`;
     $$('[data-wl]').forEach(b => b.onclick = () => { lvl = b.dataset.wl; draw(); });
-    $$('[data-wg]').forEach(b => b.onclick = () => { goal = +b.dataset.wg; draw(); });
     $$('[data-wn]').forEach(b => b.onclick = () => { npd = +b.dataset.wn; draw(); });
     $('#wgo').onclick = () => {
-      st.dailyGoal = goal; st.newPerDay = npd; state.onboarded = true; state.startLevel = lvl;
+      st.newPerDay = npd; state.onboarded = true; state.startLevel = lvl;
       save();
       location.hash = ['B1', 'B2', 'C1'].includes(lvl) ? '#/placement' : '#/learn';
       if (['B1', 'B2', 'C1'].includes(lvl)) setTimeout(() => toast('Zaznacz słowa, które znasz – nie będziesz tracić na nie czasu'), 400);
@@ -729,7 +751,7 @@ ROUTES.home = () => {
   const learned = Object.keys(state.cards).length;
   const mastered = Object.keys(state.cards).filter(id => ['mastered', 'known'].includes(status(id))).length;
   const t = today();
-  const doneToday = countDay(t);
+  const learned0 = learnedToday(), goal = goalTarget();
   const s = streak();
   view.innerHTML = `
     <header class="top">
@@ -740,7 +762,7 @@ ROUTES.home = () => {
       <div class="row">
         <div><div class="big-num">🔥 ${s}</div><div class="muted small">${s === 1 ? 'dzień' : 'dni'} z rzędu${state.freezes ? ` · ❄️ ${state.freezes}` : ''}</div></div>
         <div class="spacer"></div>
-        <div class="row" style="gap:8px">${goalRing(doneToday, dailyGoal())}<div class="muted small" style="text-align:right">Cel dzienny<br><b style="color:var(--text)">${Math.min(doneToday, dailyGoal())} / ${dailyGoal()}</b></div></div>
+        ${goal > 0 ? `<div class="row" style="gap:8px">${goalRing(learned0, goal)}<div class="muted small" style="text-align:right">Nauczone dziś<br><b style="color:var(--text)">${Math.min(learned0, goal)} / ${goal}</b></div></div>` : ''}
       </div>
       <div class="kpis">
         <div class="kpi"><b>${due}</b><span>do powtórki</span></div>
@@ -947,6 +969,7 @@ function showCard(force = false) {
       <section class="card center">
         <div class="done-emoji">⏳</div>
         <h2>Następna karta za ${mins} min</h2>
+        ${goalTarget() > 0 ? `<p class="muted small">Nauczone dziś: ${learnedToday()} / ${goalTarget()}</p>` : ''}
         <p class="muted">Słowa, których nie pamiętałeś, wracają po kilku minutach (kroki nauki). Możesz poczekać albo powtórzyć je od razu.</p>
         <button class="btn primary block" id="now">Pokaż teraz</button>
       </section>`;
@@ -957,12 +980,14 @@ function showCard(force = false) {
   }
   if (st === 'done') {
     const doneAny = s.done > 0;
+    const lw = learnedToday(), goalOk = goalDone();
     view.innerHTML = `
       <header class="top"><h1>Fiszki</h1>${undoBtn()}</header>
       ${deckBar()}
       <section class="card center">
-        <div class="done-emoji">${doneAny ? '🎉' : '☕'}</div>
-        <h2>${doneAny ? 'Sesja ukończona!' : 'Brak słówek na teraz'}</h2>
+        <div class="done-emoji">${goalOk ? '🎯' : doneAny ? '🎉' : '☕'}</div>
+        <h2>${goalOk ? 'Dzienna partia nauczona!' : doneAny ? 'Sesja ukończona!' : 'Brak słówek na teraz'}</h2>
+        ${lw ? `<p class="muted">Nauczone dziś: <b style="color:var(--text)">${nNewWords(lw)}</b></p>` : ''}
         ${doneAny ? (() => {
           const st = s.stats, tot = st.ok + st.bad;
           return `<div class="kpis" style="margin:8px 0 14px">
@@ -971,9 +996,10 @@ function showCard(force = false) {
             <div class="kpi"><b>${Math.max(1, Math.round(st.ms / 60000))} min</b><span>czas</span></div></div>
             ${st.fresh ? `<p class="muted small">Nowe słowa w tej sesji: ${st.fresh}</p>` : ''}`;
         })() : ''}
-        <p class="muted">${doneAny ? '' : 'W wybranych fiszkach wszystkie powtórki są zrobione, a dzienny limit nowych słów wyczerpany. '}Możesz dobrać nowe słowa, wybrać inne fiszki albo poćwiczyć w treningu mieszanym.</p>
+        <p class="muted">${doneAny || goalOk ? '' : 'W wybranych fiszkach wszystkie powtórki są zrobione, a dzienny limit nowych słów wyczerpany. '}Chcesz uczyć się dalej? Wybierz kolejną partię nowych słów. Dzienny limit na kolejne dni się nie zmieni.</p>
+        <h3 style="font-size:1rem;margin:4px 0 8px">Ucz się kolejnej partii</h3>
         <div class="row wrap" style="justify-content:center;margin-bottom:12px">
-          ${[10, 20, 50].map(n => `<button class="btn primary" data-more="${n}">+${n} nowych</button>`).join('')}
+          ${[10, 20, 30, 50].map(n => `<button class="btn primary" data-more="${n}">+${n}</button>`).join('')}
         </div>
         <div class="grid2">
           <a class="btn" href="#/mix">Trening mieszany</a>
@@ -2506,7 +2532,7 @@ ROUTES.settings = () => {
     <header class="top">${backLink('#/home', 'Start')}<span class="muted small">Ustawienia</span></header>
     <section class="card">
       <h2>Nauka</h2>
-      <div class="field"><label for="npd">Nowe słowa dziennie<br><span class="muted small">wpisz dowolną liczbę</span></label>
+      <div class="field"><label for="npd">Nowe słowa dziennie = dzienny cel<br><span class="muted small">cel zaliczają dopiero słowa nauczone</span></label>
         <input id="npd" class="num" type="number" inputmode="numeric" min="0" step="1" value="${st.newPerDay}"></div>
       <div class="chips" style="margin-top:4px">${[10, 20, 50, 100, 200].map(n => `<button class="filter ${n === st.newPerDay ? 'on' : ''}" data-npd="${n}">${n}</button>`).join('')}</div>
       <div class="field"><label for="dir">Kierunek fiszek</label>
@@ -2518,8 +2544,6 @@ ROUTES.settings = () => {
     </section>
     <section class="card">
       <h2>Motywacja i wygoda</h2>
-      <div class="field"><label for="goal">Dzienny cel (odpowiedzi)</label>
-        <input id="goal" class="num" type="number" inputmode="numeric" min="5" step="5" value="${dailyGoal()}"></div>
       <label class="field"><span>Wpisuj odpowiedź na fiszkach polsko-angielskich<br><span class="muted small">aktywne przypominanie – skuteczniejsze niż samo odsłanianie</span></span><input class="switch" type="checkbox" id="typeans" ${st.typeAnswer ? 'checked' : ''}></label>
       <label class="field"><span>Dźwięki</span><input class="switch" type="checkbox" id="sound" ${st.sound !== false ? 'checked' : ''}></label>
       ${navigator.vibrate ? `<label class="field"><span>Wibracje</span><input class="switch" type="checkbox" id="vibr" ${st.vibrate !== false ? 'checked' : ''}></label>` : ''}
@@ -2576,7 +2600,6 @@ ROUTES.settings = () => {
   $('#rate').oninput = e => { st.rate = +e.target.value; $('#rv').textContent = st.rate.toFixed(2); upd(); };
   $('#auto').onchange = e => { st.autoSpeak = e.target.checked; upd(); };
   $('#speechon').onchange = e => { st.speechEnabled = e.target.checked; upd(); };
-  $('#goal').onchange = e => { st.dailyGoal = Math.max(5, Math.floor(+e.target.value || 30)); e.target.value = st.dailyGoal; upd(); };
   $('#typeans').onchange = e => { st.typeAnswer = e.target.checked; session = null; upd(); };
   $('#sound').onchange = e => { st.sound = e.target.checked; upd(); if (st.sound) feedback(true); };
   if ($('#vibr')) $('#vibr').onchange = e => { st.vibrate = e.target.checked; upd(); };

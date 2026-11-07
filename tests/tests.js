@@ -217,10 +217,51 @@
     eq(state.freezes, 0); assert(state.freezeDays[t - 1]);
     eq(streak(), 4, 'seria utrzymana');
   });
-  await test('Dzienny cel', () => {
-    state.settings.dailyGoal = 5;
-    for (let i = 0; i < 6; i++) logActivity('ex', true);
-    assert(countDay(today()) === 6);
+  await test('Dzienny cel liczy tylko nauczone nowe słowa (nie kliknięcia, „Znam” ani ćwiczenia)', async () => {
+    state.settings.newPerDay = 2;
+    const t = today();
+    const [w1, w2, w3] = orderNew(newAvailable().pool).slice(0, 3);
+    for (let i = 0; i < 40; i++) logActivity('ex', true);
+    eq(learnedToday(), 0, 'ćwiczenia nie zaliczają celu');
+    grade(w1.id, 0); grade(w1.id, 0); grade(w1.id, 0);
+    eq(state.cards[w1.id].s, 'learning'); eq(learnedToday(), 0, '„Nie wiem” nie zalicza');
+    markKnown(w3.id, 60);
+    eq(learnedToday(), 0, '„Znam” nie zalicza');
+    eq(goalTarget(), 2);
+    grade(w1.id, 3);
+    eq(state.cards[w1.id].s, 'review'); eq(learnedToday(), 1, 'nauczone po przejściu kroków');
+    await sleep(10);
+    assert(!goalDone() && !state.goalDays[t], 'cel jeszcze nieosiągnięty po 1 z 2');
+    grade(w2.id, 3);
+    await sleep(10);
+    assert(goalDone(), 'cel osiągnięty po 2 z 2'); eq(state.goalDays[t], 2);
+    grade(w1.id, 0); grade(w1.id, 3);
+    eq(learnedToday(), 2, 'ponowne nauczenie zapomnianego słowa nie liczy się drugi raz');
+    state.extraNew = { day: t, n: 10 };
+    eq(goalTarget(), 12, 'kolejna partia podnosi cel na dziś');
+    assert(!goalDone());
+    await go('#/home');
+    assert(view.textContent.includes('Nauczone dziś') && view.textContent.includes('2 / 12'), 'pierścień na ekranie Start');
+  });
+  await test('Koniec sesji po celu: proponuje kolejną partię', async () => {
+    state.settings.newPerDay = 1;
+    const w = orderNew(newAvailable().pool)[0];
+    grade(w.id, 3);
+    await sleep(10);
+    session = null;
+    state.settings.newPerDay = 1;
+    await go('#/learn');
+    assert(view.textContent.includes('Dzienna partia nauczona'), 'nagłówek celu, ekran: ' + view.textContent.slice(0, 120));
+    assert(view.textContent.includes('Ucz się kolejnej partii') && $('[data-more="30"]'), 'przyciski kolejnej partii');
+  });
+  await test('Zamrożenie serii przyznawane co 7 dni nauki', async () => {
+    const t = today();
+    for (let d = t - 6; d <= t - 1; d++) state.log[d] = { r: 5, n: 0, x: 0, ok: 5 };
+    logActivity('ex', true);
+    await sleep(10);
+    eq(state.freezes, 1); eq(state.freezeEarned, t);
+    logActivity('ex', true); await sleep(10);
+    eq(state.freezes, 1, 'tylko raz dziennie');
   });
 
   /* ---------- Ekrany ---------- */
