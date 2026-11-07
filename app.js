@@ -304,7 +304,10 @@ const IS_TOUCH = window.matchMedia && matchMedia('(pointer: coarse)').matches;
 /* ================= Synteza mowy ================= */
 let voices = [];
 const hasTTS = 'speechSynthesis' in window;
-function loadVoices() { voices = speechSynthesis.getVoices(); }
+function loadVoices() {
+  voices = speechSynthesis.getVoices();
+  if (typeof onVoicesLoaded === 'function') onVoicesLoaded();
+}
 if (hasTTS) {
   loadVoices();
   if (speechSynthesis.addEventListener) speechSynthesis.addEventListener('voiceschanged', loadVoices);
@@ -326,13 +329,54 @@ function unlockMedia() {
 }
 document.addEventListener('touchend', unlockMedia, true);
 document.addEventListener('click', unlockMedia, true);
-function pickVoice() {
-  const acc = state.settings.accent;
-  const norm = v => v.lang.replace('_', '-');
-  const same = voices.filter(v => norm(v) === acc);
-  return same.find(v => /natural|neural|google|premium|enhanced/i.test(v.name)) || same[0]
-    || voices.find(v => v.lang.startsWith('en'));
+// Głosy-zabawki Apple (Albert, Bubbles, Zarvox…) i stare, robotyczne głosy: nie nadają się do nauki.
+const NOVELTY_VOICES = /^(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|jester|junior|kathy|organ|pipe organ|princess|ralph|superstar|trinoids|whisper|wobble|zarvox|fred)\b/i;
+const voiceLang = v => (v.lang || '').replace('_', '-');
+// Ocena jakości głosu na podstawie nazwy i identyfikatora (iOS/macOS, Android, Windows/Edge).
+function voiceScore(v) {
+  const id = `${v.voiceURI || ''} ${v.name || ''}`.toLowerCase();
+  if (NOVELTY_VOICES.test(v.name || '') || /speech\.synthesis\.voice\./.test(id)) return -1;
+  if (/premium/.test(id)) return 100;
+  if (/natural|neural/.test(id)) return 90;
+  if (/enhanced|ulepszon|wysokiej jako/.test(id)) return 80;
+  if (/google/.test(id)) return 60;
+  if (/siri/.test(id)) return 50;
+  if (/eloquence|\b(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/.test(id)) return 10;
+  return 30;
 }
+const voiceQuality = v => { const q = voiceScore(v); return q >= 100 ? 'Premium' : q >= 90 ? 'naturalny' : q >= 80 ? 'ulepszony' : q >= 60 ? 'Google' : q >= 30 ? 'podstawowy' : 'robotyczny'; };
+// Głosy dla akcentu, od najlepszego; bez głosów-zabawek.
+function voicesFor(acc, list = voices) {
+  return list.filter(v => voiceLang(v) === acc && voiceScore(v) >= 0)
+    .sort((a, b) => voiceScore(b) - voiceScore(a) || (b.localService === true) - (a.localService === true) || a.name.localeCompare(b.name));
+}
+function pickVoice(list = voices) {
+  const acc = state.settings.accent;
+  const chosen = (state.settings.voice || {})[acc];
+  if (chosen) { const v = list.find(x => x.voiceURI === chosen); if (v) return v; }
+  return voicesFor(acc, list)[0]
+    || list.filter(v => voiceLang(v).startsWith('en') && voiceScore(v) >= 0).sort((a, b) => voiceScore(b) - voiceScore(a))[0]
+    || list.find(v => voiceLang(v).startsWith('en'));
+}
+// Lista głosów w Ustawieniach (odświeża się, gdy przeglądarka doładuje głosy).
+function fillVoices() {
+  const sel = $('#voice'); if (!sel) return;
+  const acc = state.settings.accent, list = hasTTS ? voicesFor(acc) : [];
+  const chosen = (state.settings.voice || {})[acc] || '';
+  const best = list[0];
+  sel.innerHTML = `<option value="">Automatycznie${best ? ` (${esc(best.name)})` : ''}</option>` +
+    list.map(v => `<option value="${esc(v.voiceURI)}" ${v.voiceURI === chosen ? 'selected' : ''}>${esc(v.name.replace(/\s*\((enhanced|premium|ulepszony)\)/i, ''))} · ${voiceQuality(v)}</option>`).join('');
+  if (chosen && !list.some(v => v.voiceURI === chosen)) sel.value = '';
+  const hint = $('#voicehint'); if (!hint) return;
+  const good = best && voiceScore(best) >= 80;
+  hint.innerHTML = !hasTTS ? '<p class="muted small">Ta przeglądarka nie obsługuje czytania na głos.</p>'
+    : good ? ''
+    : IS_IOS ? `<p class="muted small voice-tip">💡 Lepszy, naturalny głos możesz pobrać za darmo: <b>Ustawienia → Dostępność → Treść mówiona → Głosy → Angielski</b>.
+      Wybierz głos z dopiskiem <b>Premium</b> lub <b>Ulepszony</b> (${acc === 'en-GB' ? 'np. Jamie, Serena, Daniel' : 'np. Zoe, Ava, Evan'}), pobierz go, a potem zamknij i otwórz ponownie aplikację.
+      Głosy Siri nie są dostępne dla aplikacji internetowych.</p>`
+    : `<p class="muted small voice-tip">💡 Jeśli głos brzmi sztucznie, doinstaluj lepszy w ustawieniach syntezy mowy telefonu (Android: Ustawienia → Ułatwienia dostępu → Zamiana tekstu na mowę, silnik Google, pakiet „angielski”) i uruchom aplikację ponownie.</p>`;
+}
+function onVoicesLoaded() { if ($('#voice')) fillVoices(); }
 function speak(text, slow = false) {
   if (!hasTTS) { toast('Ta przeglądarka nie obsługuje czytania na głos'); return; }
   // Safari potrafi zgubić wypowiedź, gdy cancel() pada tuż przed speak(), więc przerywamy tylko, gdy coś gra.
@@ -2567,6 +2611,8 @@ ROUTES.settings = () => {
       <h2>Wymowa lektora</h2>
       <div class="field"><label for="acc">Akcent</label>
         <select id="acc"><option value="en-GB" ${st.accent === 'en-GB' ? 'selected' : ''}>Brytyjski</option><option value="en-US" ${st.accent === 'en-US' ? 'selected' : ''}>Amerykański</option></select></div>
+      <div class="field"><label for="voice">Głos</label><select id="voice" class="voice-sel"></select></div>
+      <div id="voicehint"></div>
       <div class="field"><label for="rate">Tempo: <span id="rv">${st.rate.toFixed(2)}</span></label>
         <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="${st.rate}"></div>
       <label class="field"><span>Czytaj słowa automatycznie</span><input class="switch" type="checkbox" id="auto" ${st.autoSpeak ? 'checked' : ''}></label>
@@ -2596,7 +2642,13 @@ ROUTES.settings = () => {
   $('#ret').onchange = e => { st.retention = +e.target.value; upd(); toast('Zmieniono docelową skuteczność'); };
   $('#lsteps').onchange = e => { st.learnSteps = parseSteps(e.target.value, [1, 10]).join(' '); e.target.value = st.learnSteps; upd(); };
   $('#rsteps').onchange = e => { st.relearnSteps = parseSteps(e.target.value, [10]).join(' '); e.target.value = st.relearnSteps; upd(); };
-  $('#acc').onchange = e => { st.accent = e.target.value; upd(); };
+  $('#acc').onchange = e => { st.accent = e.target.value; upd(); fillVoices(); };
+  $('#voice').onchange = e => {
+    st.voice = Object.assign({}, st.voice || {}, { [st.accent]: e.target.value });
+    if (!e.target.value) delete st.voice[st.accent];
+    upd(); speak('Hello! This is how I sound.');
+  };
+  fillVoices();
   $('#rate').oninput = e => { st.rate = +e.target.value; $('#rv').textContent = st.rate.toFixed(2); upd(); };
   $('#auto').onchange = e => { st.autoSpeak = e.target.checked; upd(); };
   $('#speechon').onchange = e => { st.speechEnabled = e.target.checked; upd(); };

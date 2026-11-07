@@ -5,6 +5,7 @@ Aplikacja do nauki angielskiego (PWA) od A1 do C1, instalowana na telefonie prze
 **Aplikacja:** https://siorsiaman.github.io/inglisz/
 - Android: Chrome → menu ⋮ → „Zainstaluj aplikację”.
 - iPhone / iPad: Safari → Udostępnij → „Do ekranu początkowego”. Bez instalacji Safari może usunąć dane strony po 7 dniach nieużywania.
+- Lepszy lektor na iPhonie: Ustawienia → Dostępność → Treść mówiona → Głosy → Angielski, pobierz głos „Premium” lub „Ulepszony”, potem wybierz go w aplikacji (Ustawienia → Wymowa lektora → Głos).
 
 ## Funkcje
 - **Fiszki** z algorytmem **FSRS-4.5** (jak w Anki), krokami nauki w minutach, regulowaną docelową skutecznością,
@@ -28,7 +29,7 @@ python -m http.server 8123
 Potem otwórz http://localhost:8123
 
 ## Testy
-Otwórz http://localhost:8123/tests/tests.html. Testy (60) sprawdzają dane, algorytm, sesje, import, wszystkie ekrany
+Otwórz http://localhost:8123/tests/tests.html. Testy (61) sprawdzają dane, algorytm, sesje, import, wszystkie ekrany
 i ćwiczenia. Twój postęp jest zapisywany przed testami i przywracany po nich.
 
 ## Źródła danych i licencje

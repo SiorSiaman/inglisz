@@ -280,6 +280,8 @@ textarea.area {
 .field:first-of-type { border-top: 0; }
 select, input[type="range"] { font: inherit; }
 select { min-height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0 10px; }
+.voice-sel { max-width: 62%; }
+.voice-tip { margin: 2px 0 12px; }
 .num { width: 96px; min-height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0 10px; font: inherit; text-align: right; }
 .switch { width: 24px; height: 24px; accent-color: var(--accent); }
 

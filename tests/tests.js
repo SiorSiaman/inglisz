@@ -395,6 +395,37 @@
     assert(!!$('#ioshint') === (IS_IOS && !IS_STANDALONE), 'podpowiedź tylko na iPhonie w Safari');
   });
 
+  await test('Lektor: wybiera najlepszy głos, pomija głosy-zabawki, pamięta wybór', async () => {
+    const V = (name, lang, uri) => ({ name, lang, voiceURI: uri || name, localService: true });
+    const list = [
+      V('Albert', 'en-US', 'com.apple.speech.synthesis.voice.Albert'),
+      V('Bubbles', 'en-US', 'com.apple.speech.synthesis.voice.Bubbles'),
+      V('Fred', 'en-US', 'com.apple.speech.synthesis.voice.Fred'),
+      V('Eddy (English (US))', 'en-US', 'com.apple.eloquence.en-US.Eddy'),
+      V('Samantha', 'en-US', 'com.apple.voice.compact.en-US.Samantha'),
+      V('Zoe', 'en-US', 'com.apple.voice.premium.en-US.Zoe'),
+      V('Daniel', 'en-GB', 'com.apple.voice.compact.en-GB.Daniel'),
+      V('Serena', 'en-GB', 'com.apple.voice.enhanced.en-GB.Serena'),
+      V('Zosia', 'pl-PL', 'com.apple.voice.compact.pl-PL.Zosia'),
+    ];
+    state.settings.voice = {};
+    state.settings.accent = 'en-US';
+    eq(pickVoice(list).name, 'Zoe', 'Premium przed podstawowym');
+    const us = voicesFor('en-US', list).map(v => v.name);
+    assert(!us.includes('Albert') && !us.includes('Bubbles') && !us.includes('Fred'), 'bez głosów-zabawek: ' + us);
+    eq(us[us.length - 1], 'Eddy (English (US))', 'robotyczny Eloquence na końcu');
+    state.settings.accent = 'en-GB';
+    eq(pickVoice(list).name, 'Serena', 'ulepszony przed podstawowym');
+    state.settings.voice = { 'en-GB': 'com.apple.voice.compact.en-GB.Daniel' };
+    eq(pickVoice(list).name, 'Daniel', 'wybór użytkownika ma pierwszeństwo');
+    state.settings.voice = { 'en-GB': 'nieistniejacy' };
+    eq(pickVoice(list).name, 'Serena', 'brak wybranego głosu → automatycznie');
+    eq(pickVoice([V('Albert', 'en-US', 'com.apple.speech.synthesis.voice.Albert'), V('Karen', 'en-AU')]).name, 'Karen', 'inny angielski zamiast zabawki');
+    state.settings.voice = {};
+    await go('#/settings');
+    assert($('#voice') && $('#voice').options[0].value === '', 'lista głosów z opcją Automatycznie');
+  });
+
   /* ---------- Zapis ---------- */
   await test('Eksport/import stanu zachowuje dane', () => {
     state.cards.know = schedule(null, 4); state.edits.know = 'xx';
