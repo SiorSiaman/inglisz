@@ -335,10 +335,10 @@ const voiceLang = v => (v.lang || '').replace('_', '-');
 // Ocena jakości głosu na podstawie nazwy i identyfikatora (iOS/macOS, Android, Windows/Edge).
 function voiceScore(v) {
   const id = `${v.voiceURI || ''} ${v.name || ''}`.toLowerCase();
-  if (NOVELTY_VOICES.test(v.name || '') || /speech\.synthesis\.voice\./.test(id)) return -1;
+  if (NOVELTY_VOICES.test(v.name || '')) return -1;
   if (/premium/.test(id)) return 100;
   if (/natural|neural/.test(id)) return 90;
-  if (/enhanced|ulepszon|wysokiej jako/.test(id)) return 80;
+  if (/enhanced|ulepszon|rozszerzon|wysokiej jako/.test(id)) return 80;
   if (/google/.test(id)) return 60;
   if (/siri/.test(id)) return 50;
   if (/eloquence|\b(eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)\b/.test(id)) return 10;
@@ -354,26 +354,34 @@ function pickVoice(list = voices) {
   const acc = state.settings.accent;
   const chosen = (state.settings.voice || {})[acc];
   if (chosen) { const v = list.find(x => x.voiceURI === chosen); if (v) return v; }
+  if (!list.length && hasTTS) list = voices = speechSynthesis.getVoices();
   return voicesFor(acc, list)[0]
     || list.filter(v => voiceLang(v).startsWith('en') && voiceScore(v) >= 0).sort((a, b) => voiceScore(b) - voiceScore(a))[0]
     || list.find(v => voiceLang(v).startsWith('en'));
 }
 // Lista głosów w Ustawieniach (odświeża się, gdy przeglądarka doładuje głosy).
+const ACC_NAMES = { 'en-GB': 'brytyjski', 'en-US': 'amerykański', 'en-AU': 'australijski', 'en-IE': 'irlandzki', 'en-IN': 'indyjski', 'en-ZA': 'południowoafrykański', 'en-SCOTLAND': 'szkocki' };
 function fillVoices() {
   const sel = $('#voice'); if (!sel) return;
+  if (hasTTS) { const fresh = speechSynthesis.getVoices(); if (fresh.length) voices = fresh; }
   const acc = state.settings.accent, list = hasTTS ? voicesFor(acc) : [];
+  const others = hasTTS ? voices.filter(v => voiceLang(v).startsWith('en') && voiceLang(v) !== acc && voiceScore(v) >= 0)
+    .sort((a, b) => voiceLang(a).localeCompare(voiceLang(b)) || voiceScore(b) - voiceScore(a)) : [];
   const chosen = (state.settings.voice || {})[acc] || '';
   const best = list[0];
-  sel.innerHTML = `<option value="">Automatycznie${best ? ` (${esc(best.name)})` : ''}</option>` +
-    list.map(v => `<option value="${esc(v.voiceURI)}" ${v.voiceURI === chosen ? 'selected' : ''}>${esc(v.name.replace(/\s*\((enhanced|premium|ulepszony)\)/i, ''))} · ${voiceQuality(v)}</option>`).join('');
-  if (chosen && !list.some(v => v.voiceURI === chosen)) sel.value = '';
+  const opt = v => `<option value="${esc(v.voiceURI)}" ${v.voiceURI === chosen ? 'selected' : ''}>${esc(v.name.replace(/\s*\((enhanced|premium|ulepszony|rozszerzony)\)/i, ''))} · ${voiceQuality(v)}${voiceLang(v) !== acc ? ` · ${ACC_NAMES[voiceLang(v)] || voiceLang(v)}` : ''}</option>`;
+  sel.innerHTML = `<option value="">Automatycznie${best ? ` (${esc(best.name)})` : ''}</option>` + list.map(opt).join('')
+    + (others.length ? `<optgroup label="Inne akcenty">${others.map(opt).join('')}</optgroup>` : '');
+  if (chosen && !list.concat(others).some(v => v.voiceURI === chosen)) sel.value = '';
+  const cnt = $('#voicecount');
+  if (cnt) cnt.textContent = hasTTS ? `Telefon udostępnia aplikacji ${voices.length} głosów, w tym angielskich: ${list.length + others.length}.` : '';
   const hint = $('#voicehint'); if (!hint) return;
   const good = best && voiceScore(best) >= 80;
   hint.innerHTML = !hasTTS ? '<p class="muted small">Ta przeglądarka nie obsługuje czytania na głos.</p>'
     : good ? ''
     : IS_IOS ? `<p class="muted small voice-tip">💡 Lepszy, naturalny głos możesz pobrać za darmo: <b>Ustawienia → Dostępność → Treść mówiona → Głosy → Angielski</b>.
-      Wybierz głos z dopiskiem <b>Premium</b> lub <b>Ulepszony</b> (${acc === 'en-GB' ? 'np. Jamie, Serena, Daniel' : 'np. Zoe, Ava, Evan'}), pobierz go, a potem zamknij i otwórz ponownie aplikację.
-      Głosy Siri nie są dostępne dla aplikacji internetowych.</p>`
+      Wybierz głos z dopiskiem <b>Premium</b> lub <b>Rozszerzony</b> (${acc === 'en-GB' ? 'np. Jamie, Serena, Daniel' : 'np. Zoe, Ava, Evan'}), pobierz go, a potem zamknij i otwórz ponownie aplikację.
+      Uwaga: Safari na części wersji iOS nie pokazuje stronom pobranych głosów (ograniczenie Apple), a głosów Siri nie udostępnia nigdy.</p>`
     : `<p class="muted small voice-tip">💡 Jeśli głos brzmi sztucznie, doinstaluj lepszy w ustawieniach syntezy mowy telefonu (Android: Ustawienia → Ułatwienia dostępu → Zamiana tekstu na mowę, silnik Google, pakiet „angielski”) i uruchom aplikację ponownie.</p>`;
 }
 function onVoicesLoaded() { if ($('#voice')) fillVoices(); }
@@ -385,7 +393,7 @@ function speak(text, slow = false) {
   const u = new SpeechSynthesisUtterance(text);
   const v = pickVoice();
   if (v) u.voice = v;
-  u.lang = state.settings.accent;
+  u.lang = v ? voiceLang(v) : state.settings.accent;
   u.rate = slow ? 0.65 : state.settings.rate;
   speechSynthesis.speak(u);
 }
@@ -2612,6 +2620,7 @@ ROUTES.settings = () => {
       <div class="field"><label for="acc">Akcent</label>
         <select id="acc"><option value="en-GB" ${st.accent === 'en-GB' ? 'selected' : ''}>Brytyjski</option><option value="en-US" ${st.accent === 'en-US' ? 'selected' : ''}>Amerykański</option></select></div>
       <div class="field"><label for="voice">Głos</label><select id="voice" class="voice-sel"></select></div>
+      <p class="muted small"><span id="voicecount"></span> <button class="linkbtn" id="voicerefresh">Odśwież listę</button></p>
       <div id="voicehint"></div>
       <div class="field"><label for="rate">Tempo: <span id="rv">${st.rate.toFixed(2)}</span></label>
         <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="${st.rate}"></div>
@@ -2649,6 +2658,8 @@ ROUTES.settings = () => {
     upd(); speak('Hello! This is how I sound.');
   };
   fillVoices();
+  $('#voicerefresh').onclick = () => { fillVoices(); toast('Odświeżono listę głosów'); };
+  [500, 1500, 3000].forEach(ms => setTimeout(() => { if ($('#voice')) fillVoices(); }, ms));
   $('#rate').oninput = e => { st.rate = +e.target.value; $('#rv').textContent = st.rate.toFixed(2); upd(); };
   $('#auto').onchange = e => { st.autoSpeak = e.target.checked; upd(); };
   $('#speechon').onchange = e => { st.speechEnabled = e.target.checked; upd(); };
