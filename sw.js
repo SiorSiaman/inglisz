@@ -1,7 +1,7 @@
 // Tryb offline: pliki aplikacji trafiają do pamięci podręcznej.
 // Strategia "stale-while-revalidate": od razu pokazujemy wersję z pamięci,
 // a w tle pobieramy nowszą. Przy większych zmianach podbij CACHE.
-const CACHE = 'inglisz-v18';
+const CACHE = 'inglisz-v19';
 const FILES = [
   './',
   './index.html',
@@ -39,6 +39,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  // Nagrania lektora idą prosto z sieci/pamięci HTTP: Safari odtwarza audio zapytaniami Range, których ta pamięć nie obsługuje.
+  if (/\/audio\/.+\.mp3$/.test(new URL(e.request.url).pathname)) return;
   e.respondWith(
     caches.open(CACHE).then(async cache => {
       const cached = await cache.match(e.request, { ignoreSearch: true });

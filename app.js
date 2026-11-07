@@ -49,7 +49,7 @@ const STORE_KEY = 'inglisz-v1';
 const DEFAULT_SETTINGS = {
   newPerDay: 15,
   autoSpeak: true,
-  accent: 'en-GB',
+  accent: 'en-US',
   rate: 0.95,
   direction: 'mix',
   buildLevel: 'all',
@@ -81,6 +81,7 @@ function normalizeState(s) {
     savedAt: s.savedAt || 0,
     settings: Object.assign({}, DEFAULT_SETTINGS, s.settings || {}, {
       cats: Object.assign({}, DEFAULT_SETTINGS.cats, (s.settings && s.settings.cats) || {}),
+      accent: 'en-US', // aplikacja uczy tylko angielskiego amerykańskiego
     }),
   };
 }
@@ -325,6 +326,10 @@ function unlockMedia() {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
   } catch (e) { /* ignore */ }
+  try {
+    const a = getPlayer();
+    if (a && !a.src) { a.src = SILENT_WAV; const pr = a.play(); if (pr && pr.catch) pr.catch(() => {}); }
+  } catch (e) { /* ignore */ }
   if (hasTTS) loadVoices();
 }
 document.addEventListener('touchend', unlockMedia, true);
@@ -352,8 +357,8 @@ function voicesFor(acc, list = voices) {
 }
 function pickVoice(list = voices) {
   const acc = state.settings.accent;
-  const chosen = (state.settings.voice || {})[acc];
-  if (chosen) { const v = list.find(x => x.voiceURI === chosen); if (v) return v; }
+  const chosen = (state.settings.voicePick || {})[acc];
+  if (chosen && chosen !== 'rec' && chosen !== 'sys') { const v = list.find(x => x.voiceURI === chosen); if (v) return v; }
   if (!list.length && hasTTS) list = voices = speechSynthesis.getVoices();
   return voicesFor(acc, list)[0]
     || list.filter(v => voiceLang(v).startsWith('en') && voiceScore(v) >= 0).sort((a, b) => voiceScore(b) - voiceScore(a))[0]
@@ -365,27 +370,93 @@ function fillVoices() {
   const sel = $('#voice'); if (!sel) return;
   if (hasTTS) { const fresh = speechSynthesis.getVoices(); if (fresh.length) voices = fresh; }
   const acc = state.settings.accent, list = hasTTS ? voicesFor(acc) : [];
-  const others = hasTTS ? voices.filter(v => voiceLang(v).startsWith('en') && voiceLang(v) !== acc && voiceScore(v) >= 0)
-    .sort((a, b) => voiceLang(a).localeCompare(voiceLang(b)) || voiceScore(b) - voiceScore(a)) : [];
-  const chosen = (state.settings.voice || {})[acc] || '';
+  const others = [];
+  const chosen = voicePick();
   const best = list[0];
+  const hasRec = !!REC_DIR[acc];
   const opt = v => `<option value="${esc(v.voiceURI)}" ${v.voiceURI === chosen ? 'selected' : ''}>${esc(v.name.replace(/\s*\((enhanced|premium|ulepszony|rozszerzony)\)/i, ''))} · ${voiceQuality(v)}${voiceLang(v) !== acc ? ` · ${ACC_NAMES[voiceLang(v)] || voiceLang(v)}` : ''}</option>`;
-  sel.innerHTML = `<option value="">Automatycznie${best ? ` (${esc(best.name)})` : ''}</option>` + list.map(opt).join('')
+  sel.innerHTML = (hasRec ? `<option value="rec" ${chosen === 'rec' ? 'selected' : ''}>⭐ Nagrany lektor (${REC_NAME[acc]}): najlepsza jakość</option>` : '')
+    + `<option value="sys" ${chosen === 'sys' ? 'selected' : ''}>Głos telefonu: automatycznie${best ? ` (${esc(best.name)})` : ''}</option>` + list.map(opt).join('')
     + (others.length ? `<optgroup label="Inne akcenty">${others.map(opt).join('')}</optgroup>` : '');
-  if (chosen && !list.concat(others).some(v => v.voiceURI === chosen)) sel.value = '';
+  if (!['rec', 'sys'].includes(chosen) && !list.concat(others).some(v => v.voiceURI === chosen)) sel.value = hasRec ? 'rec' : 'sys';
   const cnt = $('#voicecount');
   if (cnt) cnt.textContent = hasTTS ? `Telefon udostępnia aplikacji ${voices.length} głosów, w tym angielskich: ${list.length + others.length}.` : '';
   const hint = $('#voicehint'); if (!hint) return;
-  const good = best && voiceScore(best) >= 80;
+  const good = (hasRec && sel.value === 'rec') || (best && voiceScore(best) >= 80);
   hint.innerHTML = !hasTTS ? '<p class="muted small">Ta przeglądarka nie obsługuje czytania na głos.</p>'
     : good ? ''
     : IS_IOS ? `<p class="muted small voice-tip">💡 Lepszy, naturalny głos możesz pobrać za darmo: <b>Ustawienia → Dostępność → Treść mówiona → Głosy → Angielski</b>.
-      Wybierz głos z dopiskiem <b>Premium</b> lub <b>Rozszerzony</b> (${acc === 'en-GB' ? 'np. Jamie, Serena, Daniel' : 'np. Zoe, Ava, Evan'}), pobierz go, a potem zamknij i otwórz ponownie aplikację.
+      Wybierz głos z dopiskiem <b>Premium</b> lub <b>Rozszerzony</b> (np. Zoe, Ava, Evan), pobierz go, a potem zamknij i otwórz ponownie aplikację.
       Uwaga: Safari na części wersji iOS nie pokazuje stronom pobranych głosów (ograniczenie Apple), a głosów Siri nie udostępnia nigdy.</p>`
     : `<p class="muted small voice-tip">💡 Jeśli głos brzmi sztucznie, doinstaluj lepszy w ustawieniach syntezy mowy telefonu (Android: Ustawienia → Ułatwienia dostępu → Zamiana tekstu na mowę, silnik Google, pakiet „angielski”) i uruchom aplikację ponownie.</p>`;
 }
 function onVoicesLoaded() { if ($('#voice')) fillVoices(); }
+
+/* ---- Nagrany lektor (Kokoro TTS, pliki audio/gb i audio/us, generuje tools/make_audio.py) ---- */
+const REC_DIR = { 'en-US': 'us' };
+// Nagrania leżą obok app.js (działa też ze strony testów w podkatalogu).
+const APP_BASE = (document.currentScript && document.currentScript.src) ? new URL('.', document.currentScript.src).href : '';
+const REC_NAME = { 'en-US': 'Heart' };
+const audioIndex = {};
+// FNV-1a 64 z tekstu w UTF-8, pierwsze 12 znaków szesnastkowych (tak samo jak w make_audio.py).
+function audioKey(text) {
+  let h = 0xcbf29ce484222325n;
+  for (const b of new TextEncoder().encode(String(text || '').trim().replace(/\s+/g, ' '))) {
+    h ^= BigInt(b); h = (h * 0x100000001b3n) & 0xffffffffffffffffn;
+  }
+  return h.toString(16).padStart(16, '0').slice(0, 12);
+}
+function loadAudioIndex(acc) {
+  const dir = REC_DIR[acc]; if (!dir) return Promise.resolve(null);
+  if (!audioIndex[dir]) audioIndex[dir] = fetch(`${APP_BASE}audio/${dir}.txt`).then(r => r.ok ? r.text() : '')
+    .then(t => { const set = new Set(t.split('\n').map(x => x.trim()).filter(Boolean)); audioIndex[dir] = set; return set; })
+    .catch(() => { audioIndex[dir] = null; return null; });
+  return Promise.resolve(audioIndex[dir]);
+}
+const voicePick = () => (state.settings.voicePick || {})[state.settings.accent] || 'rec';
+// Adres nagrania albo null (brak nagrania, indeks jeszcze się ładuje, wybrany głos systemowy).
+function recordingUrl(text) {
+  if (voicePick() !== 'rec') return null;
+  const dir = REC_DIR[state.settings.accent], idx = dir && audioIndex[dir];
+  if (!(idx instanceof Set)) { loadAudioIndex(state.settings.accent); return null; }
+  const k = audioKey(text);
+  return idx.has(k) ? `${APP_BASE}audio/${dir}/${k}.mp3` : null;
+}
+// Jeden odtwarzacz na całą aplikację: iOS pozwala mu grać automatycznie po pierwszym dotknięciu.
+let player = null;
+function getPlayer() {
+  if (!player && typeof Audio !== 'undefined') { player = new Audio(); player.preload = 'auto'; }
+  return player;
+}
+// 0,1 s ciszy (WAV 8 kHz, 8 bitów) do odblokowania odtwarzacza.
+const SILENT_WAV = (() => {
+  const n = 800, b = new Uint8Array(44 + n), v = new DataView(b.buffer), w = (o, t) => [...t].forEach((c, i) => b[o + i] = c.charCodeAt(0));
+  w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+  b.fill(128, 44);
+  let s = ''; b.forEach(x => s += String.fromCharCode(x));
+  return 'data:audio/wav;base64,' + btoa(s);
+})();
+function playRecording(url, text, slow) {
+  const a = getPlayer(); if (!a) return false;
+  try { a.pause(); } catch (e) { /* ignore */ }
+  a.onerror = () => { a.onerror = null; speakSystem(text, slow); };
+  a.src = url;
+  a.playbackRate = slow ? 0.7 : state.settings.rate;
+  a.defaultPlaybackRate = a.playbackRate;
+  a.preservesPitch = a.webkitPreservesPitch = true;
+  const pr = a.play();
+  if (pr && pr.catch) pr.catch(err => { if (err && err.name !== 'AbortError') speakSystem(text, slow); });
+  return true;
+}
 function speak(text, slow = false) {
+  if (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
+  const url = recordingUrl(text);
+  if (url && playRecording(url, text, slow)) return;
+  if (player) try { player.pause(); } catch (e) { /* ignore */ }
+  speakSystem(text, slow);
+}
+function speakSystem(text, slow = false) {
   if (!hasTTS) { toast('Ta przeglądarka nie obsługuje czytania na głos'); return; }
   // Safari potrafi zgubić wypowiedź, gdy cancel() pada tuż przed speak(), więc przerywamy tylko, gdy coś gra.
   if (speechSynthesis.speaking || speechSynthesis.pending) speechSynthesis.cancel();
@@ -397,7 +468,10 @@ function speak(text, slow = false) {
   u.rate = slow ? 0.65 : state.settings.rate;
   speechSynthesis.speak(u);
 }
-function stopSpeech() { if (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); }
+function stopSpeech() {
+  if (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel();
+  if (player) try { player.pause(); } catch (e) { /* ignore */ }
+}
 
 // Skróty klawiszowe na komputerze (jak w Anki): spacja/Enter – pokaż, 1–4 – ocena, Z – cofnij.
 document.addEventListener('keydown', e => {
@@ -2617,8 +2691,7 @@ ROUTES.settings = () => {
     </section>
     <section class="card">
       <h2>Wymowa lektora</h2>
-      <div class="field"><label for="acc">Akcent</label>
-        <select id="acc"><option value="en-GB" ${st.accent === 'en-GB' ? 'selected' : ''}>Brytyjski</option><option value="en-US" ${st.accent === 'en-US' ? 'selected' : ''}>Amerykański</option></select></div>
+      <p class="muted small">Akcent: amerykański.</p>
       <div class="field"><label for="voice">Głos</label><select id="voice" class="voice-sel"></select></div>
       <p class="muted small"><span id="voicecount"></span> <button class="linkbtn" id="voicerefresh">Odśwież listę</button></p>
       <div id="voicehint"></div>
@@ -2626,7 +2699,7 @@ ROUTES.settings = () => {
         <input id="rate" type="range" min="0.6" max="1.2" step="0.05" value="${st.rate}"></div>
       <label class="field"><span>Czytaj słowa automatycznie</span><input class="switch" type="checkbox" id="auto" ${st.autoSpeak ? 'checked' : ''}></label>
       <label class="field"><span>Ćwiczenia wymowy z mikrofonem<br><span class="muted small">eksperymentalne, wymaga internetu (Chrome na Androidzie, Safari na iPhonie)</span></span><input class="switch" type="checkbox" id="speechon" ${st.speechEnabled ? 'checked' : ''}></label>
-      <button class="btn block" data-say="Hello! This is how I sound.">${ICON_SPEAK} Test głosu</button>
+      <button class="btn block" data-say="How did you know we were here?">${ICON_SPEAK} Test głosu</button>
     </section>
     <section class="card">
       <h2>Kopia zapasowa</h2>
@@ -2651,11 +2724,9 @@ ROUTES.settings = () => {
   $('#ret').onchange = e => { st.retention = +e.target.value; upd(); toast('Zmieniono docelową skuteczność'); };
   $('#lsteps').onchange = e => { st.learnSteps = parseSteps(e.target.value, [1, 10]).join(' '); e.target.value = st.learnSteps; upd(); };
   $('#rsteps').onchange = e => { st.relearnSteps = parseSteps(e.target.value, [10]).join(' '); e.target.value = st.relearnSteps; upd(); };
-  $('#acc').onchange = e => { st.accent = e.target.value; upd(); fillVoices(); };
   $('#voice').onchange = e => {
-    st.voice = Object.assign({}, st.voice || {}, { [st.accent]: e.target.value });
-    if (!e.target.value) delete st.voice[st.accent];
-    upd(); speak('Hello! This is how I sound.');
+    st.voicePick = Object.assign({}, st.voicePick || {}, { [st.accent]: e.target.value });
+    upd(); fillVoices(); speak('Hello! This is how I sound.');
   };
   fillVoices();
   $('#voicerefresh').onclick = () => { fillVoices(); toast('Odświeżono listę głosów'); };
@@ -2698,6 +2769,7 @@ ROUTES.settings = () => {
 /* ================= Start aplikacji ================= */
 // Jednorazowa migracja kart ze starego algorytmu (SM-2) do FSRS.
 for (const id of Object.keys(state.cards)) state.cards[id] = migrateCard(state.cards[id]);
+loadAudioIndex(state.settings.accent);
 applyFreezes();
 render();
 requestPersistence();

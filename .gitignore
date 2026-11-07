@@ -2,3 +2,4 @@
 *.log
 
 .testdata/
+audio/**/*.tmp

@@ -408,7 +408,7 @@
       V('Serena', 'en-GB', 'com.apple.voice.enhanced.en-GB.Serena'),
       V('Zosia', 'pl-PL', 'com.apple.voice.compact.pl-PL.Zosia'),
     ];
-    state.settings.voice = {};
+    state.settings.voicePick = {};
     state.settings.accent = 'en-US';
     eq(pickVoice(list).name, 'Zoe', 'Premium przed podstawowym');
     const us = voicesFor('en-US', list).map(v => v.name);
@@ -416,14 +416,33 @@
     eq(us[us.length - 1], 'Eddy (English (US))', 'robotyczny Eloquence na końcu');
     state.settings.accent = 'en-GB';
     eq(pickVoice(list).name, 'Serena', 'ulepszony przed podstawowym');
-    state.settings.voice = { 'en-GB': 'com.apple.voice.compact.en-GB.Daniel' };
+    state.settings.voicePick = { 'en-GB': 'com.apple.voice.compact.en-GB.Daniel' };
     eq(pickVoice(list).name, 'Daniel', 'wybór użytkownika ma pierwszeństwo');
-    state.settings.voice = { 'en-GB': 'nieistniejacy' };
+    state.settings.voicePick = { 'en-GB': 'nieistniejacy' };
     eq(pickVoice(list).name, 'Serena', 'brak wybranego głosu → automatycznie');
     eq(pickVoice([V('Albert', 'en-US', 'com.apple.speech.synthesis.voice.Albert'), V('Karen', 'en-AU')]).name, 'Karen', 'inny angielski zamiast zabawki');
-    state.settings.voice = {};
+    state.settings.voicePick = {};
+    state.settings.accent = 'en-US';
     await go('#/settings');
-    assert($('#voice') && $('#voice').options[0].value === '', 'lista głosów z opcją Automatycznie');
+    assert($('#voice') && $('#voice').options[0].value === 'rec' && $('#voice').value === 'rec', 'domyślnie nagrany lektor');
+    assert(!$('#acc'), 'bez wyboru akcentu');
+    eq(normalizeState({ settings: { accent: 'en-GB' } }).settings.accent, 'en-US', 'tylko akcent amerykański');
+  });
+  await test('Nagrany lektor: klucz jak w make_audio.py, adres nagrania, głos telefonu na życzenie', async () => {
+    eq(audioKey('Hello'), '63f0bfacf2c0'); eq(audioKey('  knowledge '), 'a7fc582d0cac');
+    state.settings.accent = 'en-US'; state.settings.voicePick = {};
+    const idx = await loadAudioIndex('en-US');
+    assert(idx instanceof Set && idx.size > 0, 'indeks nagrań wczytany');
+    const k = [...idx][0];
+    audioIndex.us = new Set([audioKey('time')]);
+    assert(recordingUrl('time').endsWith(`audio/us/${audioKey('time')}.mp3`), 'adres nagrania');
+    eq(recordingUrl('zzz nieznane zdanie'), null, 'brak nagrania → głos telefonu');
+    state.settings.voicePick = { 'en-US': 'sys' };
+    eq(recordingUrl('time'), null, 'wybrany głos telefonu');
+    state.settings.voicePick = {};
+    audioIndex.us = idx;
+    const r = await fetch(`${APP_BASE}audio/us/${k}.mp3`);
+    assert(r.ok && (r.headers.get('content-type') || '').includes('audio'), 'plik nagrania dostępny');
   });
 
   /* ---------- Zapis ---------- */
